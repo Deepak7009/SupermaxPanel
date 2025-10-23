@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+   images: {
+    domains: ["thumbs.dreamstime.com"], // allow this host
+  },
 };
 
 export default nextConfig;
