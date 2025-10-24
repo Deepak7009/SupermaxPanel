@@ -7,6 +7,7 @@ import { fetchProducts } from "@/redux/thunks/productThunks";
 import { fetchCategories } from "@/redux/thunks/categoryThunks";
 import ProductModal from "@/components/modals/ProductModal";
 import CategoryModal from "@/components/modals/CategoryModal";
+import { Product } from "@/redux/slices/productSlice";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,13 +24,13 @@ import {
 
 import Table, { Column } from "@/components/common/Table";
 
-type Product = {
-  _id: string;
-  name: string;
-  category?: { _id: string; name: string };
-  finalPrice: number;
-  stock: number;
-};
+// type Product = {
+//   _id: string;
+//   name: string;
+//   category?: { _id: string; name: string };
+//   finalPrice: number;
+//   stock: number;
+// };
 
 type SortConfig = {
   key: keyof Product;
