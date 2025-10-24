@@ -110,7 +110,7 @@ const ProductsPage = () => {
   ];
 
   return (
-    <div className="p-6 bg-[var(--background)] text-[var(--foreground)] min-h-screen">
+    <div className="p-6 bg-[var(--background)] text-[var(--foreground)]">
       {/* Filters and Actions */}
       <div className="flex justify-between mb-4">
         <div className="flex gap-4">
