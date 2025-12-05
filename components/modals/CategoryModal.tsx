@@ -5,11 +5,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
 import { createCategory } from "@/redux/thunks/categoryThunks";
 import DialogModal from "@/components/common/DialogModal";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import Select from "@/components/common/Select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
+import FloatingInput from "../common/FloatingInput";
+import { Textarea } from "../ui/textarea";
+import Button from "../common/Button";
 
 interface CategoryModalProps {
   isOpen: boolean;
@@ -40,39 +40,57 @@ const CategoryModal = ({ isOpen, setIsOpen }: CategoryModalProps) => {
       })
     );
 
+    // Reset form
+    setName("");
+    setDescription("");
+    setParent("");
+    setIsActive(true);
+
     setIsOpen(false);
   };
 
+  const parentOptions = categories.map((cat) => ({
+    label: cat.name,
+    value: cat._id,
+  }));
+
   return (
     <DialogModal isOpen={isOpen} setIsOpen={setIsOpen} title="Add Category">
-      <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
-        <Input
-          placeholder="Category Name"
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+        {/* Name */}
+        <FloatingInput
+          label="Category Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          required
+          className="w-full"
         />
+
+        {/* Description */}
         <Textarea
           placeholder="Description (optional)"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
-        <Select onValueChange={setParent} value={parent}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select Parent Category (optional)" />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((cat) => (
-              <SelectItem key={cat._id} value={cat._id}>
-                {cat.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+
+        {/* Parent Category */}
+        <Select
+          value={parent}
+          onChange={setParent}
+          options={parentOptions}
+          placeholder="Select Parent Category (optional)"
+          className="w-full"
+        />
+
+        {/* Active Checkbox */}
         <div className="flex items-center gap-2">
-          <Checkbox checked={isActive} onCheckedChange={(checked) => setIsActive(Boolean(checked))} />
-          Active
+          <Checkbox
+            checked={isActive}
+            onCheckedChange={(checked) => setIsActive(Boolean(checked))}
+          />
+          <span>Active</span>
         </div>
+
+        {/* Submit Button */}
         <Button type="submit" className="bg-green-600 hover:bg-green-700">
           Save Category
         </Button>

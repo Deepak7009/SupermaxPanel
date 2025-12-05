@@ -14,6 +14,31 @@ export default function Sidebar({ collapsed }: SidebarProps) {
       href: "/admin/products",
       icon: <Box className="w-5 h-5" />,
     },
+    {
+      name: "Orders",
+      href: "/admin/products",
+      icon: <Box className="w-5 h-5" />,
+    },
+    {
+      name: "Factory Exp",
+      href: "/admin/products",
+      icon: <Box className="w-5 h-5" />,
+    },
+    {
+      name: "Raw Metrial",
+      href: "/admin/products",
+      icon: <Box className="w-5 h-5" />,
+    },
+    {
+      name: "Employ Exp",
+      href: "/admin/products",
+      icon: <Box className="w-5 h-5" />,
+    },
+    {
+      name: "Total Exp",
+      href: "/admin/products",
+      icon: <Box className="w-5 h-5" />,
+    },
   ];
 
   return (

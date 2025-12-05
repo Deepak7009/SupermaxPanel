@@ -27,7 +27,7 @@ const AdminLoginPage = () => {
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
-    await dispatch(loginAdmin(email, password));
+    await dispatch(loginAdmin({ email, password }));
   };
 
   return (

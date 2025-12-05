@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { loginAdmin, registerAdmin } from "../thunks/adminThunks";
 
 interface AdminState {
   token: string | null;
@@ -31,6 +32,7 @@ const adminSlice = createSlice({
       state.isAuthenticated = false;
       state.loading = false;
       state.error = null;
+      localStorage.removeItem("token");
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
@@ -39,7 +41,41 @@ const adminSlice = createSlice({
       state.error = action.payload;
     },
   },
+
+  // Only added — no code changed
+  extraReducers: (builder) => {
+    // LOGIN
+    builder.addCase(loginAdmin.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(loginAdmin.fulfilled, (state, action) => {
+      state.loading = false;
+      state.email = action.payload.email;
+      state.token = action.payload.token;
+      state.isAuthenticated = true;
+    });
+    builder.addCase(loginAdmin.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
+    // REGISTER
+    builder.addCase(registerAdmin.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(registerAdmin.fulfilled, (state) => {
+      state.loading = false;
+    });
+    builder.addCase(registerAdmin.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+  },
 });
 
-export const { setAdmin, logoutAdmin, setLoading, setError } = adminSlice.actions;
+export const { setAdmin, logoutAdmin, setLoading, setError } =
+  adminSlice.actions;
+
 export default adminSlice.reducer;

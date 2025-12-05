@@ -21,12 +21,18 @@ const AdminRegisterPage = () => {
     (state: RootState) => state.admin
   );
 
+  // ---------------- FIX #1: prevent unwanted auto redirect ----------------
   useEffect(() => {
-    if (isAuthenticated) {
+    if (
+      isAuthenticated &&
+      typeof window !== "undefined" &&
+      window.location.pathname === "/admin/register"
+    ) {
       router.push("/admin");
     }
   }, [isAuthenticated, router]);
 
+  // ---------------- FIX #2: correct success detection ----------------
   const handleRegister = async (e: FormEvent) => {
     e.preventDefault();
 
@@ -36,9 +42,12 @@ const AdminRegisterPage = () => {
     }
 
     setLocalError("");
-    await dispatch(registerAdmin(email, password));
 
-    if (!error) {
+    // DISPATCH WITH RESULT CHECK
+    const result = dispatch(registerAdmin({ email, password }));
+
+    // If registration successful → go to login
+    if (registerAdmin.fulfilled.match(result)) {
       router.push("/admin/login");
     }
   };
@@ -52,6 +61,7 @@ const AdminRegisterPage = () => {
           animate={{ x: [0, 120, 0], y: [0, 80, 0] }}
           transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
         />
+
         <motion.div
           className="absolute w-96 h-96 bg-green-400 rounded-full blur-3xl opacity-30"
           animate={{ x: [0, -120, 0], y: [0, -60, 0] }}
@@ -103,7 +113,7 @@ const AdminRegisterPage = () => {
             transition={{ duration: 0.2 }}
           />
 
-          {/* Password mismatch message */}
+          {/* Password mismatch */}
           {localError && (
             <p className="text-red-400 text-sm mb-3 text-center">
               {localError}
@@ -123,7 +133,7 @@ const AdminRegisterPage = () => {
             <p className="text-red-400 text-sm mt-3 text-center">{error}</p>
           )}
 
-          {/* Login Link */}
+          {/* Login link */}
           <div className="text-center mt-6 text-sm">
             <span className="text-gray-300">Already have an account? </span>
             <button

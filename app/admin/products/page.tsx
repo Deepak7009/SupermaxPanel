@@ -9,8 +9,7 @@ import ProductModal from "@/components/modals/ProductModal";
 import CategoryModal from "@/components/modals/CategoryModal";
 import { Product } from "@/redux/slices/productSlice";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import Table, { Column } from "@/components/common/Table";
 
 import {
   Pagination,
@@ -21,16 +20,11 @@ import {
   PaginationLink,
   PaginationEllipsis,
 } from "@/components/ui/pagination";
-
-import Table, { Column } from "@/components/common/Table";
-
-// type Product = {
-//   _id: string;
-//   name: string;
-//   category?: { _id: string; name: string };
-//   finalPrice: number;
-//   stock: number;
-// };
+import Button from "@/components/common/Button";
+import Input from "@/components/common/Input";
+import Select from "@/components/common/Select";
+import { EyeIcon } from "lucide-react"; // ✅ optional icon
+import ProductViewModal from "@/components/modals/ProductViewModal";
 
 type SortConfig = {
   key: keyof Product;
@@ -41,9 +35,11 @@ const ProductsPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { products } = useSelector((state: RootState) => state.product);
   const { categories } = useSelector((state: RootState) => state.category);
-
+  console.log("products ", products);
   const [addProductOpen, setAddProductOpen] = useState(false);
   const [addCategoryOpen, setAddCategoryOpen] = useState(false);
+  const [viewProduct, setViewProduct] = useState<Product | null>(null); // ✅ view modal state
+  const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
@@ -107,7 +103,13 @@ const ProductsPage = () => {
     { key: "category", label: "Category" },
     { key: "finalPrice", label: "Price" },
     { key: "stock", label: "Stock" },
+    { key: "actions", label: "Actions" }, // ✅ added actions column
   ];
+
+  const handleView = (product: Product) => {
+    setViewProduct(product);
+    setIsOpenModal(true);
+  };
 
   return (
     <div className="p-6 bg-[var(--background)] text-[var(--foreground)]">
@@ -118,40 +120,42 @@ const ProductsPage = () => {
             placeholder="Search by name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="max-w-xs bg-[var(--muted)] text-[var(--foreground)] border border-[var(--border)] placeholder-[var(--muted-foreground)]"
           />
-          <select
-            className="border p-2 rounded bg-[var(--muted)] text-[var(--foreground)] border-[var(--border)]"
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-          >
-            <option value="">All Categories</option>
-            {categories.map((cat) => (
-              <option key={cat._id} value={cat._id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
+          <Select
+            value={categoryFilter || "all"}
+            onChange={(value) =>
+              setCategoryFilter(value === "all" ? "" : value)
+            }
+            options={[
+              { label: "All Categories", value: "all" },
+              ...categories.map((cat) => ({
+                label: cat.name,
+                value: cat._id,
+              })),
+            ]}
+          />
         </div>
         <div className="flex gap-4">
-          <Button
-            className="bg-[var(--primary)] hover:bg-[var(--primary-foreground)]"
-            onClick={() => setAddProductOpen(true)}
-          >
-            Add Product
-          </Button>
-          <Button
-            className="bg-[var(--primary)] hover:bg-[var(--secondary-hover)]"
-            onClick={() => setAddCategoryOpen(true)}
-          >
-            Add Category
-          </Button>
+          <Button onClick={() => setAddProductOpen(true)}>Add Product</Button>
+          <Button onClick={() => setAddCategoryOpen(true)}>Add Category</Button>
         </div>
       </div>
 
       {/* Modals */}
       <ProductModal isOpen={addProductOpen} setIsOpen={setAddProductOpen} />
       <CategoryModal isOpen={addCategoryOpen} setIsOpen={setAddCategoryOpen} />
+      {/* {viewProduct && (
+        <ProductViewModal
+          isOpen={!!viewProduct}
+          setIsOpen={() => setViewProduct(null)}
+          product={viewProduct}
+        />
+      )} */}
+      <ProductViewModal
+        isOpen={isOpenModal}
+        setIsOpen={setIsOpenModal}
+        product={viewProduct}
+      />
 
       {/* Table */}
       <Table
@@ -162,11 +166,39 @@ const ProductsPage = () => {
         renderCell={(product, key, index) => {
           switch (key) {
             case "_id":
-              return index + 1 + (currentPage - 1) * itemsPerPage;
+              return (
+                <span className="font-medium">
+                  {index + 1 + (currentPage - 1) * itemsPerPage}
+                </span>
+              );
             case "category":
               return product.category?.name || "N/A";
             case "finalPrice":
-              return `${product.finalPrice}$`;
+              return (
+                <span className="font-semibold">${product.finalPrice}</span>
+              );
+            case "stock":
+              return (
+                <span
+                  className={`px-2 py-1 rounded text-xs font-medium ${
+                    product.stock > 10
+                      ? "bg-success text-success-foreground"
+                      : product.stock > 0
+                      ? "bg-warning text-warning-foreground"
+                      : "bg-error text-error-foreground"
+                  }`}
+                >
+                  {product.stock} units
+                </span>
+              );
+            case "actions":
+              return (
+                <div className="flex gap-2">
+                  <Button onClick={() => handleView(product)}>
+                    <EyeIcon className="w-4 h-4" />
+                  </Button>
+                </div>
+              );
             default:
               const value = product[key];
               if (
@@ -189,6 +221,13 @@ const ProductsPage = () => {
               <PaginationPrevious
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
+                className={`
+                  ${
+                    currentPage === 1
+                      ? "pointer-events-none opacity-50"
+                      : "hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] cursor-pointer"
+                  }
+                `}
               />
             </PaginationItem>
 
@@ -196,11 +235,13 @@ const ProductsPage = () => {
               <PaginationItem key={i}>
                 <PaginationLink
                   onClick={() => setCurrentPage(i + 1)}
-                  className={
-                    currentPage === i + 1
-                      ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                      : ""
-                  }
+                  className={`
+                    ${
+                      currentPage === i + 1
+                        ? "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary)]/90"
+                        : "hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]"
+                    }
+                  `}
                 >
                   {i + 1}
                 </PaginationLink>
@@ -219,6 +260,13 @@ const ProductsPage = () => {
                   setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                 }
                 disabled={currentPage === totalPages}
+                className={`
+                  ${
+                    currentPage === totalPages
+                      ? "pointer-events-none opacity-50"
+                      : "hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] cursor-pointer"
+                  }
+                `}
               />
             </PaginationItem>
           </PaginationContent>
