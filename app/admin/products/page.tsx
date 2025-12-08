@@ -23,7 +23,7 @@ import {
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import Select from "@/components/common/Select";
-import { EyeIcon } from "lucide-react"; // ✅ optional icon
+import { EyeIcon } from "lucide-react";
 import ProductViewModal from "@/components/modals/ProductViewModal";
 
 type SortConfig = {
@@ -33,51 +33,35 @@ type SortConfig = {
 
 const ProductsPage = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { products } = useSelector((state: RootState) => state.product);
+  const { products, total, page, limit } = useSelector(
+    (state: RootState) => state.product
+  );
   const { categories } = useSelector((state: RootState) => state.category);
-  console.log("products ", products);
+
   const [addProductOpen, setAddProductOpen] = useState(false);
   const [addCategoryOpen, setAddCategoryOpen] = useState(false);
-  const [viewProduct, setViewProduct] = useState<Product | null>(null); // ✅ view modal state
-  const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
+  const [viewProduct, setViewProduct] = useState<Product | null>(null);
+  const [isOpenModal, setIsOpenModal] = useState(false);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
 
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
-
+  // Fetch data from backend
   useEffect(() => {
-    dispatch(fetchProducts());
     dispatch(fetchCategories());
   }, [dispatch]);
 
-  // Filter products
-  let filteredProducts = products.filter((p) => {
-    const matchesName = p.name.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory = categoryFilter
-      ? p.category?._id === categoryFilter
-      : true;
-    return matchesName && matchesCategory;
-  });
-
-  // Sorting
-  if (sortConfig) {
-    filteredProducts = [...filteredProducts].sort((a, b) => {
-      const aValue =
-        sortConfig.key === "category"
-          ? a.category?.name || ""
-          : a[sortConfig.key];
-      const bValue =
-        sortConfig.key === "category"
-          ? b.category?.name || ""
-          : b[sortConfig.key];
-      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
-      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
-      return 0;
-    });
-  }
+  useEffect(() => {
+    dispatch(
+      fetchProducts({
+        search,
+        category: categoryFilter || undefined,
+        page: currentPage,
+        limit: limit,
+      })
+    );
+  }, [dispatch, search, categoryFilter, currentPage, limit]);
 
   const handleSort = (key: keyof Product) => {
     if (sortConfig?.key === key) {
@@ -90,26 +74,21 @@ const ProductsPage = () => {
     }
   };
 
-  // Pagination logic
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-  const displayedProducts = filteredProducts.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
   const columns: Column<Product>[] = [
     { key: "_id", label: "#" },
     { key: "name", label: "Name" },
     { key: "category", label: "Category" },
     { key: "finalPrice", label: "Price" },
     { key: "stock", label: "Stock" },
-    { key: "actions", label: "Actions" }, // ✅ added actions column
+    { key: "actions" as keyof Product, label: "Actions" }, // ✅ type assertion
   ];
 
   const handleView = (product: Product) => {
     setViewProduct(product);
     setIsOpenModal(true);
   };
+
+  const totalPages = Math.ceil(total / limit);
 
   return (
     <div className="p-6 bg-[var(--background)] text-[var(--foreground)]">
@@ -128,10 +107,7 @@ const ProductsPage = () => {
             }
             options={[
               { label: "All Categories", value: "all" },
-              ...categories.map((cat) => ({
-                label: cat.name,
-                value: cat._id,
-              })),
+              ...categories.map((cat) => ({ label: cat.name, value: cat._id })),
             ]}
           />
         </div>
@@ -144,13 +120,6 @@ const ProductsPage = () => {
       {/* Modals */}
       <ProductModal isOpen={addProductOpen} setIsOpen={setAddProductOpen} />
       <CategoryModal isOpen={addCategoryOpen} setIsOpen={setAddCategoryOpen} />
-      {/* {viewProduct && (
-        <ProductViewModal
-          isOpen={!!viewProduct}
-          setIsOpen={() => setViewProduct(null)}
-          product={viewProduct}
-        />
-      )} */}
       <ProductViewModal
         isOpen={isOpenModal}
         setIsOpen={setIsOpenModal}
@@ -160,7 +129,7 @@ const ProductsPage = () => {
       {/* Table */}
       <Table
         columns={columns}
-        data={displayedProducts}
+        data={products}
         onSort={handleSort}
         sortConfig={sortConfig}
         renderCell={(product, key, index) => {
@@ -168,7 +137,7 @@ const ProductsPage = () => {
             case "_id":
               return (
                 <span className="font-medium">
-                  {index + 1 + (currentPage - 1) * itemsPerPage}
+                  {index + 1 + (currentPage - 1) * limit}
                 </span>
               );
             case "category":
@@ -200,34 +169,33 @@ const ProductsPage = () => {
                 </div>
               );
             default:
-              const value = product[key];
-              if (
-                typeof value === "string" ||
+              const value = product[key] ?? "";
+              return typeof value === "string" ||
                 typeof value === "number" ||
                 typeof value === "boolean"
-              ) {
-                return value;
-              }
-              return "";
+                ? value
+                : "";
           }
         }}
       />
 
       {/* Pagination */}
-      <div className="flex justify-center mt-4">
+      <div className="flex flex-col items-center mt-4 gap-2">
+        {/* Show current page, total pages, and total products */}
+        <span className="text-sm text-muted-foreground">
+          Page {currentPage} of {totalPages} | Total Products: {total}
+        </span>
+
         <Pagination>
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-                className={`
-                  ${
-                    currentPage === 1
-                      ? "pointer-events-none opacity-50"
-                      : "hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] cursor-pointer"
-                  }
-                `}
+                onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
+                className={
+                  currentPage === 1
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
+                }
               />
             </PaginationItem>
 
@@ -235,13 +203,11 @@ const ProductsPage = () => {
               <PaginationItem key={i}>
                 <PaginationLink
                   onClick={() => setCurrentPage(i + 1)}
-                  className={`
-                    ${
-                      currentPage === i + 1
-                        ? "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary)]/90"
-                        : "hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]"
-                    }
-                  `}
+                  className={
+                    currentPage === i + 1
+                      ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
+                      : "hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]"
+                  }
                 >
                   {i + 1}
                 </PaginationLink>
@@ -257,16 +223,13 @@ const ProductsPage = () => {
             <PaginationItem>
               <PaginationNext
                 onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                  setCurrentPage(Math.min(currentPage + 1, totalPages))
                 }
-                disabled={currentPage === totalPages}
-                className={`
-                  ${
-                    currentPage === totalPages
-                      ? "pointer-events-none opacity-50"
-                      : "hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)] cursor-pointer"
-                  }
-                `}
+                className={
+                  currentPage === totalPages
+                    ? "pointer-events-none opacity-50"
+                    : "cursor-pointer"
+                }
               />
             </PaginationItem>
           </PaginationContent>

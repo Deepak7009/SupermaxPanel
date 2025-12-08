@@ -2,13 +2,30 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { Product } from "../slices/productSlice";
 
-// Fetch all products
-export const fetchProducts = createAsyncThunk<Product[]>(
+interface FetchProductsParams {
+  search?: string;
+  category?: string;
+  page?: number;
+  limit?: number;
+}
+
+// Fetch all products with backend pagination & filters
+export const fetchProducts = createAsyncThunk<
+  { products: Product[]; total: number; page: number; limit: number },
+  FetchProductsParams | undefined
+>(
   "product/fetchProducts",
-  async (_, { rejectWithValue }) => {
+  async (params, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get<Product[]>("/admin/api/products");
-      return data;
+      const query = new URLSearchParams();
+
+      if (params?.search) query.append("search", params.search);
+      if (params?.category) query.append("category", params.category);
+      if (params?.page) query.append("page", params.page.toString());
+      if (params?.limit) query.append("limit", params.limit.toString());
+
+      const { data } = await axios.get(`/admin/api/products?${query.toString()}`);
+      return data; // data = { products, total, page, limit }
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         return rejectWithValue(err.response?.data?.error || "Failed to fetch products");
@@ -39,9 +56,7 @@ export const updateProduct = createAsyncThunk<Product, { id: string; updatedData
   "product/updateProduct",
   async ({ id, updatedData }, { rejectWithValue }) => {
     try {
-      console.log("id",id)
       const { data } = await axios.put<Product>(`/admin/api/products/${id}`, updatedData);
-      console.log("data ",data)
       return data;
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {

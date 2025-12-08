@@ -4,16 +4,55 @@ import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
 import Product from "../../models/Product";
 import Category from "../../models/Category";
+import { FilterQuery } from "mongoose";
 
-// ---------------- GET PRODUCTS ----------------
+// ---------------- GET PRODUCTS WITH PAGINATION & FILTERS ----------------
 const getProducts = async (req: NextRequest) => {
   try {
     await connectToDatabase();
-    const products = await Product.find({ isActive: true }).populate("category");
-    return NextResponse.json(products);
+
+    const url = req.nextUrl;
+    const search = url.searchParams.get("search") || "";
+    const category = url.searchParams.get("category") || "";
+    const page = Number(url.searchParams.get("page") || "1");
+    const limit = Number(url.searchParams.get("limit") || "10");
+
+    // ---------------- Build query ----------------
+    const query: FilterQuery<typeof Product> = { isActive: true };
+
+    if (search) {
+      query.name = { $regex: search, $options: "i" }; // case-insensitive search
+    }
+
+    if (category) {
+      query.category = category;
+    }
+
+    const skip = (page - 1) * limit;
+
+    // Fetch products and total count in parallel
+    const [products, total] = await Promise.all([
+      Product.find(query)
+        .populate("category")
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Product.countDocuments(query),
+    ]);
+
+    return NextResponse.json({
+      success: true,
+      products,
+      total,
+      page,
+      limit,
+    });
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Failed to fetch products" },
+      { status: 500 }
+    );
   }
 };
 
