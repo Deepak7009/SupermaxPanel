@@ -21,30 +21,31 @@ import {
   PaginationLink,
   PaginationEllipsis,
 } from "@/components/ui/pagination";
+import OrderModal from "@/components/modals/OrderModal";
 
-// Extend Order for table UI-only columns
-type OrderTableRow = Order & { email: string; actions: string };
+// UI-only type extension
+type OrderTableRow = Order & {
+  email: string;
+  actions: string;
+};
 
 const OrdersPage = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { orders, total, limit, loading } = useSelector(
-    (s: RootState) => s.orders
-  );
+  const { orders, total, limit } = useSelector((s: RootState) => s.orders);
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [sortConfig, setSortConfig] = useState<{
     key: keyof OrderTableRow;
     direction: "asc" | "desc";
   } | null>(null);
 
-  // Reset page on filter change
   useEffect(() => {
     setCurrentPage(1);
   }, [search, status]);
 
-  // Fetch orders
   useEffect(() => {
     dispatch(
       fetchOrders({
@@ -76,18 +77,20 @@ const OrdersPage = () => {
     }
   };
 
+  // FIXED COLUMNS
   const columns: Column<OrderTableRow>[] = [
     { key: "_id", label: "#" },
-    { key: "user", label: "Customer" },
+    { key: "customerName", label: "Customer" },
     { key: "email", label: "Email" },
     { key: "totalAmount", label: "Amount" },
     { key: "status", label: "Status" },
     { key: "actions", label: "Actions" },
   ];
 
+  // FIXED: Use customerEmail
   const displayedOrders: OrderTableRow[] = orders.map((o) => ({
     ...o,
-    email: o.user, // adjust if API returns actual email
+    email: o.customerEmail,
     actions: "view",
   }));
 
@@ -98,10 +101,11 @@ const OrdersPage = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-semibold">Orders</h1>
-        <Link href="/admin/orders/create">
-          <Button>Create Order</Button>
-        </Link>
+        <Button onClick={() => setIsOrderModalOpen(true)}>Create Order</Button>
       </div>
+
+      {/* MODAL */}
+      <OrderModal isOpen={isOrderModalOpen} setIsOpen={setIsOrderModalOpen} />
 
       {/* Filters */}
       <div className="flex gap-4 mb-4">
@@ -128,18 +132,24 @@ const OrdersPage = () => {
           switch (key) {
             case "_id":
               return <span>{index + 1 + (currentPage - 1) * limit}</span>;
+
             case "totalAmount":
               return `$${order.totalAmount.toFixed(2)}`;
+
             case "status":
               return <span className="capitalize">{order.status}</span>;
+
             case "actions":
               return (
-                <Link href={`/admin/orders/${order._id}`}>
-                  <Eye className="w-5 h-5 cursor-pointer" />
-                </Link>
+                <Button
+                //   onClick={() => router.push(`/admin/orders/${order._id}`)}
+                >
+                  <Eye className="w-5 h-5" />
+                </Button>
               );
+
             default:
-              const value = order[key as keyof OrderTableRow];
+              const value = order[key];
               return typeof value === "string" || typeof value === "number"
                 ? value
                 : "";
@@ -157,13 +167,9 @@ const OrdersPage = () => {
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
-                onClick={() =>
-                  setCurrentPage(Math.max(currentPage - 1, 1))
-                }
+                onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
                 className={
-                  currentPage === 1
-                    ? "pointer-events-none opacity-50"
-                    : "cursor-pointer"
+                  currentPage === 1 ? "pointer-events-none opacity-50" : ""
                 }
               />
             </PaginationItem>
@@ -197,7 +203,7 @@ const OrdersPage = () => {
                 className={
                   currentPage === totalPages
                     ? "pointer-events-none opacity-50"
-                    : "cursor-pointer"
+                    : ""
                 }
               />
             </PaginationItem>

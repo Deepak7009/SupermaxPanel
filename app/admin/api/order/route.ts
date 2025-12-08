@@ -1,10 +1,12 @@
+"use server";
+
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
-import Order, { IOrder } from "../../models/Order";
 import { FilterQuery } from "mongoose";
+import Order, { IOrder } from "../../models/Order";
 
-// -------------------------- CREATE ORDER --------------------------
-export async function POST(req: NextRequest) {
+// ---------------- CREATE ORDER ----------------
+const createOrder = async (req: NextRequest) => {
   try {
     await connectToDatabase();
     const data = await req.json();
@@ -24,34 +26,30 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error: unknown) {
+    console.error(error);
     if (error instanceof Error) {
-      return NextResponse.json(
-        { message: error.message },
-        { status: 500 }
-      );
+      return NextResponse.json({ message: error.message }, { status: 500 });
     }
-
     return NextResponse.json(
       { message: "Unknown error occurred" },
       { status: 500 }
     );
   }
-}
+};
 
-// -------------------------- GET ALL / SINGLE ORDER --------------------------
-export async function GET(req: NextRequest) {
+// ---------------- GET ALL / SINGLE ORDER ----------------
+const getOrders = async (req: NextRequest) => {
   try {
     await connectToDatabase();
 
     const url = req.nextUrl;
-
     const id = url.searchParams.get("id");
     const search = url.searchParams.get("search") || "";
     const status = url.searchParams.get("status") || "";
     const page = Number(url.searchParams.get("page") || "1");
     const limit = Number(url.searchParams.get("limit") || "10");
 
-    // ---------------- GET SINGLE ORDER ----------------
+    // Get single order
     if (id) {
       const order = await Order.findById(id).populate("items.product");
       if (!order) {
@@ -63,48 +61,33 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ success: true, order });
     }
 
-    // ---------------- GET ALL ORDERS ----------------
+    // Get all orders
     const query: FilterQuery<IOrder> = {};
-
     if (status) query.status = status;
 
     if (search) {
       const regex = new RegExp(search, "i");
-      query.$or = [
-        { customerName: regex },
-        { customerEmail: regex },
-      ];
+      query.$or = [{ customerName: regex }, { customerEmail: regex }];
     }
 
     const skip = (page - 1) * limit;
 
     const [orders, total] = await Promise.all([
-      Order.find(query)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
+      Order.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
       Order.countDocuments(query),
     ]);
 
-    return NextResponse.json({
-      success: true,
-      orders,
-      total,
-      page,
-      limit,
-    });
+    return NextResponse.json({ success: true, orders, total, page, limit });
   } catch (error: unknown) {
+    console.error(error);
     if (error instanceof Error) {
-      return NextResponse.json(
-        { message: error.message },
-        { status: 500 }
-      );
+      return NextResponse.json({ message: error.message }, { status: 500 });
     }
-
     return NextResponse.json(
       { message: "Unknown error occurred" },
       { status: 500 }
     );
   }
-}
+};
+
+export { createOrder as POST, getOrders as GET };

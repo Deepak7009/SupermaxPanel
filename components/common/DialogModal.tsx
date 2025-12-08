@@ -12,6 +12,7 @@ interface DialogModalProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   title: string;
+  className?: string;
   children: ReactNode;
 }
 

@@ -6,9 +6,25 @@ export interface OrderItem {
   price: number;
 }
 
+/**
+ * USER CAN BE:
+ * - registered user (user ID)
+ * - OR null for manual order
+ *
+ * For manual orders, we store:
+ * - customerName
+ * - customerEmail
+ */
 export interface Order {
   _id: string;
-  user: string;
+
+  // Optional user reference (null if manual order)
+  user?: string | null;
+
+  // Manual order info
+  customerName: string;
+  customerEmail: string;
+
   items: OrderItem[];
   totalAmount: number;
   status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
@@ -46,13 +62,22 @@ export interface FetchOrdersParams {
   limit?: number;
 }
 
+/**
+ * Create order payload
+ * Works for both MANUAL + REGISTERED users
+ */
 export interface CreateOrderPayload {
-  user: string;
+  user?: string | null;
+
+  customerName: string;   // required
+  customerEmail: string;  // required
+
   items: Array<{
     product: string;
     quantity: number;
     price: number;
   }>;
+
   totalAmount: number;
   status?: Order["status"];
 }
