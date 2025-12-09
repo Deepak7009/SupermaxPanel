@@ -4,7 +4,7 @@ export interface IOrder extends Document {
   customerName: string;
   customerEmail: string;
   items: Array<{
-    productId: Schema.Types.ObjectId;
+    productId: Schema.Types.ObjectId; // renamed to match frontend
     name: string;
     quantity: number;
     price: number;
@@ -21,7 +21,11 @@ const orderSchema = new Schema<IOrder>(
 
     items: [
       {
-        productId: { type: Schema.Types.ObjectId, ref: "Product", required: true },
+        productId: {  // rename here
+          type: Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
+        },
         name: String,
         quantity: Number,
         price: Number,

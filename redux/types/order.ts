@@ -68,16 +68,14 @@ export interface FetchOrdersParams {
  */
 export interface CreateOrderPayload {
   user?: string | null;
-
-  customerName: string;   // required
-  customerEmail: string;  // required
-
+  customerName: string;
+  customerEmail: string;
   items: Array<{
-    product: string;
+    productId: string; // must match backend
+    name: string;
     quantity: number;
     price: number;
   }>;
-
   totalAmount: number;
   status?: Order["status"];
 }

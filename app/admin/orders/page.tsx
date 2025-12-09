@@ -4,9 +4,8 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
 import { fetchOrders } from "@/redux/thunks/orderThunks";
-import Link from "next/link";
 import { Eye } from "lucide-react";
-import { Order } from "@/redux/types/order";
+
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import Select from "@/components/common/Select";
@@ -19,11 +18,12 @@ import {
   PaginationPrevious,
   PaginationNext,
   PaginationLink,
-  PaginationEllipsis,
 } from "@/components/ui/pagination";
-import OrderModal from "@/components/modals/OrderModal";
 
-// UI-only type extension
+import OrderViewModal from "@/components/modals/OrderViewModal";
+import { Order } from "@/redux/types/order";
+import { useRouter } from "next/navigation";
+
 type OrderTableRow = Order & {
   email: string;
   actions: string;
@@ -31,12 +31,17 @@ type OrderTableRow = Order & {
 
 const OrdersPage = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
+
   const { orders, total, limit } = useSelector((s: RootState) => s.orders);
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+
+  const [viewOrder, setViewOrder] = useState<Order | null>(null);
+  const [isViewOpen, setIsViewOpen] = useState(false);
+
   const [sortConfig, setSortConfig] = useState<{
     key: keyof OrderTableRow;
     direction: "asc" | "desc";
@@ -77,7 +82,6 @@ const OrdersPage = () => {
     }
   };
 
-  // FIXED COLUMNS
   const columns: Column<OrderTableRow>[] = [
     { key: "_id", label: "#" },
     { key: "customerName", label: "Customer" },
@@ -87,25 +91,36 @@ const OrdersPage = () => {
     { key: "actions", label: "Actions" },
   ];
 
-  // FIXED: Use customerEmail
   const displayedOrders: OrderTableRow[] = orders.map((o) => ({
     ...o,
     email: o.customerEmail,
     actions: "view",
   }));
 
+  const handleView = (order: Order) => {
+    setViewOrder(order);
+    setIsViewOpen(true);
+  };
+
   const totalPages = Math.ceil(total / limit);
 
   return (
     <div className="p-6 bg-[var(--background)] text-[var(--foreground)]">
-      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-semibold">Orders</h1>
-        <Button onClick={() => setIsOrderModalOpen(true)}>Create Order</Button>
+
+        {/* Navigate to create page */}
+        <Button onClick={() => router.push("/admin/orders/create")}>
+          Create Order
+        </Button>
       </div>
 
-      {/* MODAL */}
-      <OrderModal isOpen={isOrderModalOpen} setIsOpen={setIsOrderModalOpen} />
+      {/* View Order Modal */}
+      <OrderViewModal
+        isOpen={isViewOpen}
+        setIsOpen={setIsViewOpen}
+        order={viewOrder}
+      />
 
       {/* Filters */}
       <div className="flex gap-4 mb-4">
@@ -114,6 +129,7 @@ const OrdersPage = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
+
         <Select
           value={status}
           onChange={setStatus}
@@ -136,23 +152,15 @@ const OrdersPage = () => {
             case "totalAmount":
               return `$${order.totalAmount.toFixed(2)}`;
 
-            case "status":
-              return <span className="capitalize">{order.status}</span>;
-
             case "actions":
               return (
-                <Button
-                //   onClick={() => router.push(`/admin/orders/${order._id}`)}
-                >
+                <Button onClick={() => handleView(order)}>
                   <Eye className="w-5 h-5" />
                 </Button>
               );
 
             default:
-              const value = order[key];
-              return typeof value === "string" || typeof value === "number"
-                ? value
-                : "";
+              return order[key] ? String(order[key]) : "";
           }
         }}
       />
@@ -167,7 +175,9 @@ const OrdersPage = () => {
           <PaginationContent>
             <PaginationItem>
               <PaginationPrevious
-                onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
+                onClick={() =>
+                  setCurrentPage(Math.max(currentPage - 1, 1))
+                }
                 className={
                   currentPage === 1 ? "pointer-events-none opacity-50" : ""
                 }
@@ -188,12 +198,6 @@ const OrdersPage = () => {
                 </PaginationLink>
               </PaginationItem>
             ))}
-
-            {totalPages > 5 && (
-              <PaginationItem>
-                <PaginationEllipsis />
-              </PaginationItem>
-            )}
 
             <PaginationItem>
               <PaginationNext

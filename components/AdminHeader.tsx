@@ -19,7 +19,10 @@ const AdminHeader = () => {
   // Close dropdown when clicked outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
         setOpen(false);
       }
     };
@@ -35,7 +38,7 @@ const AdminHeader = () => {
   };
 
   return (
-    <header className="flex items-center justify-between bg-[var(--background)] text-[var(--foreground)] px-6 py-3 shadow-md transition-colors">
+    <header className="flex items-center justify-between bg-[var(--background)] text-[var(--foreground)] px-6 py-3 transition-colors shadow-[0_2px_8px_var(--shadow-color)]">
       {/* Logo */}
       <Link href="/admin" className="text-xl font-bold">
         Admin Panel
