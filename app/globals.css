@@ -3,59 +3,83 @@
 
 @custom-variant dark (&:is(.dark *));
 
- :root {
-    --radius: 0.625rem;
+:root {
+  --radius: 0.625rem;
 
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
 
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
 
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
 
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
 
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
 
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
 
-    --destructive: oklch(0.577 0.245 27.325);
+  --destructive: oklch(0.577 0.245 27.325);
 
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
 
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.828 0.189 84.429);
-    --chart-5: oklch(0.769 0.188 70.08);
-    
-    /* Stock status colors */
-    --success: oklch(0.82 0.15 145);
-    --success-foreground: oklch(0.3 0.15 145);
-    --warning: oklch(0.9 0.16 85);
-    --warning-foreground: oklch(0.5 0.16 85);
-    --error: oklch(0.95 0.2 25);
-    --error-foreground: oklch(0.5 0.2 25);
-    --shadow-color: rgba(0, 0, 0, 0.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
 
-  }
+  /* Stock status colors */
+  --success: oklch(0.82 0.15 145);
+  --success-foreground: oklch(0.3 0.15 145);
+  --warning: oklch(0.9 0.16 85);
+  --warning-foreground: oklch(0.5 0.16 85);
+  --error: oklch(0.95 0.2 25);
+  --error-foreground: oklch(0.5 0.2 25);
+  --shadow-color: rgba(0, 0, 0, 0.08);
+
+  /* Order status colors (light mode) */
+  --status-pending-bg: #fef3c7; /* bg-yellow-500/15 equivalent */
+  --status-pending-text: #b45309; /* text-yellow-700 */
+  --status-pending-border: #fde68a; /* border-yellow-600/20 */
+
+  --status-processing-bg: #eff6ff; /* bg-blue-500/15 */
+  --status-processing-text: #1d4ed8; /* text-blue-700 */
+  --status-processing-border: #93c5fd; /* border-blue-600/20 */
+
+  --status-shipped-bg: #f5f3ff; /* bg-purple-500/15 */
+  --status-shipped-text: #5b21b6; /* text-purple-700 */
+  --status-shipped-border: #c4b5fd; /* border-purple-600/20 */
+
+  --status-delivered-bg: #ecfdf5; /* bg-green-500/15 */
+  --status-delivered-text: #166534; /* text-green-700 */
+  --status-delivered-border: #86efac; /* border-green-600/20 */
+
+  --status-cancelled-bg: #fef2f2; /* bg-red-500/15 */
+  --status-cancelled-text: #991b1b; /* text-red-700 */
+  --status-cancelled-border: #fca5a5; /* border-red-600/20 */
+
+  /* New Table Header colors */
+  --table-header-bg: oklch(0.92 0.05 260); /* Light purple-ish */
+  --table-header-text: oklch(0.12 0 0);
+}
 
 @theme inline {
   --color-background: var(--background);
@@ -91,7 +115,7 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  
+
   /* Stock status theme mappings */
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
@@ -99,16 +123,41 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-error: var(--error);
   --color-error-foreground: var(--error-foreground);
-  
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /* Order status colors */
+  --color-status-pending-bg: var(--status-pending-bg);
+  --color-status-pending-text: var(--status-pending-text);
+  --color-status-pending-border: var(--status-pending-border);
+
+  --color-status-processing-bg: var(--status-processing-bg);
+  --color-status-processing-text: var(--status-processing-text);
+  --color-status-processing-border: var(--status-processing-border);
+
+  --color-status-shipped-bg: var(--status-shipped-bg);
+  --color-status-shipped-text: var(--status-shipped-text);
+  --color-status-shipped-border: var(--status-shipped-border);
+
+  --color-status-delivered-bg: var(--status-delivered-bg);
+  --color-status-delivered-text: var(--status-delivered-text);
+  --color-status-delivered-border: var(--status-delivered-border);
+
+  --color-status-cancelled-bg: var(--status-cancelled-bg);
+  --color-status-cancelled-text: var(--status-cancelled-text);
+  --color-status-cancelled-border: var(--status-cancelled-border);
+
+  /* New Table Header colors */
+  --color-table-header-bg: var(--table-header-bg);
+  --color-table-header-text: var(--table-header-text);
 }
 
 .dark {
-  --background: oklch(0.22 0 0);         /* Light black (ChatGPT-like) */
-  --foreground: oklch(0.96 0 0);         /* Soft white */
+  --background: oklch(0.22 0 0); /* Light black (ChatGPT-like) */
+  --foreground: oklch(0.96 0 0); /* Soft white */
 
   --card: oklch(0.26 0 0);
   --card-foreground: oklch(0.96 0 0);
@@ -119,13 +168,13 @@
   --primary: oklch(0.85 0 0);
   --primary-foreground: oklch(0.22 0 0);
 
-  --secondary: oklch(0.30 0 0);
+  --secondary: oklch(0.3 0 0);
   --secondary-foreground: oklch(0.96 0 0);
 
-  --muted: oklch(0.30 0 0);
-  --muted-foreground: oklch(0.70 0 0);
+  --muted: oklch(0.3 0 0);
+  --muted-foreground: oklch(0.7 0 0);
 
-  --accent: oklch(0.30 0 0);
+  --accent: oklch(0.3 0 0);
   --accent-foreground: oklch(0.96 0 0);
 
   --destructive: oklch(0.65 0.15 22);
@@ -138,28 +187,51 @@
   --sidebar-foreground: oklch(0.96 0 0);
   --sidebar-primary: oklch(0.45 0.2 264);
   --sidebar-primary-foreground: oklch(0.96 0 0);
-  --sidebar-accent: oklch(0.30 0 0);
+  --sidebar-accent: oklch(0.3 0 0);
   --sidebar-accent-foreground: oklch(0.96 0 0);
   --sidebar-border: oklch(0.35 0 0 / 40%);
   --sidebar-ring: oklch(0.55 0 0);
 
-  --chart-1: oklch(0.50 0.22 264);
+  --chart-1: oklch(0.5 0.22 264);
   --chart-2: oklch(0.67 0.15 162);
   --chart-3: oklch(0.73 0.16 70);
-  --chart-4: oklch(0.60 0.22 303);
+  --chart-4: oklch(0.6 0.22 303);
   --chart-5: oklch(0.62 0.24 16);
 
   /* Softer stock colors for dark mode */
   --success: oklch(0.28 0.15 145);
   --success-foreground: oklch(0.92 0.15 145);
-  --warning: oklch(0.30 0.16 85);
+  --warning: oklch(0.3 0.16 85);
   --warning-foreground: oklch(0.92 0.16 85);
-  --error: oklch(0.30 0.2 25);
+  --error: oklch(0.3 0.2 25);
   --error-foreground: oklch(0.92 0.2 25);
   --shadow-color: rgba(0, 0, 0, 0.45);
 
-}
+  /* Dark mode overrides (optional, adjust if needed) */
+  --status-pending-bg: #fef3c7;
+  --status-pending-text: #b45309;
+  --status-pending-border: #fde68a;
 
+  --status-processing-bg: #eff6ff;
+  --status-processing-text: #1d4ed8;
+  --status-processing-border: #93c5fd;
+
+  --status-shipped-bg: #f5f3ff;
+  --status-shipped-text: #5b21b6;
+  --status-shipped-border: #c4b5fd;
+
+  --status-delivered-bg: #ecfdf5;
+  --status-delivered-text: #166534;
+  --status-delivered-border: #86efac;
+
+  --status-cancelled-bg: #fef2f2;
+  --status-cancelled-text: #991b1b;
+  --status-cancelled-border: #fca5a5;
+
+  /* New Table Header colors */
+  --table-header-bg: oklch(0.35 0.05 260); /* Dark purple-ish */
+  --table-header-text: oklch(0.96 0 0);
+}
 
 body {
   font-family: var(--font-sans, Arial, Helvetica, sans-serif);
@@ -169,8 +241,8 @@ body {
 @layer base {
   * {
     @apply border-border outline-ring/50;
-    }
+  }
   body {
     @apply bg-background text-foreground;
-    }
+  }
 }

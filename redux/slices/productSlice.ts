@@ -20,6 +20,7 @@ export interface Product {
   tags?: string[];
   isFeatured: boolean;
   isActive: boolean;
+  actions? :string;
 }
 
 interface ProductState {

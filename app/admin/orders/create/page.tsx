@@ -5,12 +5,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "@/redux/thunks/productThunks";
 import { createOrder } from "@/redux/thunks/orderThunks";
 import { RootState, AppDispatch } from "@/redux/store";
-
-import FloatingInput from "@/components/common/FloatingInput";
-import Select from "@/components/common/Select";
 import { CreateOrderPayload } from "@/redux/types/order";
 import { Product } from "@/redux/slices/productSlice";
 import Button from "@/components/common/Button";
+import OrderFormModal from "@/components/modals/OrderFormModal";
 
 /* -------------------- TYPES -------------------- */
 type CartItem = {
@@ -18,116 +16,6 @@ type CartItem = {
   name: string;
   price: number;
   quantity: number;
-};
-
-type OrderFormModalProps = {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: () => void;
-  customerName: string;
-  setCustomerName: (name: string) => void;
-  customerEmail: string;
-  setCustomerEmail: (email: string) => void;
-  amount: string;
-  setAmount: (amount: string) => void;
-  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
-  setStatus: (status: OrderFormModalProps["status"]) => void;
-  orderLoading: boolean;
-  cart: CartItem[];
-  totalAmount: number;
-};
-
-/* -------------------- MODAL COMPONENT -------------------- */
-const OrderFormModal: React.FC<OrderFormModalProps> = ({
-  isOpen,
-  onClose,
-  onSubmit,
-  customerName,
-  setCustomerName,
-  customerEmail,
-  setCustomerEmail,
-  amount,
-  setAmount,
-  status,
-  setStatus,
-  orderLoading,
-  cart,
-  totalAmount,
-}) => {
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-card p-6 rounded-2xl shadow-xl w-full max-w-lg">
-        <h2 className="text-2xl font-semibold mb-4">Checkout</h2>
-
-        <div className="flex">
-          <FloatingInput
-            label="Amount (Manual)"
-            value={amount}
-            type="number"
-            onChange={(e) => setAmount(e.target.value)}
-          />
-
-          <FloatingInput
-            label="Customer Name"
-            value={customerName}
-            onChange={(e) => setCustomerName(e.target.value)}
-          />
-        </div>
-
-        <FloatingInput
-          label="Customer Email"
-          value={customerEmail}
-          onChange={(e) => setCustomerEmail(e.target.value)}
-        />
-
-        <Select
-          value={status}
-          onChange={(value) =>
-            setStatus(
-              value as
-                | "pending"
-                | "processing"
-                | "shipped"
-                | "delivered"
-                | "cancelled"
-            )
-          }
-          options={[
-            { label: "Pending", value: "pending" },
-            { label: "Processing", value: "processing" },
-            { label: "Shipped", value: "shipped" },
-            { label: "Delivered", value: "delivered" },
-            { label: "Cancelled", value: "cancelled" },
-          ]}
-        />
-
-        <div className="mt-6 border-t pt-4 space-y-2">
-          <h3 className="text-lg font-semibold mb-2">Order Summary</h3>
-          {cart.map((item) => (
-            <div key={item.product} className="flex justify-between py-1">
-              <span>
-                {item.name} × {item.quantity}
-              </span>
-              <span>₹{item.price * item.quantity}</span>
-            </div>
-          ))}
-          <div className="flex justify-between font-bold text-lg pt-3 mt-3 border-t">
-            <span>Total</span>
-            <span>₹{Number(amount) || totalAmount}</span>
-          </div>
-        </div>
-
-        <div className="flex justify-end gap-3 mt-6">
-          <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={onSubmit} disabled={orderLoading}>
-            {orderLoading ? "Saving..." : "Place Order"}
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
 };
 
 /* -------------------- MAIN PAGE -------------------- */
@@ -142,6 +30,10 @@ const CreateOrderPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
+  const [customerMobile, setCustomerMobile] = useState("");
+  const [customerAddress, setCustomerAddress] = useState("");
+  const [note, setNote] = useState("");
+
   const [amount, setAmount] = useState("");
   const [status, setStatus] = useState<
     "pending" | "processing" | "shipped" | "delivered" | "cancelled"
@@ -154,13 +46,25 @@ const CreateOrderPage = () => {
   const addToCart = (product: Product) => {
     setCart((prev) => {
       const exists = prev.find((item) => item.product === product._id);
+
       if (exists) {
+        if (exists.quantity + 1 > product.stock) {
+          alert(`Only ${product.stock} left in stock`);
+          return prev;
+        }
+
         return prev.map((item) =>
           item.product === product._id
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
+
+      if (product.stock <= 0) {
+        alert("Out of stock");
+        return prev;
+      }
+
       return [
         ...prev,
         {
@@ -175,11 +79,20 @@ const CreateOrderPage = () => {
 
   const incrementQuantity = (productId: string) => {
     setCart((prev) =>
-      prev.map((item) =>
-        item.product === productId
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      )
+      prev.map((item) => {
+        if (item.product === productId) {
+          const product = products.find((p) => p._id === productId);
+          if (!product) return item;
+
+          if (item.quantity + 1 > product.stock) {
+            alert(`Only ${product.stock} left in stock`);
+            return item; // ❌ stop increment
+          }
+
+          return { ...item, quantity: item.quantity + 1 };
+        }
+        return item;
+      })
     );
   };
 
@@ -204,6 +117,9 @@ const CreateOrderPage = () => {
     const payload: CreateOrderPayload = {
       customerName,
       customerEmail,
+      customerMobile,
+      customerAddress,
+      note,
       totalAmount: Number(amount) || totalAmount,
       items: cart.map((c) => ({
         productId: c.product,
@@ -301,7 +217,7 @@ const CreateOrderPage = () => {
         </div>
       )}
 
-      {/* ORDER FORM MODAL */}
+      {/* ORDER FORM MODAL (moved to separate component) */}
       <OrderFormModal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
@@ -310,6 +226,12 @@ const CreateOrderPage = () => {
         setCustomerName={setCustomerName}
         customerEmail={customerEmail}
         setCustomerEmail={setCustomerEmail}
+        customerMobile={customerMobile}
+        setCustomerMobile={setCustomerMobile}
+        customerAddress={customerAddress}
+        setCustomerAddress={setCustomerAddress}
+        note={note}
+        setNote={setNote}
         amount={amount}
         setAmount={setAmount}
         status={status}

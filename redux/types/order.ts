@@ -1,10 +1,18 @@
 /* ---------------------- ORDER TYPES ---------------------- */
 
+// export interface OrderItem {
+//   product: string;
+//   quantity: number;
+//   price: number;
+// }
+
 export interface OrderItem {
-  product: string;
+  productId: string;
+  name: string;
   quantity: number;
   price: number;
 }
+
 
 /**
  * USER CAN BE:
@@ -21,16 +29,25 @@ export interface Order {
   // Optional user reference (null if manual order)
   user?: string | null;
 
-  // Manual order info
   customerName: string;
   customerEmail: string;
 
+  // NOTE: optional for manual orders
+  customerMobile: string;
+  customerAddress: string;
+
+  // NEW FIELD
+  note: string;
+
   items: OrderItem[];
   totalAmount: number;
+
   status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+
   createdAt: string;
   updatedAt: string;
 }
+
 
 /* -------- RESPONSE TYPES -------- */
 
@@ -68,17 +85,28 @@ export interface FetchOrdersParams {
  */
 export interface CreateOrderPayload {
   user?: string | null;
+
   customerName: string;
   customerEmail: string;
+
+  // NOTE: optional for manual orders
+  customerMobile: string;
+  customerAddress: string;
+
+  // NEW FIELD
+  note: string;
+
   items: Array<{
-    productId: string; // must match backend
+    productId: string;
     name: string;
     quantity: number;
     price: number;
   }>;
+
   totalAmount: number;
   status?: Order["status"];
 }
+
 
 export interface UpdateOrderPayload {
   id: string;

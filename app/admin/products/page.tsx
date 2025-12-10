@@ -8,7 +8,7 @@ import { fetchCategories } from "@/redux/thunks/categoryThunks";
 import ProductModal from "@/components/modals/ProductModal";
 import CategoryModal from "@/components/modals/CategoryModal";
 import { Product } from "@/redux/slices/productSlice";
-
+import { Card } from "@/components/ui/card";
 import Table, { Column } from "@/components/common/Table";
 
 import {
@@ -92,6 +92,9 @@ const ProductsPage = () => {
 
   return (
     <div className="p-6 bg-[var(--background)] text-[var(--foreground)]">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-xl font-semibold">Produts</h1>
+      </div>
       {/* Filters and Actions */}
       <div className="flex justify-between mb-4">
         <div className="flex gap-4">
@@ -125,116 +128,117 @@ const ProductsPage = () => {
         setIsOpen={setIsOpenModal}
         product={viewProduct}
       />
+      <Card className="p-4 rounded-xl">
+        {/* Table */}
+        <Table
+          columns={columns}
+          data={products}
+          onSort={handleSort}
+          sortConfig={sortConfig}
+          renderCell={(product, key, index) => {
+            switch (key) {
+              case "_id":
+                return (
+                  <span className="font-medium">
+                    {index + 1 + (currentPage - 1) * limit}
+                  </span>
+                );
+              case "category":
+                return product.category?.name || "N/A";
+              case "finalPrice":
+                return (
+                  <span className="font-semibold">${product.finalPrice}</span>
+                );
+              case "stock":
+                return (
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${
+                      product.stock > 10
+                        ? "bg-success text-success-foreground"
+                        : product.stock > 0
+                        ? "bg-warning text-warning-foreground"
+                        : "bg-error text-error-foreground"
+                    }`}
+                  >
+                    {product.stock} units
+                  </span>
+                );
+              case "actions":
+                return (
+                  <div className="flex gap-2">
+                    <Button onClick={() => handleView(product)}>
+                      <EyeIcon className="w-4 h-4" />
+                    </Button>
+                  </div>
+                );
+              default:
+                const value = product[key] ?? "";
+                return typeof value === "string" ||
+                  typeof value === "number" ||
+                  typeof value === "boolean"
+                  ? value
+                  : "";
+            }
+          }}
+        />
 
-      {/* Table */}
-      <Table
-        columns={columns}
-        data={products}
-        onSort={handleSort}
-        sortConfig={sortConfig}
-        renderCell={(product, key, index) => {
-          switch (key) {
-            case "_id":
-              return (
-                <span className="font-medium">
-                  {index + 1 + (currentPage - 1) * limit}
-                </span>
-              );
-            case "category":
-              return product.category?.name || "N/A";
-            case "finalPrice":
-              return (
-                <span className="font-semibold">${product.finalPrice}</span>
-              );
-            case "stock":
-              return (
-                <span
-                  className={`px-2 py-1 rounded text-xs font-medium ${
-                    product.stock > 10
-                      ? "bg-success text-success-foreground"
-                      : product.stock > 0
-                      ? "bg-warning text-warning-foreground"
-                      : "bg-error text-error-foreground"
-                  }`}
-                >
-                  {product.stock} units
-                </span>
-              );
-            case "actions":
-              return (
-                <div className="flex gap-2">
-                  <Button onClick={() => handleView(product)}>
-                    <EyeIcon className="w-4 h-4" />
-                  </Button>
-                </div>
-              );
-            default:
-              const value = product[key] ?? "";
-              return typeof value === "string" ||
-                typeof value === "number" ||
-                typeof value === "boolean"
-                ? value
-                : "";
-          }
-        }}
-      />
+        {/* Pagination */}
+        <div className="flex flex-col items-center mt-0 gap-2">
+          {/* Show current page, total pages, and total products */}
+          <span className="text-sm text-muted-foreground">
+            Page {currentPage} of {totalPages} | Total Products: {total}
+          </span>
 
-      {/* Pagination */}
-      <div className="flex flex-col items-center mt-4 gap-2">
-        {/* Show current page, total pages, and total products */}
-        <span className="text-sm text-muted-foreground">
-          Page {currentPage} of {totalPages} | Total Products: {total}
-        </span>
-
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
-                className={
-                  currentPage === 1
-                    ? "pointer-events-none opacity-50"
-                    : "cursor-pointer"
-                }
-              />
-            </PaginationItem>
-
-            {Array.from({ length: totalPages }, (_, i) => (
-              <PaginationItem key={i}>
-                <PaginationLink
-                  onClick={() => setCurrentPage(i + 1)}
-                  className={
-                    currentPage === i + 1
-                      ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                      : "hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]"
-                  }
-                >
-                  {i + 1}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-
-            {totalPages > 5 && (
+          <Pagination>
+            <PaginationContent>
               <PaginationItem>
-                <PaginationEllipsis />
+                <PaginationPrevious
+                  onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
+                  className={
+                    currentPage === 1
+                      ? "pointer-events-none opacity-50"
+                      : "cursor-pointer"
+                  }
+                />
               </PaginationItem>
-            )}
 
-            <PaginationItem>
-              <PaginationNext
-                onClick={() =>
-                  setCurrentPage(Math.min(currentPage + 1, totalPages))
-                }
-                className={
-                  currentPage === totalPages
-                    ? "pointer-events-none opacity-50"
-                    : "cursor-pointer"
-                }
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      </div>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <PaginationItem key={i}>
+                  <PaginationLink
+                    onClick={() => setCurrentPage(i + 1)}
+                    className={
+                      currentPage === i + 1
+                        ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
+                        : "hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]"
+                    }
+                  >
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+
+              {totalPages > 5 && (
+                <PaginationItem>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              )}
+
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() =>
+                    setCurrentPage(Math.min(currentPage + 1, totalPages))
+                  }
+                  className={
+                    currentPage === totalPages
+                      ? "pointer-events-none opacity-50"
+                      : "cursor-pointer"
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      </Card>
     </div>
   );
 };

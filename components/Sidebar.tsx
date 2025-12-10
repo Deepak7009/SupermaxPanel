@@ -35,6 +35,11 @@ export default function Sidebar({ collapsed }: SidebarProps) {
       icon: <User className="w-5 h-5" />,
     },
     {
+      name: "Customers",
+      href: "/admin/customer",
+      icon: <User className="w-5 h-5" />,
+    },
+    {
       name: "Total Exp",
       href: "/admin/products",
       icon: <DollarSign className="w-5 h-5" />,

@@ -10,6 +10,7 @@ import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import Select from "@/components/common/Select";
 import Table, { Column } from "@/components/common/Table";
+import { Card } from "@/components/ui/card";
 
 import {
   Pagination,
@@ -29,6 +30,13 @@ type OrderTableRow = Order & {
   actions: string;
 };
 
+type OrderStatus =
+  | "pending"
+  | "processing"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
+
 const OrdersPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
@@ -36,7 +44,7 @@ const OrdersPage = () => {
   const { orders, total, limit } = useSelector((s: RootState) => s.orders);
 
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("all");
+  const [status, setStatus] = useState<"all" | OrderStatus>("all");
   const [currentPage, setCurrentPage] = useState(1);
 
   const [viewOrder, setViewOrder] = useState<Order | null>(null);
@@ -85,7 +93,6 @@ const OrdersPage = () => {
   const columns: Column<OrderTableRow>[] = [
     { key: "_id", label: "#" },
     { key: "customerName", label: "Customer" },
-    { key: "email", label: "Email" },
     { key: "totalAmount", label: "Amount" },
     { key: "status", label: "Status" },
     { key: "actions", label: "Actions" },
@@ -104,116 +111,154 @@ const OrdersPage = () => {
 
   const totalPages = Math.ceil(total / limit);
 
+  // Theme-based status colors
+  const statusColors: Record<OrderStatus, string> = {
+    pending:
+      "bg-[color:var(--color-status-pending-bg)] text-[color:var(--color-status-pending-text)] border-[color:var(--color-status-pending-border)]",
+    processing:
+      "bg-[color:var(--color-status-processing-bg)] text-[color:var(--color-status-processing-text)] border-[color:var(--color-status-processing-border)]",
+    shipped:
+      "bg-[color:var(--color-status-shipped-bg)] text-[color:var(--color-status-shipped-text)] border-[color:var(--color-status-shipped-border)]",
+    delivered:
+      "bg-[color:var(--color-status-delivered-bg)] text-[color:var(--color-status-delivered-text)] border-[color:var(--color-status-delivered-border)]",
+    cancelled:
+      "bg-[color:var(--color-status-cancelled-bg)] text-[color:var(--color-status-cancelled-text)] border-[color:var(--color-status-cancelled-border)]",
+  };
+
   return (
-    <div className="p-6 bg-[var(--background)] text-[var(--foreground)]">
+    <div className="p-6 bg-[var(--background)] text-[var(--foreground)] ">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-semibold">Orders</h1>
-
-        {/* Navigate to create page */}
-        <Button onClick={() => router.push("/admin/orders/create")}>
+        {/* <Button onClick={() => router.push("/admin/orders/create")}>
           Create Order
-        </Button>
+        </Button> */}
       </div>
 
-      {/* View Order Modal */}
       <OrderViewModal
         isOpen={isViewOpen}
         setIsOpen={setIsViewOpen}
         order={viewOrder}
       />
 
-      {/* Filters */}
-      <div className="flex gap-4 mb-4">
+      {/* <div className="flex gap-4 mb-4">
         <Input
           placeholder="Search name or email..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-
         <Select
           value={status}
-          onChange={setStatus}
+          onChange={(value) => setStatus(value as "all" | OrderStatus)}
           options={statusOptions}
           placeholder="Select status"
         />
+      </div> */}
+
+      <div className="flex justify-between mb-4">
+        <div className="flex gap-4">
+          <Input
+            placeholder="Search name or email..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <Select
+            value={status}
+            onChange={(value) => setStatus(value as "all" | OrderStatus)}
+            options={statusOptions}
+            placeholder="Select status"
+          />
+        </div>
+        <div className="flex gap-4">
+          <Button onClick={() => router.push("/admin/orders/create")}>
+            Create Order
+          </Button>
+        </div>
       </div>
 
-      {/* Table */}
-      <Table<OrderTableRow>
-        columns={columns}
-        data={displayedOrders}
-        onSort={handleSort}
-        sortConfig={sortConfig}
-        renderCell={(order, key, index) => {
-          switch (key) {
-            case "_id":
-              return <span>{index + 1 + (currentPage - 1) * limit}</span>;
+      <Card className="p-4 rounded-xl">
+        <Table<OrderTableRow>
+          columns={columns}
+          data={displayedOrders}
+          onSort={handleSort}
+          sortConfig={sortConfig}
+          renderCell={(order, key, index) => {
+            switch (key) {
+              case "_id":
+                return <span>{index + 1 + (currentPage - 1) * limit}</span>;
+              case "totalAmount":
+                return `$${order.totalAmount.toFixed(2)}`;
+              case "status":
+                // Apply status color from theme
+                return (
+                  <span
+                    className={`px-2 py-1 rounded-md border text-sm capitalize ${
+                      order.status
+                        ? statusColors[order.status as OrderStatus]
+                        : ""
+                    }`}
+                  >
+                    {order.status}
+                  </span>
+                );
+              case "actions":
+                return (
+                  <Button onClick={() => handleView(order)}>
+                    <Eye className="w-5 h-5" />
+                  </Button>
+                );
+              default:
+                return order[key] ? String(order[key]) : "";
+            }
+          }}
+        />
 
-            case "totalAmount":
-              return `$${order.totalAmount.toFixed(2)}`;
+        <div className="flex flex-col items-center mt-0 gap-2">
+          <span className="text-sm text-muted-foreground">
+            Page {currentPage} of {totalPages} | Total Orders: {total}
+          </span>
 
-            case "actions":
-              return (
-                <Button onClick={() => handleView(order)}>
-                  <Eye className="w-5 h-5" />
-                </Button>
-              );
-
-            default:
-              return order[key] ? String(order[key]) : "";
-          }
-        }}
-      />
-
-      {/* Pagination */}
-      <div className="flex flex-col items-center mt-4 gap-2">
-        <span className="text-sm text-muted-foreground">
-          Page {currentPage} of {totalPages} | Total Orders: {total}
-        </span>
-
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                onClick={() =>
-                  setCurrentPage(Math.max(currentPage - 1, 1))
-                }
-                className={
-                  currentPage === 1 ? "pointer-events-none opacity-50" : ""
-                }
-              />
-            </PaginationItem>
-
-            {Array.from({ length: totalPages }, (_, i) => (
-              <PaginationItem key={i}>
-                <PaginationLink
-                  onClick={() => setCurrentPage(i + 1)}
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
                   className={
-                    currentPage === i + 1
-                      ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                      : "hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]"
+                    currentPage === 1 ? "pointer-events-none opacity-50" : ""
                   }
-                >
-                  {i + 1}
-                </PaginationLink>
+                />
               </PaginationItem>
-            ))}
 
-            <PaginationItem>
-              <PaginationNext
-                onClick={() =>
-                  setCurrentPage(Math.min(currentPage + 1, totalPages))
-                }
-                className={
-                  currentPage === totalPages
-                    ? "pointer-events-none opacity-50"
-                    : ""
-                }
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      </div>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <PaginationItem key={i}>
+                  <PaginationLink
+                    onClick={() => setCurrentPage(i + 1)}
+                    className={
+                      currentPage === i + 1
+                        ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
+                        : "hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]"
+                    }
+                  >
+                    {i + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() =>
+                    setCurrentPage(Math.min(currentPage + 1, totalPages))
+                  }
+                  className={
+                    currentPage === totalPages
+                      ? "pointer-events-none opacity-50"
+                      : ""
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      </Card>
     </div>
   );
 };

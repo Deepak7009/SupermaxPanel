@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
 import { FilterQuery } from "mongoose";
 import Order, { IOrder } from "../../models/Order";
+import Customer from "../../models/Customer";
+import Product from "../../models/Product";
 
 // ---------------- CREATE ORDER ----------------
 const createOrder = async (req: NextRequest) => {
@@ -11,7 +13,6 @@ const createOrder = async (req: NextRequest) => {
     await connectToDatabase();
     const data = await req.json();
 
-    // Basic validation
     if (!data.customerName || !data.totalAmount || !Array.isArray(data.items)) {
       return NextResponse.json(
         { success: false, message: "Invalid payload" },
@@ -19,7 +20,63 @@ const createOrder = async (req: NextRequest) => {
       );
     }
 
+    // ---------------- FIND/CREATE CUSTOMER ----------------
+    let customer = await Customer.findOne({
+      $or: [{ email: data.customerEmail }, { phone: data.customerMobile }],
+    });
+
+    if (!customer) {
+      customer = await Customer.create({
+        name: data.customerName,
+        email: data.customerEmail,
+        phone: data.customerMobile,
+        orders: [],
+      });
+    }
+
+    // -------------------------------------------------------
+    // ⭐ DEDUCT PRODUCT STOCK SAFELY (Universal structure)
+    // -------------------------------------------------------
+    for (const item of data.items) {
+      const productId =
+        item.productId || item.product?._id || item.product || null;
+
+      const qty = item.quantity || item.qty || 0;
+
+      if (!productId) {
+        return NextResponse.json(
+          { success: false, message: "Product ID missing in order item" },
+          { status: 400 }
+        );
+      }
+
+      const product = await Product.findById(productId);
+
+      if (!product) {
+        return NextResponse.json(
+          { success: false, message: `Product not found` },
+          { status: 404 }
+        );
+      }
+
+      if (product.stock < qty) {
+        return NextResponse.json(
+          { success: false, message: `${product.name} has insufficient stock` },
+          { status: 400 }
+        );
+      }
+
+      product.stock -= qty;
+      await product.save();
+    }
+
+    // -------------------------------------------------------
+    // CREATE ORDER
     const newOrder = await Order.create(data);
+
+    // PUSH ORDER TO CUSTOMER HISTORY
+    customer.orders.push(newOrder._id);
+    await customer.save();
 
     return NextResponse.json(
       { success: true, order: newOrder },
@@ -27,11 +84,8 @@ const createOrder = async (req: NextRequest) => {
     );
   } catch (error: unknown) {
     console.error(error);
-    if (error instanceof Error) {
-      return NextResponse.json({ message: error.message }, { status: 500 });
-    }
     return NextResponse.json(
-      { message: "Unknown error occurred" },
+      { message: error instanceof Error ? error.message : "Unknown error" },
       { status: 500 }
     );
   }

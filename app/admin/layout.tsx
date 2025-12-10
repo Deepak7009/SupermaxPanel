@@ -78,7 +78,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                   }`}
                 >
                   <AdminHeader />
-                  <main className="flex-1 p-6 mt-12 overflow-auto">
+                  <main className="flex-1 p-6 mt-2 overflow-auto">
                     {children}
                   </main>
                   <AdminFooter />

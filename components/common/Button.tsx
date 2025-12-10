@@ -23,9 +23,9 @@ const Button = ({
       disabled={disabled}
       onClick={onClick}
       className={`
-        bg-[var(--primary)] 
-        text-[var(--primary-foreground)] 
-        hover:bg-[var(--primary)]/90 
+        bg-[var(--color-table-header-bg)] 
+        text-[var(--color-table-header-text)] 
+        hover:bg-[var(--color-table-header-bg)]/60 
         transition-colors 
         ${className}
       `}

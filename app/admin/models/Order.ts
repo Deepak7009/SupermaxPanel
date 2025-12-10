@@ -3,8 +3,12 @@ import mongoose, { Schema, Document, model, models } from "mongoose";
 export interface IOrder extends Document {
   customerName: string;
   customerEmail: string;
+  customerMobile?: string; // optional
+  customerAddress?: string; // optional
+  note?: string; // optional
+
   items: Array<{
-    productId: Schema.Types.ObjectId; // renamed to match frontend
+    productId: Schema.Types.ObjectId;
     name: string;
     quantity: number;
     price: number;
@@ -12,6 +16,7 @@ export interface IOrder extends Document {
   totalAmount: number;
   status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
   createdAt: Date;
+  updatedAt: Date;
 }
 
 const orderSchema = new Schema<IOrder>(
@@ -19,13 +24,13 @@ const orderSchema = new Schema<IOrder>(
     customerName: { type: String, required: true },
     customerEmail: { type: String, required: true },
 
+    customerMobile: { type: String },
+    customerAddress: { type: String },
+    note: { type: String },
+
     items: [
       {
-        productId: {  // rename here
-          type: Schema.Types.ObjectId,
-          ref: "Product",
-          required: true,
-        },
+        productId: { type: Schema.Types.ObjectId, ref: "Product", required: true },
         name: String,
         quantity: Number,
         price: Number,
