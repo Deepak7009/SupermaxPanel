@@ -6,6 +6,7 @@ interface RawCustomer {
   _id: string;
   name: string;
   email: string;
+  phone: string;
   orders: Array<{ _id: string } | string>;
   createdAt: string;
   updatedAt: string;
@@ -41,6 +42,7 @@ export const fetchCustomersThunk = createAsyncThunk<
       _id: c._id,
       name: c.name,
       email: c.email,
+      phone: c.phone,
       orders: c.orders.map((o) => (typeof o === "string" ? o : o._id)),
       createdAt: c.createdAt,
       updatedAt: c.updatedAt,

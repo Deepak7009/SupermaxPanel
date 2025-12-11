@@ -3,6 +3,7 @@ export interface Customer {
   _id: string;
   name: string;
   email: string;
+  phone?: string;
   orders: string[]; // just store order IDs as string for frontend
   createdAt: string;
   updatedAt: string;

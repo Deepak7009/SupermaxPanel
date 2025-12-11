@@ -11,20 +11,12 @@ import { Product } from "@/redux/slices/productSlice";
 import { Card } from "@/components/ui/card";
 import Table, { Column } from "@/components/common/Table";
 
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationPrevious,
-  PaginationNext,
-  PaginationLink,
-  PaginationEllipsis,
-} from "@/components/ui/pagination";
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import Select from "@/components/common/Select";
 import { EyeIcon } from "lucide-react";
 import ProductViewModal from "@/components/modals/ProductViewModal";
+import Pagination from "@/components/common/Pagination";
 
 type SortConfig = {
   key: keyof Product;
@@ -183,61 +175,12 @@ const ProductsPage = () => {
         />
 
         {/* Pagination */}
-        <div className="flex flex-col items-center mt-0 gap-2">
-          {/* Show current page, total pages, and total products */}
-          <span className="text-sm text-muted-foreground">
-            Page {currentPage} of {totalPages} | Total Products: {total}
-          </span>
-
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => setCurrentPage(Math.max(currentPage - 1, 1))}
-                  className={
-                    currentPage === 1
-                      ? "pointer-events-none opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-
-              {Array.from({ length: totalPages }, (_, i) => (
-                <PaginationItem key={i}>
-                  <PaginationLink
-                    onClick={() => setCurrentPage(i + 1)}
-                    className={
-                      currentPage === i + 1
-                        ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                        : "hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]"
-                    }
-                  >
-                    {i + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-
-              {totalPages > 5 && (
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-              )}
-
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() =>
-                    setCurrentPage(Math.min(currentPage + 1, totalPages))
-                  }
-                  className={
-                    currentPage === totalPages
-                      ? "pointer-events-none opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={total}
+            onPageChange={(page) => setCurrentPage(page)}
+          />
       </Card>
     </div>
   );

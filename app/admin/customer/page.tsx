@@ -10,18 +10,9 @@ import Table, { Column } from "@/components/common/Table";
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import { Card } from "@/components/ui/card";
-import { Eye } from "lucide-react";
+import { Eye, Mail, Phone } from "lucide-react";
 import { Customer } from "@/redux/types/customer";
-
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationPrevious,
-  PaginationNext,
-  PaginationLink,
-  PaginationEllipsis,
-} from "@/components/ui/pagination";
+import Pagination from "@/components/common/Pagination";
 
 type SortConfig = {
   key: keyof Customer;
@@ -38,6 +29,7 @@ const CustomerPage = () => {
   const [selected, setSelected] = useState<Customer | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const totalPages = Math.ceil(total / limit);
 
@@ -67,9 +59,9 @@ const CustomerPage = () => {
   const columns: Column<Customer>[] = [
     { key: "_id", label: "#" },
     { key: "name", label: "Name" },
-    { key: "email", label: "Email" },
+    { key: "email", label: "Contact" }, // Email + Phone
     { key: "orders", label: "Orders" },
-    { key: "actions" as keyof Customer, label: "Actions" }, // type assertion
+    { key: "actions" as keyof Customer, label: "Actions" },
   ];
 
   return (
@@ -94,8 +86,29 @@ const CustomerPage = () => {
             switch (key) {
               case "_id":
                 return index + 1 + (page - 1) * limit;
+
+              case "email":
+                return (
+                  <div className="flex flex-col gap-1">
+                    {/* Email */}
+                    <div className="flex items-center gap-2">
+                      <Mail className="w-4 h-4 text-blue-500" />
+                      <span>{customer.email}</span>
+                    </div>
+
+                    {/* Phone */}
+                    {customer.phone && (
+                      <div className="flex items-center gap-2">
+                        <Phone className="w-4 h-4 text-green-500" />
+                        <span>{customer.phone}</span>
+                      </div>
+                    )}
+                  </div>
+                );
+
               case "orders":
                 return customer.orders.length;
+
               case "actions":
                 return (
                   <Button
@@ -108,6 +121,7 @@ const CustomerPage = () => {
                     <Eye className="w-4 h-4" />
                   </Button>
                 );
+
               default:
                 return customer[key] ?? "";
             }
@@ -117,54 +131,15 @@ const CustomerPage = () => {
         />
 
         {/* Pagination */}
-        <div className="flex flex-col items-center mt-0 gap-2">
-          <span className="text-sm text-muted-foreground">
-            Page {page} of {totalPages} | Total Customers: {total}
-          </span>
-
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => dispatch(setPage(Math.max(page - 1, 1)))}
-                  className={page === 1 ? "pointer-events-none opacity-50" : ""}
-                />
-              </PaginationItem>
-
-              {Array.from({ length: totalPages }, (_, i) => (
-                <PaginationItem key={i}>
-                  <PaginationLink
-                    onClick={() => dispatch(setPage(i + 1))}
-                    className={
-                      page === i + 1
-                        ? "bg-[var(--primary)] text-[var(--primary-foreground)]"
-                        : "hover:bg-[var(--accent)] hover:text-[var(--accent-foreground)]"
-                    }
-                  >
-                    {i + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-
-              {totalPages > 5 && (
-                <PaginationItem>
-                  <PaginationEllipsis />
-                </PaginationItem>
-              )}
-
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() =>
-                    dispatch(setPage(Math.min(page + 1, totalPages)))
-                  }
-                  className={
-                    page === totalPages ? "pointer-events-none opacity-50" : ""
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={total}
+          onPageChange={(p) => {
+            setCurrentPage(p);
+            dispatch(setPage(p));
+          }}
+        />
       </Card>
 
       {/* Customer Modal */}
@@ -172,6 +147,7 @@ const CustomerPage = () => {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-neutral-900 p-6 rounded-xl w-96">
             <h2 className="text-lg font-semibold mb-4">Customer Details</h2>
+
             <p>
               <b>Name:</b> {selected.name}
             </p>
@@ -179,8 +155,12 @@ const CustomerPage = () => {
               <b>Email:</b> {selected.email}
             </p>
             <p>
+              <b>Phone:</b> {selected.phone || "N/A"}
+            </p>
+            <p>
               <b>Total Orders:</b> {selected.orders.length}
             </p>
+
             <div className="mt-4 text-right">
               <Button onClick={() => setModalOpen(false)}>Close</Button>
             </div>
