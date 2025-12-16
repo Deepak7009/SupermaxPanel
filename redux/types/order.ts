@@ -7,6 +7,7 @@
 // }
 
 export interface OrderItem {
+  _id: string; 
   productId: string;
   name: string;
   quantity: number;
@@ -46,6 +47,7 @@ export interface Order {
 
   createdAt: string;
   updatedAt: string;
+  actions?:string;
 }
 
 

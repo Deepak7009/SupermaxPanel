@@ -1,7 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { Customer, FetchCustomersParams } from "../types/customer";
+import { CustomerDetail, CustomerList, FetchCustomersParams } from "../types/customer";
 
-// Temporary type for raw API response
 interface RawCustomer {
   _id: string;
   name: string;
@@ -13,8 +12,14 @@ interface RawCustomer {
 }
 
 interface FetchCustomersResponse {
-  customers: Customer[];
+  customers: CustomerList[];
   total: number;
+}
+
+
+interface FetchCustomerResponse {
+  success: boolean;
+  customer: CustomerDetail;
 }
 
 export const fetchCustomersThunk = createAsyncThunk<
@@ -36,19 +41,37 @@ export const fetchCustomersThunk = createAsyncThunk<
     });
 
     const data = await res.json();
-    if (!data.success) throw new Error(data.message || "Failed to fetch customers");
+    if (!data.success) {
+      throw new Error(data.message || "Failed to fetch customers");
+    }
 
-    const customers: Customer[] = (data.customers as RawCustomer[]).map((c) => ({
-      _id: c._id,
-      name: c.name,
-      email: c.email,
-      phone: c.phone,
-      orders: c.orders.map((o) => (typeof o === "string" ? o : o._id)),
-      createdAt: c.createdAt,
-      updatedAt: c.updatedAt,
-    }));
+    const customers: CustomerList[] = (data.customers as RawCustomer[]).map(
+      (c) => ({
+        _id: c._id,
+        name: c.name,
+        email: c.email,
+        phone: c.phone,
+        orders: c.orders.map((o) =>
+          typeof o === "string" ? o : o._id
+        ),
+        createdAt: c.createdAt,
+        updatedAt: c.updatedAt,
+      })
+    );
 
     return { customers, total: data.total };
+  }
+);
+
+export const fetchCustomerDetailThunk = createAsyncThunk<CustomerDetail, string>(
+  "customerDetail/fetchCustomerDetail",
+  async (id) => {
+    const res = await fetch(`/admin/api/customers?id=${id}`, { cache: "no-store" });
+    const data: FetchCustomerResponse = await res.json();
+
+    if (!data.success) throw new Error("Failed to fetch customer");
+
+    return data.customer;
   }
 );
 

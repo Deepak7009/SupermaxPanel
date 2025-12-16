@@ -36,7 +36,7 @@ export default function Sidebar({ collapsed }: SidebarProps) {
     },
     {
       name: "Customers",
-      href: "/admin/customer",
+      href: "/admin/customers",
       icon: <User className="w-5 h-5" />,
     },
     {

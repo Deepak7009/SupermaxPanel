@@ -1,9 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchCustomersThunk } from "../thunks/customerThunks";
-import { Customer } from "../types/customer";
+import { fetchCustomersThunk, fetchCustomerDetailThunk } from "../thunks/customerThunks";
+import { CustomerDetail, CustomerList } from "../types/customer";
 
 interface CustomerState {
-  customers: Customer[];
+  customers: CustomerList[];
+  customer: CustomerDetail | null; // <-- make nullable
   loading: boolean;
   error: string | null;
   total: number;
@@ -13,6 +14,7 @@ interface CustomerState {
 
 const initialState: CustomerState = {
   customers: [],
+  customer: null, // initially no customer detail
   loading: false,
   error: null,
   total: 0,
@@ -30,6 +32,7 @@ const customerSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Fetch customers list
       .addCase(fetchCustomersThunk.pending, (state) => {
         state.loading = true;
       })
@@ -39,6 +42,19 @@ const customerSlice = createSlice({
         state.total = action.payload.total;
       })
       .addCase(fetchCustomersThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "Something went wrong";
+      })
+
+      // Fetch single customer detail
+      .addCase(fetchCustomerDetailThunk.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchCustomerDetailThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.customer = action.payload;
+      })
+      .addCase(fetchCustomerDetailThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Something went wrong";
       });

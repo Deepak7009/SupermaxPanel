@@ -3,6 +3,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
 import Customer, { ICustomer } from "../../models/Customer";
+import "@/app/admin/models/Order";
 import { FilterQuery } from "mongoose";
 
 // ---------------- GET ALL / SINGLE CUSTOMER ----------------
