@@ -4,7 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
 import Customer, { ICustomer } from "../../models/Customer";
 import "@/app/admin/models/Order";
-import { FilterQuery } from "mongoose";
+import mongoose, { FilterQuery } from "mongoose";
+import { CustomerDetail } from "@/redux/types/customer";
 
 // ---------------- GET ALL / SINGLE CUSTOMER ----------------
 const getCustomers = async (req: NextRequest) => {
@@ -17,9 +18,13 @@ const getCustomers = async (req: NextRequest) => {
     const page = Number(url.searchParams.get("page") || "1");
     const limit = Number(url.searchParams.get("limit") || "10");
 
-    // GET SINGLE CUSTOMER
-    if (id) {
-      const customer = await Customer.findById(id).populate("orders");
+    /* ======================================================
+       ✅ GET SINGLE CUSTOMER
+    ====================================================== */
+    if (id && mongoose.Types.ObjectId.isValid(id)) {
+      const customer = await Customer.findById(id)
+        .populate("orders")
+        .lean<CustomerDetail | null>();
 
       if (!customer) {
         return NextResponse.json(
@@ -28,10 +33,33 @@ const getCustomers = async (req: NextRequest) => {
         );
       }
 
-      return NextResponse.json({ success: true, customer });
+      const totalOrders = customer.orders.length;
+      const totalPages = Math.ceil(totalOrders / limit);
+
+      return NextResponse.json({
+        success: true,
+        customer,
+        pagination: {
+          totalItems: totalOrders,
+          totalPages,
+          currentPage: page,
+          pageSize: limit,
+        },
+      });
     }
 
-    // FIX: Use FilterQuery instead of any
+    // ❌ INVALID ID PROTECTION
+    if (id && !mongoose.Types.ObjectId.isValid(id)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid customer id" },
+        { status: 400 }
+      );
+    }
+
+    /* ======================================================
+       ✅ GET ALL CUSTOMERS
+    ====================================================== */
+
     const query: FilterQuery<ICustomer> = {};
 
     if (search) {
@@ -49,6 +77,8 @@ const getCustomers = async (req: NextRequest) => {
         .lean(),
       Customer.countDocuments(query),
     ]);
+
+    // const totalPages = Math.ceil(total / limit);
 
     return NextResponse.json({
       success: true,

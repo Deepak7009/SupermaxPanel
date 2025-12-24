@@ -63,15 +63,41 @@ export const fetchCustomersThunk = createAsyncThunk<
   }
 );
 
-export const fetchCustomerDetailThunk = createAsyncThunk<CustomerDetail, string>(
-  "customerDetail/fetchCustomerDetail",
-  async (id) => {
-    const res = await fetch(`/admin/api/customers?id=${id}`, { cache: "no-store" });
-    const data: FetchCustomerResponse = await res.json();
-
-    if (!data.success) throw new Error("Failed to fetch customer");
-
-    return data.customer;
+export const fetchCustomerDetailThunk = createAsyncThunk<
+  CustomerDetail,
+  {
+    id: string;
+    orderPage: number;
+    orderLimit: number;
+    orderSearch?: string;
+    sortKey?: string;
+    sortDirection?: "asc" | "desc";
   }
-);
+>("customerDetail/fetchCustomerDetail", async (params) => {
+  const query = new URLSearchParams({
+    id: params.id,
+    orderPage: String(params.orderPage),
+    orderLimit: String(params.orderLimit),
+    orderSearch: params.orderSearch || "",
+    sortKey: params.sortKey || "createdAt",
+    sortDirection: params.sortDirection || "desc",
+  });
+
+  const res = await fetch(`/admin/api/customers?${query}`, {
+    cache: "no-store",
+  });
+
+  const data = await res.json();
+
+  if (!data.success) {
+    throw new Error("Failed to fetch customer");
+  }
+
+  // ✅ MERGE pagination INTO customer
+  return {
+    ...data.customer,
+    ordersPagination: data.ordersPagination,
+  };
+});
+
 

@@ -13,15 +13,33 @@ export interface CustomerList {
 }
 
 /** Customer used in DETAIL page */
+// export interface CustomerDetail {
+//   _id: string;
+//   name: string;
+//   email: string;
+//   phone: string;
+//   orders: Order[]; // ✅ populated
+//   createdAt: string;
+//   updatedAt: string;
+//   actions?:string;
+// }
+/** Customer used in DETAIL page */
+export interface OrdersPagination {
+  total: number;
+  page: number;
+  limit: number;
+}
 export interface CustomerDetail {
   _id: string;
   name: string;
   email: string;
   phone: string;
-  orders: Order[]; // ✅ populated
+
+  orders: Order[]; // paginated orders
+  ordersPagination: OrdersPagination; // ✅ ADD THIS
+
   createdAt: string;
   updatedAt: string;
-  actions?:string;
 }
 
 export interface FetchCustomersParams {

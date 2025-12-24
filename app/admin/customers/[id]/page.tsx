@@ -154,8 +154,19 @@ const CustomerDetailPage = () => {
   const PAGE_SIZE = 5;
 
   useEffect(() => {
-    if (id) dispatch(fetchCustomerDetailThunk(id));
-  }, [dispatch, id]);
+    if (!id) return;
+
+    dispatch(
+      fetchCustomerDetailThunk({
+        id,
+        orderPage: page,
+        orderLimit: PAGE_SIZE,
+        orderSearch: search,
+        sortKey: "createdAt",
+        sortDirection: "desc",
+      })
+    );
+  }, [dispatch, id, page, search]);
 
   if (loading) return <div className="p-6">Loading...</div>;
   if (error) return <div className="p-6 text-red-500">{error}</div>;
@@ -269,7 +280,7 @@ const CustomerDetailPage = () => {
 
         <Pagination
           currentPage={page}
-          totalPages={totalPages}
+          totalPages={Math.ceil(filteredOrders.length / PAGE_SIZE)}
           totalItems={filteredOrders.length}
           onPageChange={setPage}
         />
