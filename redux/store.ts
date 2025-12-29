@@ -5,6 +5,8 @@ import productReducer from "./slices/productSlice"
 import categoryReducer from "./slices/categorySlice"
 import orderReducer from "./slices/orderSlice";
 import customerReducer from "./slices/customerSlice";
+import employeeReducer from "./slices/employeeSlice";
+import workReducer from "./slices/workSlice";
 
 
 export const store = configureStore({
@@ -15,6 +17,8 @@ export const store = configureStore({
     category: categoryReducer,
     orders: orderReducer,
     customers: customerReducer,
+    employee: employeeReducer,
+    work: workReducer,
   },
 });
 

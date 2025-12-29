@@ -31,7 +31,7 @@ export default function Sidebar({ collapsed }: SidebarProps) {
     },
     {
       name: "Employ Exp",
-      href: "/admin/products",
+      href: "/admin/employees",
       icon: <User className="w-5 h-5" />,
     },
     {
