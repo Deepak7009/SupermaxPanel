@@ -1,5 +1,13 @@
 import Link from "next/link";
-import { Home, Box } from "lucide-react"; // Example icons
+import {
+  Home,
+  Box,
+  ListOrdered,
+  Receipt,
+  User,
+  Package,
+  DollarSign,
+} from "lucide-react"; // Example icons
 import Image from "next/image";
 
 interface SidebarProps {
@@ -13,6 +21,36 @@ export default function Sidebar({ collapsed }: SidebarProps) {
       name: "Products",
       href: "/admin/products",
       icon: <Box className="w-5 h-5" />,
+    },
+    {
+      name: "Orders",
+      href: "/admin/orders",
+      icon: <ListOrdered className="w-5 h-5" />,
+    },
+    {
+      name: "Factory Exp",
+      href: "/admin/factoryExpense",
+      icon: <Receipt className="w-5 h-5" />,
+    },
+    {
+      name: "Raw Metrial",
+      href: "/admin/products",
+      icon: <Package className="w-5 h-5" />,
+    },
+    {
+      name: "Employ Exp",
+      href: "/admin/employees",
+      icon: <User className="w-5 h-5" />,
+    },
+    {
+      name: "Customers",
+      href: "/admin/customers",
+      icon: <User className="w-5 h-5" />,
+    },
+    {
+      name: "Total Exp",
+      href: "/admin/products",
+      icon: <DollarSign className="w-5 h-5" />,
     },
   ];
 

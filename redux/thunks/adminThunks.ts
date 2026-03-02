@@ -1,48 +1,49 @@
+import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import { AppDispatch } from "../store";
-import { setAdmin, setLoading, setError } from "../slices/adminSlice";
 
-const loginAdmin =
-  (email: string, password: string) => async (dispatch: AppDispatch) => {
+// ---------------- LOGIN ADMIN ----------------
+export const loginAdmin = createAsyncThunk<
+  { email: string; token: string },              // return type
+  { email: string; password: string },           // argument type
+  { rejectValue: string }                        // error string
+>(
+  "admin/loginAdmin",
+  async ({ email, password }, { rejectWithValue }) => {
     try {
-      dispatch(setLoading(true));
-      dispatch(setError(null));
-
       const { data } = await axios.post("/admin/api/login", { email, password });
 
-      dispatch(setAdmin({ email, token: data.token }));
-      localStorage.setItem("token", data.token); // persist token
+      // keep your logic exactly the same
+      localStorage.setItem("token", data.token);
+
+      return { email, token: data.token };
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
-        dispatch(setError(err.response?.data?.error || "Network error"));
-      } else {
-        dispatch(setError("Unexpected error"));
+        return rejectWithValue(err.response?.data?.error || "Network error");
       }
-    } finally {
-      dispatch(setLoading(false));
+      return rejectWithValue("Unexpected error");
     }
-  };
+  }
+);
 
-const registerAdmin =
-  (email: string, password: string) => async (dispatch: AppDispatch) => {
+// ---------------- REGISTER ADMIN ----------------
+export const registerAdmin = createAsyncThunk<
+  void,
+  { email: string; password: string },
+  { rejectValue: string }
+>(
+  "admin/registerAdmin",
+  async ({ email, password }, { rejectWithValue }) => {
     try {
-      dispatch(setLoading(true));
-      dispatch(setError(null));
+      await axios.post("/admin/api/register", { email, password });
 
-      const { data } = await axios.post("/admin/api/register", { email, password });
-
-      // Optional: auto-login after registration
-      // dispatch(setAdmin({ email, token: data.token }));
-      // localStorage.setItem("token", data.token);
+      // you said: don't auto-login → so I keep it the same
+      // no setAdmin call here
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
-        dispatch(setError(err.response?.data?.error || "Network error"));
-      } else {
-        dispatch(setError("Unexpected error"));
+        return rejectWithValue(err.response?.data?.error || "Network error");
       }
-    } finally {
-      dispatch(setLoading(false));
+      return rejectWithValue("Unexpected error");
     }
-  };
-
-export { loginAdmin, registerAdmin };
+  }
+);
+  
