@@ -1,5 +1,13 @@
 import Link from "next/link";
-import { Home, Box, ListOrdered, Receipt, User, Package, DollarSign } from "lucide-react"; // Example icons
+import {
+  Home,
+  Box,
+  ListOrdered,
+  Receipt,
+  User,
+  Package,
+  DollarSign,
+} from "lucide-react"; // Example icons
 import Image from "next/image";
 
 interface SidebarProps {
@@ -21,7 +29,7 @@ export default function Sidebar({ collapsed }: SidebarProps) {
     },
     {
       name: "Factory Exp",
-      href: "/admin/products",
+      href: "/admin/factoryExpense",
       icon: <Receipt className="w-5 h-5" />,
     },
     {

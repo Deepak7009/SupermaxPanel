@@ -5,13 +5,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { RootState, AppDispatch } from "@/redux/store";
 import { fetchEmployees } from "@/redux/thunks/employeeThunk";
+import { Employee } from "@/redux/types/employee";
+
 import Table, { Column } from "@/components/common/Table";
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import Pagination from "@/components/common/Pagination";
 import { Card } from "@/components/ui/card";
 import { Eye } from "lucide-react";
-import { Employee } from "@/redux/types/employee";
 import AddEmployeeModal from "@/components/modals/AddEmployeeModal";
 
 const EmployeesPage = () => {
@@ -19,7 +20,7 @@ const EmployeesPage = () => {
   const router = useRouter();
 
   const { employees, total, page, limit } = useSelector(
-    (state: RootState) => state.employee
+    (state: RootState) => state.employee,
   );
 
   const [search, setSearch] = useState("");
@@ -41,31 +42,33 @@ const EmployeesPage = () => {
   ];
 
   return (
-    <div className="p-6 space-y-4">
-      <h1 className="text-xl font-semibold">Employees</h1>
+    <div className="p-6 bg-[var(--background)] text-[var(--foreground)]">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-xl font-semibold">Employees</h1>
+      </div>
 
-      {/* Add Employee Button */}
-      <div className="flex gap-3 mb-4">
+      {/* Search Section */}
+      <div className="flex justify-between mb-4">
+        <div className="flex gap-4">
+          <Input
+            placeholder="Search by name or phone..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
         <Button onClick={() => setAddEmployeeOpen(true)}>Add Employee</Button>
       </div>
 
-      {/* Search */}
-      <Input
-        className="w-72"
-        placeholder="Search by name or phone"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
-
-      {/* Employee Table */}
+      {/* Table Section */}
       <Card className="p-4 rounded-xl">
-        <Table
+        <Table<Employee>
           columns={columns}
           data={employees}
           renderCell={(employee, key, index) => {
             switch (key) {
               case "_id":
-                return index + 1 + (page - 1) * limit;
+                return <span>{index + 1 + (page - 1) * limit}</span>;
               case "actions":
                 return (
                   <Button
@@ -73,11 +76,11 @@ const EmployeesPage = () => {
                       router.push(`/admin/employees/${employee._id}`)
                     }
                   >
-                    <Eye className="w-4 h-4" />
+                    <Eye className="w-5 h-5" />
                   </Button>
                 );
               default:
-                return String(employee[key] ?? "");
+                return employee[key] ? String(employee[key]) : "";
             }
           }}
         />
@@ -98,7 +101,7 @@ const EmployeesPage = () => {
         />
       </Card>
 
-      {/* Add Employee Modal */}
+      {/* Modal */}
       <AddEmployeeModal
         isOpen={addEmployeeOpen}
         setIsOpen={setAddEmployeeOpen}

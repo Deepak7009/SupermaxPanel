@@ -26,7 +26,7 @@ const workEntrySchema = new Schema<IWorkEntry>(
       default: "WORK",
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 workEntrySchema.index({ employee: 1, date: 1 }, { unique: true });

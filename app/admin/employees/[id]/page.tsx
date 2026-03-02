@@ -24,12 +24,18 @@ const EmployeeDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useDispatch<AppDispatch>();
 
-  const { currentEmployee, loading: empLoading, error: empError } = useSelector(
-    (state: RootState) => state.employee
-  );
-  const { entries, total, loading: workLoading, error: workError, page } = useSelector(
-    (state: RootState) => state.work
-  );
+  const {
+    currentEmployee,
+    loading: empLoading,
+    error: empError,
+  } = useSelector((state: RootState) => state.employee);
+  const {
+    entries,
+    total,
+    loading: workLoading,
+    error: workError,
+    page,
+  } = useSelector((state: RootState) => state.work);
 
   const [search, setSearch] = useState("");
   const [addWorkOpen, setAddWorkOpen] = useState(false);
@@ -93,7 +99,9 @@ const EmployeeDetailPage = () => {
 
           <div className="w-full flex justify-between text-sm">
             <span>Joined</span>
-            <span>{new Date(currentEmployee.createdAt).toLocaleDateString()}</span>
+            <span>
+              {new Date(currentEmployee.createdAt).toLocaleDateString()}
+            </span>
           </div>
         </div>
       </Card>
@@ -118,9 +126,10 @@ const EmployeeDetailPage = () => {
 
         <Table
           columns={columns}
-          data={entries.filter(e =>
-            e.date.toLowerCase().includes(search.toLowerCase()) ||
-            String(e.amount ?? "").includes(search)
+          data={entries.filter(
+            (e) =>
+              e.date.toLowerCase().includes(search.toLowerCase()) ||
+              String(e.amount ?? "").includes(search),
           )}
           renderCell={(entry, key) => {
             switch (key) {
@@ -129,7 +138,11 @@ const EmployeeDetailPage = () => {
               case "amount":
                 return `₹${entry.amount ?? 0}`;
               case "actions":
-                return <Button className="p-2"><Eye className="w-4 h-4" /></Button>;
+                return (
+                  <Button className="p-2">
+                    <Eye className="w-4 h-4" />
+                  </Button>
+                );
               default:
                 return String(entry[key] ?? "");
             }

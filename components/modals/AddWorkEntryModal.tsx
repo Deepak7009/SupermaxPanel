@@ -3,8 +3,8 @@
 import { useState } from "react";
 import DialogModal from "@/components/common/DialogModal";
 import Button from "@/components/common/Button";
-import { useDispatch } from "react-redux";
-import { AppDispatch } from "@/redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/redux/store";
 import { createWorkEntry, fetchWorkEntries } from "@/redux/thunks/workThunk";
 import { Employee } from "@/redux/types/employee";
 import FloatingInput from "../common/FloatingInput";
@@ -22,6 +22,9 @@ const AddWorkEntryModal = ({
 }: AddWorkEntryModalProps) => {
   const dispatch = useDispatch<AppDispatch>();
 
+  // ✅ get page & limit from redux
+  const { page, limit } = useSelector((state: RootState) => state.work);
+
   const [date, setDate] = useState("");
   const [quantity, setQuantity] = useState("");
   const [amount, setAmount] = useState("");
@@ -34,21 +37,30 @@ const AddWorkEntryModal = ({
       return;
     }
 
-    await dispatch(
+    const result = await dispatch(
       createWorkEntry({
         employee: employee._id,
         date,
         quantity: quantity ? Number(quantity) : undefined,
         amount: amount ? Number(amount) : undefined,
-      })
+      }),
     );
 
-    dispatch(fetchWorkEntries(employee._id));
+    // ✅ only refetch if success
+    if (createWorkEntry.fulfilled.match(result)) {
+      dispatch(
+        fetchWorkEntries({
+          employeeId: employee._id,
+          page,
+          limit,
+        }),
+      );
 
-    setIsOpen(false);
-    setDate("");
-    setQuantity("");
-    setAmount("");
+      setIsOpen(false);
+      setDate("");
+      setQuantity("");
+      setAmount("");
+    }
   };
 
   return (

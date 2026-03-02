@@ -15,38 +15,41 @@ export const fetchWorkEntries = createAsyncThunk<
   async ({ employeeId, page, limit }, { rejectWithValue }) => {
     try {
       const { data } = await axios.get<FetchWorkEntriesResponse>(
-        `/admin/api/work?employeeId=${employeeId}&page=${page}&limit=${limit}`
+        `/admin/api/work?employeeId=${employeeId}&page=${page}&limit=${limit}`,
       );
       return data;
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
-        return rejectWithValue(err.response?.data?.message || "Failed to fetch work entries");
+        return rejectWithValue(
+          err.response?.data?.message || "Failed to fetch work entries",
+        );
       }
-      return rejectWithValue(err instanceof Error ? err.message : "Unknown error");
+      return rejectWithValue(
+        err instanceof Error ? err.message : "Unknown error",
+      );
     }
-  }
+  },
 );
 
 /* -------- CREATE WORK ENTRY -------- */
 export const createWorkEntry = createAsyncThunk<
   CreateWorkEntryResponse,
   CreateWorkEntryPayload
->(
-  "work/createWorkEntry",
-  async (payload, { rejectWithValue }) => {
-    try {
-      const { data } = await axios.post<CreateWorkEntryResponse>(
-        "/admin/api/work",
-        payload
+>("work/createWorkEntry", async (payload, { rejectWithValue }) => {
+  try {
+    const { data } = await axios.post<CreateWorkEntryResponse>(
+      "/admin/api/work",
+      payload,
+    );
+    return data;
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err)) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to create work entry",
       );
-      return data;
-    } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        return rejectWithValue(
-          err.response?.data?.message || "Failed to create work entry"
-        );
-      }
-      return rejectWithValue(err instanceof Error ? err.message : "Unknown error");
     }
+    return rejectWithValue(
+      err instanceof Error ? err.message : "Unknown error",
+    );
   }
-);
+});

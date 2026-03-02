@@ -19,7 +19,10 @@ const getWorkEntries = async (req: NextRequest) => {
     const limit = Number(url.searchParams.get("limit") || 5);
 
     if (!employeeId || !mongoose.Types.ObjectId.isValid(employeeId)) {
-      return NextResponse.json({ success: false, message: "Invalid employee id" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, message: "Invalid employee id" },
+        { status: 400 },
+      );
     }
 
     const total = await WorkEntry.countDocuments({ employee: employeeId });
@@ -39,10 +42,15 @@ const getWorkEntries = async (req: NextRequest) => {
     });
   } catch (error: unknown) {
     console.error(error);
-    return NextResponse.json({ success: false, message: (error as Error)?.message || "Unknown error occurred" }, { status: 500 });
+    return NextResponse.json(
+      {
+        success: false,
+        message: (error as Error)?.message || "Unknown error occurred",
+      },
+      { status: 500 },
+    );
   }
 };
-
 
 /* ======================================================
    CREATE WORK ENTRY
@@ -68,13 +76,13 @@ const createWorkEntry = async (req: NextRequest) => {
     if (error instanceof Error) {
       return NextResponse.json(
         { success: false, message: error.message },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     return NextResponse.json(
       { success: false, message: "Unknown error occurred" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };
