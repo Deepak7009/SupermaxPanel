@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/supermax';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://deepakkumar01:D5EjHLOASrzQvfxD@cluster0.pmwcpo2.mongodb.net/';
 if (!MONGO_URI) throw new Error('Please define MONGO_URI in .env');
 
 let conn: typeof mongoose | null = null;
