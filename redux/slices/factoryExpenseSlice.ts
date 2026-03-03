@@ -1,11 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import {
-  FactoryExpense,
-  FetchFactoryExpensesParams,
-} from "../types/factoryExpense";
+import { FactoryExpense } from "../types/factoryExpense";
 import {
   createFactoryExpense,
-  fetchFactoryExpenseById,
   fetchFactoryExpenses,
 } from "../thunks/factoryExpenseThunks";
 
@@ -16,7 +12,11 @@ export interface FactoryExpenseState {
   limit: number;
   loading: boolean;
   error: string | null;
-  currentExpense: FactoryExpense | null;
+
+  // NEW FIELDS FOR TOTALS
+  totalPendingAmount: number;
+  totalPayedAmount: number;
+  totalMonthAmount: number;
 }
 
 const initialState: FactoryExpenseState = {
@@ -26,16 +26,16 @@ const initialState: FactoryExpenseState = {
   limit: 10,
   loading: false,
   error: null,
-  currentExpense: null,
+
+  totalPendingAmount: 0,
+  totalPayedAmount: 0,
+  totalMonthAmount: 0,
 };
 
 const factoryExpenseSlice = createSlice({
   name: "factoryExpense",
   initialState,
   reducers: {
-    clearCurrentExpense(state) {
-      state.currentExpense = null;
-    },
     setPage(state, action: PayloadAction<number>) {
       state.page = action.payload;
     },
@@ -61,6 +61,9 @@ const factoryExpenseSlice = createSlice({
           total: number;
           page: number;
           limit: number;
+          totalPendingAmount?: number;
+          totalPayedAmount?: number;
+          totalMonthAmount?: number;
         }>,
       ) => {
         state.loading = false;
@@ -68,32 +71,15 @@ const factoryExpenseSlice = createSlice({
         state.total = action.payload.total ?? 0;
         state.page = action.payload.page ?? 1;
         state.limit = action.payload.limit ?? 10;
+
+        // update totals from backend
+        state.totalPendingAmount = action.payload.totalPendingAmount ?? 0;
+        state.totalPayedAmount = action.payload.totalPayedAmount ?? 0;
+        state.totalMonthAmount = action.payload.totalMonthAmount ?? 0;
       },
     );
 
     builder.addCase(fetchFactoryExpenses.rejected, (state, action) => {
-      state.loading = false;
-      state.error = action.payload as string;
-    });
-
-    /* ================= FETCH BY ID ================= */
-    builder.addCase(fetchFactoryExpenseById.pending, (state) => {
-      state.loading = true;
-      state.error = null;
-    });
-
-    builder.addCase(
-      fetchFactoryExpenseById.fulfilled,
-      (
-        state,
-        action: PayloadAction<{ success: boolean; expense: FactoryExpense }>,
-      ) => {
-        state.loading = false;
-        state.currentExpense = action.payload.expense;
-      },
-    );
-
-    builder.addCase(fetchFactoryExpenseById.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload as string;
     });
@@ -113,6 +99,14 @@ const factoryExpenseSlice = createSlice({
         state.loading = false;
         state.expenses.unshift(action.payload.expense);
         state.total += 1;
+
+        // Update totals locally for new expense
+        if (action.payload.expense.status === "pending") {
+          state.totalPendingAmount += action.payload.expense.amount;
+        } else if (action.payload.expense.status === "approved") {
+          state.totalPayedAmount += action.payload.expense.amount;
+        }
+        state.totalMonthAmount += action.payload.expense.amount;
       },
     );
 
@@ -123,7 +117,6 @@ const factoryExpenseSlice = createSlice({
   },
 });
 
-export const { clearCurrentExpense, setPage, setLimit } =
-  factoryExpenseSlice.actions;
+export const { setPage, setLimit } = factoryExpenseSlice.actions;
 
 export default factoryExpenseSlice.reducer;

@@ -21,27 +21,46 @@ import { FactoryExpense } from "@/redux/types/factoryExpense";
 type ExpenseTableRow = FactoryExpense & { actions: string };
 type ExpenseStatus = "pending" | "approved" | "rejected";
 
+// Month options
+const months = Array.from({ length: 12 }, (_, i) => ({
+  label: new Date(0, i).toLocaleString("default", { month: "long" }),
+  value: String(i + 1),
+}));
+
 const FactoryExpensePage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
   const { expenses, page, total, limit, loading } = useSelector(
-    (state: RootState) => state.factoryExpense,
+    (state: RootState) => state.factoryExpense
   );
 
   const totalPages = Math.ceil(total / limit);
 
+  // Filters
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<"all" | ExpenseStatus>("all");
+  const [month, setMonth] = useState<string>(String(new Date().getMonth() + 1));
+  const [year, setYear] = useState<string>(String(new Date().getFullYear()));
   const [addOpen, setAddOpen] = useState(false);
   const [sortConfig, setSortConfig] = useState<{
     key: keyof ExpenseTableRow;
     direction: "asc" | "desc";
   } | null>(null);
 
+  // Fetch expenses from backend
   useEffect(() => {
-    dispatch(fetchFactoryExpenses({ page, limit, search }));
-  }, [dispatch, page, limit, search]);
+    dispatch(
+      fetchFactoryExpenses({
+        page,
+        limit,
+        search,
+        status: status === "all" ? undefined : status,
+        month,
+        year,
+      })
+    );
+  }, [dispatch, page, limit, search, status, month, year]);
 
   const handleSort = (key: keyof ExpenseTableRow) => {
     if (sortConfig?.key === key) {
@@ -54,12 +73,30 @@ const FactoryExpensePage = () => {
     }
   };
 
+  // Calculate totals for current page
+  const totalPaidAmount = expenses
+    .filter((e) => e.status === "approved")
+    .reduce((sum, e) => sum + e.amount, 0);
+
+  const totalPendingAmount = expenses
+    .filter((e) => e.status === "pending")
+    .reduce((sum, e) => sum + e.amount, 0);
+
+  const totalMonthExpense = totalPaidAmount + totalPendingAmount;
+
+  // Status filter options
   const statusOptions = [
     { label: "All Status", value: "all" },
     { label: "Pending", value: "pending" },
     { label: "Approved", value: "approved" },
     { label: "Rejected", value: "rejected" },
   ];
+
+  // Year filter options (last 10 years)
+  const years = Array.from({ length: 10 }, (_, i) => {
+    const y = new Date().getFullYear() - i;
+    return { label: String(y), value: String(y) };
+  });
 
   const columns: Column<ExpenseTableRow>[] = [
     { key: "_id", label: "#" },
@@ -71,9 +108,10 @@ const FactoryExpensePage = () => {
     { key: "actions", label: "Actions" },
   ];
 
-  const displayedExpenses: ExpenseTableRow[] = expenses
-    .filter((e) => (status === "all" ? true : e.status === status))
-    .map((e) => ({ ...e, actions: "view" }));
+  const displayedExpenses: ExpenseTableRow[] = expenses.map((e) => ({
+    ...e,
+    actions: "view",
+  }));
 
   const statusColors: Record<ExpenseStatus, string> = {
     pending:
@@ -92,26 +130,54 @@ const FactoryExpensePage = () => {
 
       <AddFactoryExpenseModal isOpen={addOpen} setIsOpen={setAddOpen} />
 
-      <div className="flex justify-between mb-4">
-        <div className="flex gap-4">
-          <Input
-            placeholder="Search expense..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              dispatch(setPage(1));
-            }}
-          />
-          <Select
-            value={status}
-            onChange={(value) => setStatus(value as "all" | ExpenseStatus)}
-            options={statusOptions}
-            placeholder="Select status"
-          />
-        </div>
+      {/* Filters */}
+      <div className="flex flex-wrap gap-4 mb-4">
+        <Input
+          placeholder="Search expense..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            dispatch(setPage(1));
+          }}
+        />
+        <Select
+          value={status}
+          onChange={(value) => setStatus(value as "all" | ExpenseStatus)}
+          options={statusOptions}
+          placeholder="Select status"
+        />
+        <Select
+          value={month}
+          onChange={(value) => setMonth(value)}
+          options={months}
+          placeholder="Select month"
+        />
+        <Select
+          value={year}
+          onChange={(value) => setYear(value)}
+          options={years}
+          placeholder="Select year"
+        />
         <Button onClick={() => setAddOpen(true)}>Add Factory Expense</Button>
       </div>
 
+      {/* Totals cards */}
+      <div className="flex flex-wrap gap-4 mb-4">
+        <Card className="p-4 flex-1">
+          <h2 className="text-sm text-gray-500">Total Paid Amount</h2>
+          <p className="text-xl font-bold">₹ {totalPaidAmount}</p>
+        </Card>
+        <Card className="p-4 flex-1">
+          <h2 className="text-sm text-gray-500">Total Pending Amount</h2>
+          <p className="text-xl font-bold">₹ {totalPendingAmount}</p>
+        </Card>
+        <Card className="p-4 flex-1">
+          <h2 className="text-sm text-gray-500">Total Month Expense</h2>
+          <p className="text-xl font-bold">₹ {totalMonthExpense}</p>
+        </Card>
+      </div>
+
+      {/* Table */}
       <Card className="p-4 rounded-xl">
         <Table<ExpenseTableRow>
           columns={columns}

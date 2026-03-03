@@ -6,7 +6,7 @@ import {
   CreateFactoryExpensePayload,
 } from "../types/factoryExpense";
 
-/* ================= FETCH ALL ================= */
+/* ================= FETCH ALL EXPENSES ================= */
 export const fetchFactoryExpenses = createAsyncThunk<
   {
     success: boolean;
@@ -22,14 +22,24 @@ export const fetchFactoryExpenses = createAsyncThunk<
   async (params, { rejectWithValue }) => {
     try {
       const query = new URLSearchParams();
+
       if (params?.search) query.append("search", params.search);
       if (params?.page) query.append("page", params.page.toString());
       if (params?.limit) query.append("limit", params.limit.toString());
+      if (params?.status) query.append("status", params.status);
+      if (params?.month) query.append("month", params.month.toString());
+      if (params?.year) query.append("year", params.year.toString());
 
       const { data } = await axios.get(
         `/admin/api/factoryExpense?${query.toString()}`,
       );
-      return data;
+      return {
+        success: data.success,
+        expenses: data.expenses ?? [],
+        total: data.total ?? 0,
+        page: data.page ?? 1,
+        limit: data.limit ?? 10,
+      };
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         return rejectWithValue(
@@ -43,28 +53,7 @@ export const fetchFactoryExpenses = createAsyncThunk<
   },
 );
 
-/* ================= FETCH BY ID ================= */
-export const fetchFactoryExpenseById = createAsyncThunk<
-  { success: boolean; expense: FactoryExpense },
-  string,
-  { rejectValue: string }
->("factoryExpense/fetchFactoryExpenseById", async (id, { rejectWithValue }) => {
-  try {
-    const { data } = await axios.get(`/admin/api/factoryExpense?id=${id}`);
-    return { success: true, expense: data.expense };
-  } catch (err: unknown) {
-    if (axios.isAxiosError(err)) {
-      return rejectWithValue(
-        err.response?.data?.message || "Failed to fetch factory expense",
-      );
-    }
-    return rejectWithValue(
-      err instanceof Error ? err.message : "Unknown error",
-    );
-  }
-});
-
-/* ================= CREATE ================= */
+/* ================= CREATE EXPENSE ================= */
 export const createFactoryExpense = createAsyncThunk<
   { success: boolean; expense: FactoryExpense },
   CreateFactoryExpensePayload,
