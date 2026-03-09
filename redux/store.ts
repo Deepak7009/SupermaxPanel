@@ -8,6 +8,7 @@ import customerReducer from "./slices/customerSlice";
 import employeeReducer from "./slices/employeeSlice";
 import workReducer from "./slices/workSlice";
 import factoryExpenseReducer from "./slices/factoryExpenseSlice";
+import rawMaterialReducer from "./slices/rawMaterialSlice";
 
 export const store = configureStore({
   reducer: {
@@ -20,6 +21,7 @@ export const store = configureStore({
     employee: employeeReducer,
     work: workReducer,
     factoryExpense: factoryExpenseReducer,
+    rawMaterial: rawMaterialReducer,
   },
 });
 

@@ -26,6 +26,9 @@ export interface FetchFactoryExpensesParams {
   page?: number;
   limit?: number;
   search?: string;
+  status?: "pending" | "approved" | "rejected"; // added for status filter
+  month?: string; // 1-12
+  year?: string;  // yyyy
 }
 
 /* ================= FETCH RESPONSE ================= */
@@ -33,6 +36,9 @@ export interface FetchFactoryExpensesResponse {
   success: boolean;
   data: FactoryExpense[];
   pagination: FactoryExpensePagination;
+   totalPendingAmount?: number; // total pending amount
+  totalPayedAmount?: number;   // total approved/payed amount
+  totalMonthAmount?: number;   
 }
 
 /* ================= FETCH BY ID RESPONSE ================= */
