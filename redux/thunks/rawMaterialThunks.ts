@@ -1,24 +1,28 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import {
-  FactoryExpense,
-  FetchFactoryExpensesParams,
-  CreateFactoryExpensePayload,
-} from "../types/factoryExpense";
+  RawMaterial,
+  FetchRawMaterialsParams,
+  CreateRawMaterialPayload,
+} from "../types/rawMaterial";
 
-/* ================= FETCH ALL EXPENSES ================= */
-export const fetchFactoryExpenses = createAsyncThunk<
+/* ================= FETCH MATERIALS ================= */
+
+export const fetchRawMaterials = createAsyncThunk<
   {
     success: boolean;
-    expenses: FactoryExpense[];
+    materials: RawMaterial[];
     total: number;
     page: number;
     limit: number;
+    totalAmount: number;
+    pendingAmount: number;
+    paidAmount: number;
   },
-  FetchFactoryExpensesParams | undefined,
+  FetchRawMaterialsParams | undefined,
   { rejectValue: string }
 >(
-  "factoryExpense/fetchFactoryExpenses",
+  "rawMaterial/fetchRawMaterials",
   async (params, { rejectWithValue }) => {
     try {
       const query = new URLSearchParams();
@@ -29,50 +33,61 @@ export const fetchFactoryExpenses = createAsyncThunk<
       if (params?.status) query.append("status", params.status);
       if (params?.month) query.append("month", params.month.toString());
       if (params?.year) query.append("year", params.year.toString());
- 
+
       const { data } = await axios.get(
-        `/admin/api/factoryExpense?${query.toString()}`,
+        `/admin/api/rawMaterial?${query.toString()}`
       );
+
       return {
         success: data.success,
-        expenses: data.expenses ?? [],
+        materials: data.materials ?? [],
         total: data.total ?? 0,
         page: data.page ?? 1,
         limit: data.limit ?? 10,
+        totalAmount: data.totalAmount ?? 0,
+        pendingAmount: data.pendingAmount ?? 0,
+        paidAmount: data.paidAmount ?? 0,
       };
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         return rejectWithValue(
-          err.response?.data?.message || "Failed to fetch factory expenses",
+          err.response?.data?.message || "Failed to fetch materials"
         );
       }
+
       return rejectWithValue(
-        err instanceof Error ? err.message : "Unknown error",
+        err instanceof Error ? err.message : "Unknown error"
       );
     }
-  },
+  }
 );
 
-/* ================= CREATE EXPENSE ================= */
-export const createFactoryExpense = createAsyncThunk<
-  { success: boolean; expense: FactoryExpense },
-  CreateFactoryExpensePayload,
+/* ================= CREATE MATERIAL ================= */
+
+export const createRawMaterial = createAsyncThunk<
+  { success: boolean; material: RawMaterial },
+  CreateRawMaterialPayload,
   { rejectValue: string }
 >(
-  "factoryExpense/createFactoryExpense",
+  "rawMaterial/createRawMaterial",
   async (payload, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post(`/admin/api/factoryExpense`, payload);
-      return { success: true, expense: data.expense };
+      const { data } = await axios.post(`/admin/api/rawMaterial`, payload);
+
+      return {
+        success: true,
+        material: data.material,
+      };
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         return rejectWithValue(
-          err.response?.data?.message || "Failed to create factory expense",
+          err.response?.data?.message || "Failed to create raw material"
         );
       }
+
       return rejectWithValue(
-        err instanceof Error ? err.message : "Unknown error",
+        err instanceof Error ? err.message : "Unknown error"
       );
     }
-  },
+  }
 );

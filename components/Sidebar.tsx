@@ -34,7 +34,7 @@ export default function Sidebar({ collapsed }: SidebarProps) {
     },
     {
       name: "Raw Metrial",
-      href: "/admin/products",
+      href: "/admin/rawMaterial",
       icon: <Package className="w-5 h-5" />,
     },
     {
