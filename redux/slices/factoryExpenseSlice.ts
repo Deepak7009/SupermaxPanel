@@ -103,7 +103,7 @@ const factoryExpenseSlice = createSlice({
         // Update totals locally for new expense
         if (action.payload.expense.status === "pending") {
           state.totalPendingAmount += action.payload.expense.amount;
-        } else if (action.payload.expense.status === "approved") {
+        } else if (action.payload.expense.status === "paid") {
           state.totalPayedAmount += action.payload.expense.amount;
         }
         state.totalMonthAmount += action.payload.expense.amount;

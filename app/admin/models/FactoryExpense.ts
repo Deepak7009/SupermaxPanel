@@ -7,7 +7,7 @@ export interface IFactoryExpense extends Document {
   entryPerson: string;
   quantity: number;
   shopName: string;
-  status: "pending" | "approved" | "rejected";
+  status: "pending" | "paid";
 }
 
 const factoryExpenseSchema = new Schema<IFactoryExpense>(
@@ -49,7 +49,7 @@ const factoryExpenseSchema = new Schema<IFactoryExpense>(
 
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected"],
+      enum: ["pending", "paid"],
       default: "pending",
     },
   },

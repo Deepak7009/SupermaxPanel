@@ -23,9 +23,7 @@ const AddFactoryExpenseModal = ({ isOpen, setIsOpen }: Props) => {
   const [entryDate, setEntryDate] = useState("");
   const [entryPerson, setEntryPerson] = useState("");
   const [shopName, setShopName] = useState("");
-  const [status, setStatus] = useState<"pending" | "approved" | "rejected">(
-    "pending",
-  );
+  const [status, setStatus] = useState<"pending" | "paid">("pending");
 
   const resetForm = () => {
     setName("");
@@ -115,6 +113,19 @@ const AddFactoryExpenseModal = ({ isOpen, setIsOpen }: Props) => {
           value={shopName}
           onChange={(e) => setShopName(e.target.value)}
         />
+
+        <div className="flex flex-col gap-2">
+          <label className="text-sm text-gray-500">Status</label>
+
+          <select
+            className="border rounded-md p-2 bg-transparent"
+            value={status}
+            onChange={(e) => setStatus(e.target.value as "pending" | "paid")}
+          >
+            <option value="pending">Pending</option>
+            <option value="paid">Paid</option>
+          </select>
+        </div>
 
         <div className="flex justify-end gap-2 pt-2">
           <Button onClick={handleClose}>Cancel</Button>

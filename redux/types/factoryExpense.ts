@@ -7,7 +7,7 @@ export interface FactoryExpense {
   entryPerson: string;
   quantity: number;
   shopName: string;
-  status: "pending" | "approved" | "rejected";
+  status: "pending" | "paid";
   createdAt?: string;
   updatedAt?: string;
   actions?: string;
@@ -26,7 +26,7 @@ export interface FetchFactoryExpensesParams {
   page?: number;
   limit?: number;
   search?: string;
-  status?: "pending" | "approved" | "rejected"; // added for status filter
+  status?: "pending" | "paid"; // added for status filter
   month?: string; // 1-12
   year?: string;  // yyyy
 }
@@ -55,7 +55,7 @@ export interface CreateFactoryExpensePayload {
   entryPerson: string;
   quantity: number;
   shopName: string;
-  status?: "pending" | "approved" | "rejected";
+  status?: "pending" | "paid";
 }
 
 /* ================= CREATE RESPONSE ================= */
