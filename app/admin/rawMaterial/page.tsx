@@ -17,6 +17,7 @@ import { Eye } from "lucide-react";
 
 import { RawMaterial } from "@/redux/types/rawMaterial";
 import AddRawMaterialModal from "@/components/modals/AddRawMaterialModal";
+import RawMaterialViewModal from "@/components/modals/RawMaterialViewModal";
 
 type MaterialRow = RawMaterial & { actions: string };
 type MaterialStatus = "pending" | "paid";
@@ -42,6 +43,10 @@ const RawMaterialPage = () => {
   const [month, setMonth] = useState<number>(new Date().getMonth() + 1);
   const [year, setYear] = useState<number>(new Date().getFullYear());
   const [addOpen, setAddOpen] = useState(false);
+  const [viewOpen, setViewOpen] = useState(false); // ✅ ADD THIS
+  const [selectedMaterial, setSelectedMaterial] = useState<RawMaterial | null>(
+    null,
+  );
 
   const [sortConfig, setSortConfig] = useState<{
     key: keyof MaterialRow;
@@ -210,9 +215,10 @@ const RawMaterialPage = () => {
               case "actions":
                 return (
                   <Button
-                    onClick={() =>
-                      router.push(`/admin/rawMaterial/${material._id}`)
-                    }
+                    onClick={() => {
+                      setSelectedMaterial(material);
+                      setViewOpen(true);
+                    }}
                   >
                     <Eye className="w-5 h-5" />
                   </Button>
@@ -222,6 +228,11 @@ const RawMaterialPage = () => {
                 return material[key] ? String(material[key]) : "";
             }
           }}
+        />
+        <RawMaterialViewModal
+          isOpen={viewOpen}
+          setIsOpen={setViewOpen}
+          material={selectedMaterial}
         />
 
         <Pagination
