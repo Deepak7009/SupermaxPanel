@@ -29,7 +29,7 @@ export const fetchFactoryExpenses = createAsyncThunk<
       if (params?.status) query.append("status", params.status);
       if (params?.month) query.append("month", params.month.toString());
       if (params?.year) query.append("year", params.year.toString());
- 
+
       const { data } = await axios.get(
         `/admin/api/factoryExpense?${query.toString()}`,
       );
@@ -68,6 +68,33 @@ export const createFactoryExpense = createAsyncThunk<
       if (axios.isAxiosError(err)) {
         return rejectWithValue(
           err.response?.data?.message || "Failed to create factory expense",
+        );
+      }
+      return rejectWithValue(
+        err instanceof Error ? err.message : "Unknown error",
+      );
+    }
+  },
+);
+
+export const updateFactoryExpense = createAsyncThunk<
+  FactoryExpense,
+  { id: string; updatedData: Partial<FactoryExpense> },
+  { rejectValue: string }
+>(
+  "factoryExpense/updateFactoryExpense",
+  async ({ id, updatedData }, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.put<FactoryExpense>(
+        `/admin/api/factoryExpense/${id}`,
+        updatedData,
+      );
+
+      return data;
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        return rejectWithValue(
+          err.response?.data?.error || "Failed to update expense",
         );
       }
       return rejectWithValue(

@@ -3,6 +3,7 @@ import { FactoryExpense } from "../types/factoryExpense";
 import {
   createFactoryExpense,
   fetchFactoryExpenses,
+  updateFactoryExpense,
 } from "../thunks/factoryExpenseThunks";
 
 export interface FactoryExpenseState {
@@ -103,7 +104,7 @@ const factoryExpenseSlice = createSlice({
         // Update totals locally for new expense
         if (action.payload.expense.status === "pending") {
           state.totalPendingAmount += action.payload.expense.amount;
-        } else if (action.payload.expense.status === "approved") {
+        } else if (action.payload.expense.status === "paid") {
           state.totalPayedAmount += action.payload.expense.amount;
         }
         state.totalMonthAmount += action.payload.expense.amount;
@@ -113,6 +114,35 @@ const factoryExpenseSlice = createSlice({
     builder.addCase(createFactoryExpense.rejected, (state, action) => {
       state.loading = false;
       state.error = action.payload as string;
+    });
+
+    builder.addCase(updateFactoryExpense.fulfilled, (state, action) => {
+      const updated = action.payload;
+
+      const index = state.expenses.findIndex((e) => e._id === updated._id);
+
+      if (index !== -1) {
+        const old = state.expenses[index];
+
+        // remove old totals
+        if (old.status === "pending") {
+          state.totalPendingAmount -= old.amount;
+        } else {
+          state.totalPayedAmount -= old.amount;
+        }
+        state.totalMonthAmount -= old.amount;
+
+        // update row
+        state.expenses[index] = updated;
+
+        // add new totals
+        if (updated.status === "pending") {
+          state.totalPendingAmount += updated.amount;
+        } else {
+          state.totalPayedAmount += updated.amount;
+        }
+        state.totalMonthAmount += updated.amount;
+      }
     });
   },
 });

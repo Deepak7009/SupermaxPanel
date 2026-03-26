@@ -15,8 +15,7 @@ const getFactoryExpenses = async (req: NextRequest) => {
     const limit = Number(url.searchParams.get("limit") || "5");
     const status = url.searchParams.get("status") as
       | "pending"
-      | "approved"
-      | "rejected"
+      | "paid"
       | undefined;
     const month = url.searchParams.get("month");
     const year = url.searchParams.get("year");

@@ -17,9 +17,10 @@ import { Eye } from "lucide-react";
 
 import AddFactoryExpenseModal from "@/components/modals/AddFactoryExpenseModal";
 import { FactoryExpense } from "@/redux/types/factoryExpense";
+import FactoryExpenseViewModal from "@/components/modals/FactoryExpenseViewModal";
 
 type ExpenseTableRow = FactoryExpense & { actions: string };
-type ExpenseStatus = "pending" | "approved" | "rejected";
+type ExpenseStatus = "pending" | "paid";
 
 // Month options
 const months = Array.from({ length: 12 }, (_, i) => ({
@@ -32,7 +33,7 @@ const FactoryExpensePage = () => {
   const router = useRouter();
 
   const { expenses, page, total, limit, loading } = useSelector(
-    (state: RootState) => state.factoryExpense
+    (state: RootState) => state.factoryExpense,
   );
 
   const totalPages = Math.ceil(total / limit);
@@ -43,6 +44,10 @@ const FactoryExpensePage = () => {
   const [month, setMonth] = useState<string>(String(new Date().getMonth() + 1));
   const [year, setYear] = useState<string>(String(new Date().getFullYear()));
   const [addOpen, setAddOpen] = useState(false);
+  const [viewOpen, setViewOpen] = useState(false);
+  const [selectedExpenseId, setSelectedExpenseId] = useState<string | null>(
+    null,
+  );
   const [sortConfig, setSortConfig] = useState<{
     key: keyof ExpenseTableRow;
     direction: "asc" | "desc";
@@ -58,7 +63,7 @@ const FactoryExpensePage = () => {
         status: status === "all" ? undefined : status,
         month,
         year,
-      })
+      }),
     );
   }, [dispatch, page, limit, search, status, month, year]);
 
@@ -75,7 +80,7 @@ const FactoryExpensePage = () => {
 
   // Calculate totals for current page
   const totalPaidAmount = expenses
-    .filter((e) => e.status === "approved")
+    .filter((e) => e.status === "paid")
     .reduce((sum, e) => sum + e.amount, 0);
 
   const totalPendingAmount = expenses
@@ -88,8 +93,7 @@ const FactoryExpensePage = () => {
   const statusOptions = [
     { label: "All Status", value: "all" },
     { label: "Pending", value: "pending" },
-    { label: "Approved", value: "approved" },
-    { label: "Rejected", value: "rejected" },
+    { label: "Paid", value: "paid" },
   ];
 
   // Year filter options (last 10 years)
@@ -116,10 +120,7 @@ const FactoryExpensePage = () => {
   const statusColors: Record<ExpenseStatus, string> = {
     pending:
       "bg-[color:var(--color-status-pending-bg)] text-[color:var(--color-status-pending-text)] border-[color:var(--color-status-pending-border)]",
-    approved:
-      "bg-[color:var(--color-status-delivered-bg)] text-[color:var(--color-status-delivered-text)] border-[color:var(--color-status-delivered-border)]",
-    rejected:
-      "bg-[color:var(--color-status-cancelled-bg)] text-[color:var(--color-status-cancelled-text)] border-[color:var(--color-status-cancelled-border)]",
+    paid: "bg-[color:var(--color-status-delivered-bg)] text-[color:var(--color-status-delivered-text)] border-[color:var(--color-status-delivered-border)]",
   };
 
   return (
@@ -204,9 +205,10 @@ const FactoryExpensePage = () => {
               case "actions":
                 return (
                   <Button
-                    onClick={() =>
-                      router.push(`/admin/factoryExpense/${expense._id}`)
-                    }
+                    onClick={() => {
+                      setSelectedExpenseId(expense._id);
+                      setViewOpen(true);
+                    }}
                   >
                     <Eye className="w-5 h-5" />
                   </Button>
@@ -215,6 +217,12 @@ const FactoryExpensePage = () => {
                 return expense[key] ? String(expense[key]) : "";
             }
           }}
+        />
+
+        <FactoryExpenseViewModal
+          isOpen={viewOpen}
+          setIsOpen={setViewOpen}
+          expenseId={selectedExpenseId}
         />
 
         <Pagination

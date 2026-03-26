@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
 import mongoose, { FilterQuery } from "mongoose";
 import Employee, { IEmployee } from "../../models/Employee";
+import "@/app/admin/models/WorkEntry";
 
 /* ======================================================
    GET ALL / SINGLE EMPLOYEE
@@ -29,7 +30,7 @@ const getEmployees = async (req: NextRequest) => {
       if (!employee) {
         return NextResponse.json(
           { success: false, message: "Employee not found" },
-          { status: 404 }
+          { status: 404 },
         );
       }
 
@@ -43,7 +44,7 @@ const getEmployees = async (req: NextRequest) => {
     if (id && !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { success: false, message: "Invalid employee id" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -81,13 +82,13 @@ const getEmployees = async (req: NextRequest) => {
     if (error instanceof Error) {
       return NextResponse.json(
         { success: false, message: error.message },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     return NextResponse.json(
       { success: false, message: "Unknown error occurred" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };
@@ -112,13 +113,13 @@ const createEmployee = async (req: NextRequest) => {
     if (error instanceof Error) {
       return NextResponse.json(
         { success: false, message: error.message },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     return NextResponse.json(
       { success: false, message: "Unknown error occurred" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };

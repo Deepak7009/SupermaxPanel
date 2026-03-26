@@ -1,6 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RawMaterial } from "../types/rawMaterial";
-import { fetchRawMaterials, createRawMaterial } from "../thunks/rawMaterialThunks";
+import {
+  fetchRawMaterials,
+  createRawMaterial,
+  updateRawMaterial,
+} from "../thunks/rawMaterialThunks";
 
 interface RawMaterialState {
   materials: RawMaterial[];
@@ -61,6 +65,15 @@ const rawMaterialSlice = createSlice({
     builder.addCase(createRawMaterial.fulfilled, (state, action) => {
       state.materials.unshift(action.payload.material);
       state.total += 1;
+    });
+    builder.addCase(updateRawMaterial.fulfilled, (state, action) => {
+      const index = state.materials.findIndex(
+        (m) => m._id === action.payload._id,
+      );
+
+      if (index !== -1) {
+        state.materials[index] = action.payload;
+      }
     });
   },
 });

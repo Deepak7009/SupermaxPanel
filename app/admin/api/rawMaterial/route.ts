@@ -101,7 +101,7 @@ const getRawMaterials = async (req: NextRequest) => {
         success: false,
         message: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };
@@ -126,7 +126,7 @@ const createRawMaterial = async (req: NextRequest) => {
         success: false,
         message: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };
