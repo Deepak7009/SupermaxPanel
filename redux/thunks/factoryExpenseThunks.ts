@@ -31,7 +31,7 @@ export const fetchFactoryExpenses = createAsyncThunk<
       if (params?.year) query.append("year", params.year.toString());
 
       const { data } = await axios.get(
-        `/admin/api/factoryExpense?${query.toString()}`,
+        `/api/factoryExpense?${query.toString()}`,
       );
       return {
         success: data.success,
@@ -62,7 +62,7 @@ export const createFactoryExpense = createAsyncThunk<
   "factoryExpense/createFactoryExpense",
   async (payload, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post(`/admin/api/factoryExpense`, payload);
+      const { data } = await axios.post(`/api/factoryExpense`, payload);
       return { success: true, expense: data.expense };
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
@@ -86,7 +86,7 @@ export const updateFactoryExpense = createAsyncThunk<
   async ({ id, updatedData }, { rejectWithValue }) => {
     try {
       const { data } = await axios.put<FactoryExpense>(
-        `/admin/api/factoryExpense/${id}`,
+        `/api/factoryExpense/${id}`,
         updatedData,
       );
 

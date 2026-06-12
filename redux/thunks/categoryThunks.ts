@@ -9,7 +9,7 @@ export const fetchCategories = createAsyncThunk<Category[]>(
   "category/fetchCategories",
   async (_, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get<Category[]>("/admin/api/categories");
+      const { data } = await axios.get<Category[]>("/api/categories");
       return data;
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
@@ -30,7 +30,7 @@ export const createCategory = createAsyncThunk<
   "category/createCategory",
   async (categoryData, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post<Category>("/admin/api/categories", categoryData);
+      const { data } = await axios.post<Category>("/api/categories", categoryData);
       return data;
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {

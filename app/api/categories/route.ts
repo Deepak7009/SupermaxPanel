@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
-import Category from "../../models/Category";
+import Category from "../../admin/models/Category";
 
 // ---------------- GET CATEGORIES ----------------
 const getCategories = async (req: NextRequest) => {

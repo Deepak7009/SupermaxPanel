@@ -3,8 +3,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
 import mongoose from "mongoose";
-import WorkEntry, { IWorkEntry } from "../../models/WorkEntry";
-import Employee from "../../models/Employee";
+import WorkEntry, { IWorkEntry } from "../../admin/models/WorkEntry";
+import Employee from "../../admin/models/Employee";
 
 /* ======================================================
    GET WORK ENTRIES

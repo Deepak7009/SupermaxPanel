@@ -23,7 +23,7 @@ export const fetchEmployees = createAsyncThunk<
       if (params?.limit) query.append("limit", params.limit.toString());
 
       const { data } = await axios.get<FetchEmployeesResponse>(
-        `/admin/api/employees?${query.toString()}`
+        `/api/employees?${query.toString()}`
       );
 
       return data;
@@ -49,7 +49,7 @@ export const fetchEmployeeById = createAsyncThunk<
   async (id, { rejectWithValue }) => {
     try {
       const { data } = await axios.get<FetchEmployeeByIdResponse>(
-        `/admin/api/employees?id=${id}`
+        `/api/employees?id=${id}`
       );
       return data;
     } catch (err: unknown) {
@@ -74,7 +74,7 @@ export const createEmployee = createAsyncThunk<
   async (employeeData, { rejectWithValue }) => {
     try {
       const { data } = await axios.post<CreateEmployeeResponse>(
-        "/admin/api/employees",
+        "/api/employees",
         employeeData
       );
       return data;

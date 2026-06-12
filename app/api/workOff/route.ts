@@ -2,8 +2,8 @@
 
 import { NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
-import Employee from "../../models/Employee";
-import WorkEntry from "../../models/WorkEntry";
+import Employee from "../../admin/models/Employee";
+import WorkEntry from "../../admin/models/WorkEntry";
 
 /* ======================================================
    AUTO WORK OFF (CRON)

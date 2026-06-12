@@ -3,27 +3,16 @@
 import Sidebar from "@/components/Sidebar";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
-import "../globals.css";
+// import "../globals.css";
 import AdminHeader from "@/components/AdminHeader";
 import AdminFooter from "@/components/AdminFooter";
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import AdminMiddleware from "./middleware/AdminMiddleware";
 import { usePathname } from "next/navigation";
 
 // Redux
 import { Provider } from "react-redux";
 import { store } from "@/redux/store";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const [collapsed, setCollapsed] = useState(false);
@@ -32,12 +21,6 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     pathname?.includes("/login") || pathname?.includes("/register");
 
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable}`}
-      suppressHydrationWarning
-    >
-      <body className="antialiased">
         <Provider store={store}>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             {/* Sidebar */}
@@ -71,7 +54,6 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
 
             {/* Main content */}
             {!isAuthPage ? (
-              <AdminMiddleware>
                 <div
                   className={`flex flex-col min-h-screen transition-all duration-300 ${
                     collapsed ? "ml-20" : "ml-64"
@@ -83,14 +65,11 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                   </main>
                   <AdminFooter />
                 </div>
-              </AdminMiddleware>
             ) : (
               <main>{children}</main>
             )}
           </ThemeProvider>
         </Provider>
-      </body>
-    </html>
   );
 };
 

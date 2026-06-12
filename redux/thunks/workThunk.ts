@@ -15,7 +15,7 @@ export const fetchWorkEntries = createAsyncThunk<
   async ({ employeeId, page, limit }, { rejectWithValue }) => {
     try {
       const { data } = await axios.get<FetchWorkEntriesResponse>(
-        `/admin/api/work?employeeId=${employeeId}&page=${page}&limit=${limit}`,
+        `/api/work?employeeId=${employeeId}&page=${page}&limit=${limit}`,
       );
       return data;
     } catch (err: unknown) {
@@ -38,7 +38,7 @@ export const createWorkEntry = createAsyncThunk<
 >("work/createWorkEntry", async (payload, { rejectWithValue }) => {
   try {
     const { data } = await axios.post<CreateWorkEntryResponse>(
-      "/admin/api/work",
+      "/api/work",
       payload,
     );
     return data;

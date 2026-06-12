@@ -2,8 +2,8 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
-import Product from "../../models/Product";
-import Category from "../../models/Category";
+import Product from "../../admin/models/Product";
+import Category from "../../admin/models/Category";
 import { FilterQuery } from "mongoose";
 
 // ---------------- GET PRODUCTS WITH PAGINATION & FILTERS ----------------

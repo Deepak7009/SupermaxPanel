@@ -3,9 +3,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
 import { FilterQuery } from "mongoose";
-import Order, { IOrder } from "../../models/Order";
-import Customer from "../../models/Customer";
-import Product from "../../models/Product";
+import Order, { IOrder } from "../../admin/models/Order";
+import Customer from "../../admin/models/Customer";
+import Product from "../../admin/models/Product";
 
 // ---------------- CREATE ORDER ----------------
 const createOrder = async (req: NextRequest) => {

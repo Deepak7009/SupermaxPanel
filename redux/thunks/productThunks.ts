@@ -24,7 +24,7 @@ export const fetchProducts = createAsyncThunk<
       if (params?.page) query.append("page", params.page.toString());
       if (params?.limit) query.append("limit", params.limit.toString());
 
-      const { data } = await axios.get(`/admin/api/products?${query.toString()}`);
+      const { data } = await axios.get(`/api/products?${query.toString()}`);
       return data; // data = { products, total, page, limit }
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
@@ -40,7 +40,7 @@ export const createProduct = createAsyncThunk<Product, Omit<Product, "_id" | "fi
   "product/createProduct",
   async (productData, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post<Product>("/admin/api/products", productData);
+      const { data } = await axios.post<Product>("/api/products", productData);
       return data;
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
@@ -56,7 +56,7 @@ export const updateProduct = createAsyncThunk<Product, { id: string; updatedData
   "product/updateProduct",
   async ({ id, updatedData }, { rejectWithValue }) => {
     try {
-      const { data } = await axios.put<Product>(`/admin/api/products/${id}`, updatedData);
+      const { data } = await axios.put<Product>(`/api/products/${id}`, updatedData);
       return data;
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {

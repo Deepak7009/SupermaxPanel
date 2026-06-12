@@ -24,7 +24,7 @@ export const fetchOrders = createAsyncThunk<
       if (params?.page) query.append("page", params.page.toString());
       if (params?.limit) query.append("limit", params.limit.toString());
 
-      const { data } = await axios.get<FetchOrdersResponse>(`/admin/api/order?${query.toString()}`);
+      const { data } = await axios.get<FetchOrdersResponse>(`/api/order?${query.toString()}`);
       return data;
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
@@ -43,7 +43,7 @@ export const fetchOrderById = createAsyncThunk<
   "orders/fetchOrderById",
   async (id, { rejectWithValue }) => {
     try {
-      const { data } = await axios.get<FetchOrderByIdResponse>(`/admin/api/order?id=${id}`);
+      const { data } = await axios.get<FetchOrderByIdResponse>(`/api/order?id=${id}`);
       return data;
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
@@ -62,7 +62,7 @@ export const createOrder = createAsyncThunk<
   "orders/createOrder",
   async (orderData, { rejectWithValue }) => {
     try {
-      const { data } = await axios.post<CreateOrderResponse>("/admin/api/order", orderData);
+      const { data } = await axios.post<CreateOrderResponse>("/api/order", orderData);
       return data;
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
@@ -81,7 +81,7 @@ export const updateOrder = createAsyncThunk<
   "orders/updateOrder",
   async ({ id, updatedData }, { rejectWithValue }) => {
     try {
-      const { data } = await axios.put<UpdateOrderResponse>(`/admin/api/order/${id}`, updatedData);
+      const { data } = await axios.put<UpdateOrderResponse>(`/api/order/${id}`, updatedData);
       return data;
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {

@@ -36,7 +36,7 @@ export const fetchCustomersThunk = createAsyncThunk<
       ...(sortDirection ? { sortDirection } : {}),
     });
 
-    const res = await fetch(`/admin/api/customers?${params.toString()}`, {
+    const res = await fetch(`/api/customers?${params.toString()}`, {
       cache: "no-store",
     });
 
@@ -83,7 +83,7 @@ export const fetchCustomerDetailThunk = createAsyncThunk<
     sortDirection: params.sortDirection || "desc",
   });
 
-  const res = await fetch(`/admin/api/customers?${query}`, {
+  const res = await fetch(`/api/customers?${query}`, {
     cache: "no-store",
   });
 
