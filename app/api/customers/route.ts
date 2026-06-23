@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
-import Customer, { ICustomer } from "../../models/Customer";
+import Customer, { ICustomer } from "../../admin/models/Customer";
 import "@/app/admin/models/Order";
 import mongoose, { FilterQuery } from "mongoose";
 import { CustomerDetail } from "@/redux/types/customer";

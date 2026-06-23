@@ -33,7 +33,7 @@ export const fetchRawMaterials = createAsyncThunk<
     if (params?.year) query.append("year", params.year.toString());
 
     const { data } = await axios.get(
-      `/admin/api/rawMaterial?${query.toString()}`,
+      `/api/rawMaterial?${query.toString()}`,
     );
 
     return {
@@ -67,7 +67,7 @@ export const createRawMaterial = createAsyncThunk<
   { rejectValue: string }
 >("rawMaterial/createRawMaterial", async (payload, { rejectWithValue }) => {
   try {
-    const { data } = await axios.post(`/admin/api/rawMaterial`, payload);
+    const { data } = await axios.post(`/api/rawMaterial`, payload);
 
     return {
       success: true,
@@ -95,7 +95,7 @@ export const updateRawMaterial = createAsyncThunk<
   async ({ id, updatedData }, { rejectWithValue }) => {
     try {
       const { data } = await axios.put<RawMaterial>(
-        `/admin/api/rawMaterial/${id}`,
+        `/api/rawMaterial/${id}`,
         updatedData,
       );
 

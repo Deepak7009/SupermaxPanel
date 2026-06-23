@@ -38,6 +38,11 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-active: oklch(0.92 0.06 260);
+  --sidebar-active-text: oklch(0.18 0.05 260);
+
+  --tooltip-bg: oklch(0.18 0 0);
+  --tooltip-text: oklch(0.98 0 0);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --chart-1: oklch(0.646 0.222 41.116);
@@ -191,6 +196,11 @@
   --sidebar-accent-foreground: oklch(0.96 0 0);
   --sidebar-border: oklch(0.35 0 0 / 40%);
   --sidebar-ring: oklch(0.55 0 0);
+  --sidebar-active: oklch(0.38 0.08 260);
+  --sidebar-active-text: oklch(0.98 0 0);
+
+  --tooltip-bg: oklch(0.95 0 0);
+  --tooltip-text: oklch(0.15 0 0);
 
   --chart-1: oklch(0.5 0.22 264);
   --chart-2: oklch(0.67 0.15 162);
@@ -235,7 +245,9 @@
 
 body {
   font-family: var(--font-sans, Arial, Helvetica, sans-serif);
-  transition: background 0.3s, color 0.3s;
+  transition:
+    background 0.3s,
+    color 0.3s;
 }
 
 @layer base {

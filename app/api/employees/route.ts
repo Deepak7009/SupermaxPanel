@@ -3,7 +3,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
 import mongoose, { FilterQuery } from "mongoose";
-import Employee, { IEmployee } from "../../models/Employee";
+import Employee, { IEmployee } from "../../admin/models/Employee";
 import "@/app/admin/models/WorkEntry";
 
 /* ======================================================

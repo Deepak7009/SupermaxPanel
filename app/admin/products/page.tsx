@@ -26,7 +26,7 @@ type SortConfig = {
 const ProductsPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { products, total, page, limit } = useSelector(
-    (state: RootState) => state.product
+    (state: RootState) => state.product,
   );
   const { categories } = useSelector((state: RootState) => state.category);
 
@@ -51,7 +51,7 @@ const ProductsPage = () => {
         category: categoryFilter || undefined,
         page: currentPage,
         limit: limit,
-      })
+      }),
     );
   }, [dispatch, search, categoryFilter, currentPage, limit]);
 
@@ -85,7 +85,7 @@ const ProductsPage = () => {
   return (
     <div className="p-6 bg-[var(--background)] text-[var(--foreground)]">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-semibold">Produts</h1>
+        <h1 className="text-xl font-semibold">Products</h1>
       </div>
       {/* Filters and Actions */}
       <div className="flex justify-between mb-4">
@@ -148,8 +148,8 @@ const ProductsPage = () => {
                       product.stock > 10
                         ? "bg-success text-success-foreground"
                         : product.stock > 0
-                        ? "bg-warning text-warning-foreground"
-                        : "bg-error text-error-foreground"
+                          ? "bg-warning text-warning-foreground"
+                          : "bg-error text-error-foreground"
                     }`}
                   >
                     {product.stock} units
@@ -175,12 +175,12 @@ const ProductsPage = () => {
         />
 
         {/* Pagination */}
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            totalItems={total}
-            onPageChange={(page) => setCurrentPage(page)}
-          />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={total}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
       </Card>
     </div>
   );

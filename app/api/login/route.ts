@@ -3,9 +3,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
 import Admin from "@/app/admin/models/Admin";
-import jwt from "jsonwebtoken";
-
-const JWT_SECRET = process.env.JWT_SECRET || "secret";
 
 // ---------------- ADMIN LOGIN ----------------
 const adminLogin = async (req: NextRequest) => {
@@ -36,8 +33,12 @@ const adminLogin = async (req: NextRequest) => {
       );
     }
 
-    const token = jwt.sign({ id: admin._id }, JWT_SECRET, { expiresIn: "7d" });
-    return NextResponse.json({ token });
+    return NextResponse.json({
+  user: {
+    id: admin._id.toString(),
+    email: admin.email,
+  },
+});
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });

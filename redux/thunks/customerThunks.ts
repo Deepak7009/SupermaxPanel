@@ -1,5 +1,9 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { CustomerDetail, CustomerList, FetchCustomersParams } from "../types/customer";
+import {
+  CustomerDetail,
+  CustomerList,
+  FetchCustomersParams,
+} from "../types/customer";
 
 interface RawCustomer {
   _id: string;
@@ -15,7 +19,6 @@ interface FetchCustomersResponse {
   customers: CustomerList[];
   total: number;
 }
-
 
 interface FetchCustomerResponse {
   success: boolean;
@@ -36,7 +39,7 @@ export const fetchCustomersThunk = createAsyncThunk<
       ...(sortDirection ? { sortDirection } : {}),
     });
 
-    const res = await fetch(`/admin/api/customers?${params.toString()}`, {
+    const res = await fetch(`/api/customers?${params.toString()}`, {
       cache: "no-store",
     });
 
@@ -51,16 +54,14 @@ export const fetchCustomersThunk = createAsyncThunk<
         name: c.name,
         email: c.email,
         phone: c.phone,
-        orders: c.orders.map((o) =>
-          typeof o === "string" ? o : o._id
-        ),
+        orders: c.orders.map((o) => (typeof o === "string" ? o : o._id)),
         createdAt: c.createdAt,
         updatedAt: c.updatedAt,
-      })
+      }),
     );
 
     return { customers, total: data.total };
-  }
+  },
 );
 
 export const fetchCustomerDetailThunk = createAsyncThunk<
@@ -83,7 +84,7 @@ export const fetchCustomerDetailThunk = createAsyncThunk<
     sortDirection: params.sortDirection || "desc",
   });
 
-  const res = await fetch(`/admin/api/customers?${query}`, {
+  const res = await fetch(`/api/customers?${query}`, {
     cache: "no-store",
   });
 
@@ -99,5 +100,3 @@ export const fetchCustomerDetailThunk = createAsyncThunk<
     ordersPagination: data.ordersPagination,
   };
 });
-
-
