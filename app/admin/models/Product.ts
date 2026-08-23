@@ -2,10 +2,11 @@ import mongoose, { Schema, Document } from "mongoose";
 import { ICategory } from "./Category";
 
 export interface IProduct extends Document {
+  userId: mongoose.Types.ObjectId;
   name: string;
   slug: string;
   description?: string;
-  category: ICategory["_id"];
+  categories: ICategory["_id"][];
   price: number;
   discount?: number;
   finalPrice: number;
@@ -28,6 +29,7 @@ export interface IProduct extends Document {
 
 const ProductSchema = new Schema<IProduct>(
   {
+    userId: { type: Schema.Types.ObjectId, ref: "Admin", required: true, index: true },
     name: {
       type: String,
       required: true,
@@ -41,11 +43,12 @@ const ProductSchema = new Schema<IProduct>(
     description: {
       type: String,
     },
-    category: {
-      type: Schema.Types.ObjectId,
-      ref: "Category",
-      required: true,
-    },
+    categories: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Category",
+      },
+    ],
     price: {
       type: Number,
       required: true,

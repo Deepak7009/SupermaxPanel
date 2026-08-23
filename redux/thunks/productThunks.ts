@@ -1,16 +1,9 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import { Product } from "../slices/productSlice";
-
-interface FetchProductsParams {
-  search?: string;
-  category?: string;
-  page?: number;
-  limit?: number;
-}
+import { Product, FetchProductsParams } from "../types/product";
 
 // Fetch all products with backend pagination & filters
-export const fetchProducts = createAsyncThunk<
+const fetchProducts = createAsyncThunk<
   { products: Product[]; total: number; page: number; limit: number },
   FetchProductsParams | undefined
 >(
@@ -25,18 +18,18 @@ export const fetchProducts = createAsyncThunk<
       if (params?.limit) query.append("limit", params.limit.toString());
 
       const { data } = await axios.get(`/api/products?${query.toString()}`);
-      return data; // data = { products, total, page, limit }
+      return data;
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         return rejectWithValue(err.response?.data?.error || "Failed to fetch products");
       }
       return rejectWithValue(err instanceof Error ? err.message : "Unknown error");
     }
-  }
+  },
 );
 
 // Create new product
-export const createProduct = createAsyncThunk<Product, Omit<Product, "_id" | "finalPrice">>(
+const createProduct = createAsyncThunk<Product, Omit<Product, "_id" | "finalPrice">>(
   "product/createProduct",
   async (productData, { rejectWithValue }) => {
     try {
@@ -48,11 +41,11 @@ export const createProduct = createAsyncThunk<Product, Omit<Product, "_id" | "fi
       }
       return rejectWithValue(err instanceof Error ? err.message : "Unknown error");
     }
-  }
+  },
 );
 
 // Update product
-export const updateProduct = createAsyncThunk<Product, { id: string; updatedData: Partial<Product> }>(
+const updateProduct = createAsyncThunk<Product, { id: string; updatedData: Partial<Product> }>(
   "product/updateProduct",
   async ({ id, updatedData }, { rejectWithValue }) => {
     try {
@@ -64,5 +57,7 @@ export const updateProduct = createAsyncThunk<Product, { id: string; updatedData
       }
       return rejectWithValue(err instanceof Error ? err.message : "Unknown error");
     }
-  }
+  },
 );
+
+export { fetchProducts, createProduct, updateProduct };

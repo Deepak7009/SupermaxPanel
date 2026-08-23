@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, model, models } from "mongoose";
 
 export interface IFactoryExpense extends Document {
+  userId: mongoose.Types.ObjectId;
   name: string;
   amount: number;
   entryDate: Date;
@@ -12,6 +13,7 @@ export interface IFactoryExpense extends Document {
 
 const factoryExpenseSchema = new Schema<IFactoryExpense>(
   {
+    userId: { type: Schema.Types.ObjectId, ref: "Admin", required: true, index: true },
     name: {
       type: String,
       required: true,

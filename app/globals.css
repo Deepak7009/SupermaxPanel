@@ -84,6 +84,72 @@
   /* New Table Header colors */
   --table-header-bg: oklch(0.92 0.05 260); /* Light purple-ish */
   --table-header-text: oklch(0.12 0 0);
+
+  /* Role / badge colors */
+  --badge-superadmin-bg:   #ede9fe;
+  --badge-superadmin-text: #6d28d9;
+  --badge-user-bg:         #dbeafe;
+  --badge-user-text:       #1d4ed8;
+
+  /* Active / inactive badge */
+  --badge-active-bg:       #dcfce7;
+  --badge-active-text:     #166534;
+  --badge-inactive-bg:     #fee2e2;
+  --badge-inactive-text:   #991b1b;
+
+  /* Payment amount colors */
+  --amount-paid:     #16a34a;
+  --amount-due:      #ea580c;
+  --amount-advance:  #9333ea;
+
+  /* Semantic icon colors */
+  --icon-mail:    #3b82f6;
+  --icon-phone:   #22c55e;
+  --icon-success: #22c55e;
+  --icon-danger:  #ef4444;
+
+  /* Muted label */
+  --label-muted: #6b7280;
+
+  /* Text colors */
+  --text-error:   #ef4444;
+  --text-success: #16a34a;
+
+  /* Action button colors */
+  --btn-primary-bg:       #2563eb;
+  --btn-primary-hover-bg: #1d4ed8;
+  --btn-success-bg:       #16a34a;
+  --btn-success-hover-bg: #15803d;
+  --btn-danger-bg:        #f87171;
+
+  /* ── Auth / Glass page ── */
+  --auth-bg:              #0a3d55;
+  /* Card: near-invisible glass — very low opacity so drops show through */
+  --auth-card-bg:         rgba(255, 255, 255, 0.04);
+  --auth-card-border:     rgba(255, 255, 255, 0.14);
+  --auth-card-shadow:     0 8px 40px rgba(0, 0, 0, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  /* Reduce blur — too much blur = solid panel look */
+  --auth-card-blur:       blur(12px) saturate(140%);
+  --auth-shine:           linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.30), transparent);
+  --auth-input-bg:        rgba(255, 255, 255, 0.06);
+  --auth-input-border:    rgba(255, 255, 255, 0.14);
+  --auth-label-color:     rgba(255, 255, 255, 0.50);
+  --auth-muted-color:     rgba(255, 255, 255, 0.50);
+  --auth-dimmed-color:    rgba(255, 255, 255, 0.40);
+  --auth-body-color:      rgba(255, 255, 255, 0.60);
+  --auth-icon-color:      rgba(255, 255, 255, 0.40);
+  --auth-divider-color:   rgba(255, 255, 255, 0.10);
+  --auth-divider-text:    rgba(255, 255, 255, 0.30);
+  --auth-accent-text:     #7dd3fc;
+  /* Button: clean teal — matches the water background, no pink/purple */
+  --auth-btn-bg:          #0e7490;
+  --auth-btn-shadow:      0 4px 18px rgba(14, 116, 144, 0.45);
+  --auth-btn-bg-reg:      #0369a1;
+  --auth-btn-shadow-reg:  0 4px 18px rgba(3, 105, 161, 0.45);
+  --auth-social-bg:       rgba(255, 255, 255, 0.06);
+  --auth-social-border:   rgba(255, 255, 255, 0.14);
+  --auth-social-color:    rgba(255, 255, 255, 0.70);
+  --auth-error-bg:        rgba(239, 68, 68, 0.10);
 }
 
 @theme inline {
@@ -241,6 +307,43 @@
   /* New Table Header colors */
   --table-header-bg: oklch(0.35 0.05 260); /* Dark purple-ish */
   --table-header-text: oklch(0.96 0 0);
+
+  /* Role / badge colors (dark) */
+  --badge-superadmin-bg:   rgba(109, 40, 217, 0.25);
+  --badge-superadmin-text: #c4b5fd;
+  --badge-user-bg:         rgba(29, 78, 216, 0.25);
+  --badge-user-text:       #93c5fd;
+
+  /* Active / inactive badge (dark) */
+  --badge-active-bg:       rgba(22, 101, 52, 0.25);
+  --badge-active-text:     #86efac;
+  --badge-inactive-bg:     rgba(153, 27, 27, 0.25);
+  --badge-inactive-text:   #fca5a5;
+
+  /* Payment amount colors (dark) */
+  --amount-paid:    #4ade80;
+  --amount-due:     #fb923c;
+  --amount-advance: #c084fc;
+
+  /* Semantic icon colors (dark) */
+  --icon-mail:    #60a5fa;
+  --icon-phone:   #4ade80;
+  --icon-success: #4ade80;
+  --icon-danger:  #f87171;
+
+  /* Muted label (dark) */
+  --label-muted: #9ca3af;
+
+  /* Text colors (dark) */
+  --text-error:   #f87171;
+  --text-success: #4ade80;
+
+  /* Action button colors (dark) */
+  --btn-primary-bg:       #3b82f6;
+  --btn-primary-hover-bg: #2563eb;
+  --btn-success-bg:       #22c55e;
+  --btn-success-hover-bg: #16a34a;
+  --btn-danger-bg:        #ef4444;
 }
 
 body {
@@ -248,6 +351,207 @@ body {
   transition:
     background 0.3s,
     color 0.3s;
+}
+
+/* ── Real Water Droplets ── */
+
+@keyframes drop-float {
+  0%   { transform: translateY(0px)   translateX(0px)  scale(1);    }
+  25%  { transform: translateY(-18px) translateX(6px)  scale(1.03); }
+  50%  { transform: translateY(-8px)  translateX(-8px) scale(0.97); }
+  75%  { transform: translateY(-22px) translateX(4px)  scale(1.02); }
+  100% { transform: translateY(0px)   translateX(0px)  scale(1);    }
+}
+
+@keyframes drop-float-b {
+  0%   { transform: translateY(0px)   translateX(0px)  scale(1);    }
+  30%  { transform: translateY(-14px) translateX(-9px) scale(1.04); }
+  60%  { transform: translateY(-24px) translateX(5px)  scale(0.96); }
+  100% { transform: translateY(0px)   translateX(0px)  scale(1);    }
+}
+
+@keyframes drop-float-c {
+  0%   { transform: translateY(0px)   translateX(0px)  scale(1);    }
+  40%  { transform: translateY(-10px) translateX(10px) scale(1.05); }
+  70%  { transform: translateY(-20px) translateX(-6px) scale(0.98); }
+  100% { transform: translateY(0px)   translateX(0px)  scale(1);    }
+}
+
+/* ── Real water drop — transparent lens with rim highlight only ── */
+.drop {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+
+  /*
+   * Almost fully transparent centre.
+   * Only the very edge gets a slight tint from refraction.
+   * This lets the background show through cleanly.
+   */
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 255, 255, 0.00)  0%,
+    rgba(255, 255, 255, 0.00) 55%,
+    rgba(180, 220, 255, 0.06) 75%,
+    rgba(120, 180, 220, 0.18) 90%,
+    rgba(80,  140, 200, 0.28) 100%
+  );
+
+  /* Thin bright rim — visible only on the lit (top-left) side */
+  border: 1.5px solid rgba(200, 235, 255, 0.50);
+
+  box-shadow:
+    /* Soft inner bright arc top-left — the lens catch-light */
+    inset  5px  5px 12px rgba(255, 255, 255, 0.22),
+    /* Faint inner dark arc bottom-right — spherical depth */
+    inset -3px -3px  8px rgba(30,  80, 140, 0.20),
+    /* Soft shadow pool below — refracted teal */
+    0px 8px 20px rgba(0, 80, 150, 0.28),
+    /* Ambient outer glow */
+    0px 0px 14px rgba(140, 210, 255, 0.06);
+
+  /* Lens distortion: slightly brighten + blur what's behind the drop */
+  backdrop-filter: blur(3px) brightness(1.18) saturate(1.2);
+  -webkit-backdrop-filter: blur(3px) brightness(1.18) saturate(1.2);
+}
+
+/*
+ * PRIMARY SPECULAR — wide soft arc along the top-left inner edge.
+ * Shaped like a banana / crescent, NOT a circle.
+ */
+.drop::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  /*
+   * paint only the top-left arc bright:
+   * inner radial from top-left corner fading to nothing by the centre.
+   */
+  background: radial-gradient(
+    ellipse 70% 55% at 28% 26%,
+    rgba(255, 255, 255, 0.82)  0%,
+    rgba(255, 255, 255, 0.40) 30%,
+    rgba(255, 255, 255, 0.10) 55%,
+    rgba(255, 255, 255, 0.00) 75%
+  );
+}
+
+/*
+ * PINPOINT GLINT — tiny hard bright dot, upper-right of the main arc.
+ */
+.drop::after {
+  content: "";
+  position: absolute;
+  top:   13%;
+  right: 19%;
+  width:  8%;
+  height: 5%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  filter: blur(0.6px);
+  box-shadow: 0 0 3px 2px rgba(255, 255, 255, 0.55);
+}
+
+/* ── Water drops rising bottom → top ── */
+
+/* Rise from bottom, slight left/right wobble, fade out near top */
+@keyframes drop-rise {
+  0%   { transform: translateY(0px)    translateX(0px)  scale(1);    opacity: 0;   }
+  8%   { opacity: 0.9; }
+  30%  { transform: translateY(-22vh)  translateX(5px)  scale(1.02); opacity: 0.85;}
+  55%  { transform: translateY(-46vh)  translateX(-7px) scale(0.98); opacity: 0.75;}
+  78%  { transform: translateY(-68vh)  translateX(4px)  scale(1.01); opacity: 0.40;}
+  100% { transform: translateY(-95vh)  translateX(-3px) scale(0.95); opacity: 0;   }
+}
+
+@keyframes drop-rise-b {
+  0%   { transform: translateY(0px)    translateX(0px)  scale(1);    opacity: 0;   }
+  10%  { opacity: 0.9; }
+  35%  { transform: translateY(-28vh)  translateX(-8px) scale(1.03); opacity: 0.80;}
+  60%  { transform: translateY(-52vh)  translateX(6px)  scale(0.97); opacity: 0.65;}
+  85%  { transform: translateY(-75vh)  translateX(-4px) scale(1.02); opacity: 0.35;}
+  100% { transform: translateY(-98vh)  translateX(3px)  scale(0.94); opacity: 0;   }
+}
+
+@keyframes drop-rise-c {
+  0%   { transform: translateY(0px)    translateX(0px)  scale(1);    opacity: 0;   }
+  6%   { opacity: 0.95; }
+  28%  { transform: translateY(-18vh)  translateX(9px)  scale(1.04); opacity: 0.90;}
+  50%  { transform: translateY(-42vh)  translateX(-5px) scale(0.96); opacity: 0.70;}
+  75%  { transform: translateY(-65vh)  translateX(6px)  scale(1.01); opacity: 0.40;}
+  100% { transform: translateY(-92vh)  translateX(-4px) scale(0.93); opacity: 0;   }
+}
+
+/*
+ * Real water-drop TEARDROP shape:
+ * - Round at the bottom (the heavy belly)
+ * - Pointed/tapered at the top (pulled upward by motion)
+ * border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%
+ * gives the classic teardrop profile.
+ * The drop is rotated 180deg because it rises (point faces up).
+ */
+.drop-rise {
+  position: absolute;
+  bottom: -60px;          /* spawn just below the viewport */
+  pointer-events: none;
+
+  /* Teardrop: wide round bottom, narrow tapered top */
+  border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+
+  /* Transparent centre, coloured rim — same real-water approach */
+  background: radial-gradient(
+    ellipse at 50% 65%,
+    rgba(255, 255, 255, 0.00)  0%,
+    rgba(255, 255, 255, 0.00) 50%,
+    rgba(180, 225, 255, 0.07) 72%,
+    rgba(120, 185, 225, 0.20) 88%,
+    rgba(70,  145, 210, 0.32) 100%
+  );
+
+  border: 1.5px solid rgba(200, 238, 255, 0.50);
+
+  box-shadow:
+    /* inner top-left catch-light */
+    inset  4px  4px 10px rgba(255, 255, 255, 0.22),
+    /* inner bottom-right depth shadow */
+    inset -3px -3px  8px rgba(20,  70, 140, 0.20),
+    /* refracted shadow pool — elongated below the drop */
+    0px 10px 22px -4px rgba(0, 80, 160, 0.30),
+    /* faint ambient glow */
+    0px  0px 12px  2px rgba(120, 200, 255, 0.06);
+
+  backdrop-filter: blur(3px) brightness(1.20) saturate(1.25);
+  -webkit-backdrop-filter: blur(3px) brightness(1.20) saturate(1.25);
+}
+
+/* Crescent specular — upper-left arc of the teardrop belly */
+.drop-rise::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    ellipse 65% 50% at 28% 30%,
+    rgba(255, 255, 255, 0.85)  0%,
+    rgba(255, 255, 255, 0.40) 30%,
+    rgba(255, 255, 255, 0.08) 58%,
+    rgba(255, 255, 255, 0.00) 78%
+  );
+}
+
+/* Tiny sharp pinpoint glint — upper-right */
+.drop-rise::after {
+  content: "";
+  position: absolute;
+  top:   11%;
+  right: 20%;
+  width:  9%;
+  height: 6%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  filter: blur(0.5px);
+  box-shadow: 0 0 3px 2px rgba(255, 255, 255, 0.55);
 }
 
 @layer base {

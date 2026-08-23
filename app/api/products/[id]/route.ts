@@ -3,11 +3,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
 import Product from "@/app/admin/models/Product";
-import Category from "@/app/admin/models/Category";
+import { getSessionUser } from "@/lib/session";
 
-// ---------------- UPDATE PRODUCT ----------------
 interface Params {
-  id: string; // adjust according to your route
+  id: string;
 }
 
 const updatedProduct = async (
@@ -15,17 +14,18 @@ const updatedProduct = async (
   context: { params: Promise<Params> }
 ) => {
   try {
+    const { userId, error } = await getSessionUser();
+    if (error) return error;
+
     await connectToDatabase();
 
     const { id } = await context.params;
-    console.log("params.id:", id);
-
     const body = await req.json();
-    const { 
+    const {
       name,
       slug,
       description,
-      category,
+      categories,
       price,
       discount,
       stock,
@@ -39,27 +39,20 @@ const updatedProduct = async (
       isActive,
     } = body;
 
-    console.log("category at updatedProduct", category?.name);
-
-    // Validate category
-    // const existingCategory = await Category.findById(category._id);
-    // if (!existingCategory) {
-    //   return NextResponse.json(
-    //     { error: "Category not found" },
-    //     { status: 400 }
-    //   );
-    // }
-
-    // Recalculate final price
     const finalPrice = price - (price * (discount || 0)) / 100;
 
-    const updatedProduct = await Product.findByIdAndUpdate(
-      id,
+    // Accept ObjectId strings or {_id, name} objects
+    const categoryIds: string[] = (categories ?? []).map(
+      (c: { _id: string } | string) => (typeof c === "string" ? c : c._id),
+    );
+
+    const updatedProduct = await Product.findOneAndUpdate(
+      { _id: id, userId },
       {
         name,
         slug,
         description,
-        category, // ✔ MUST be ObjectId
+        categories: categoryIds,
         price,
         discount: discount || 0,
         finalPrice,
@@ -74,7 +67,7 @@ const updatedProduct = async (
         isActive: isActive ?? true,
       },
       { new: true }
-    ).populate("category"); // 👈 IMPORTANT
+    ).populate("categories");
 
     if (!updatedProduct) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });

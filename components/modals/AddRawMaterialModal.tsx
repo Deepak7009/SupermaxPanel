@@ -12,6 +12,7 @@ import {
 import DialogModal from "@/components/common/DialogModal";
 import Button from "@/components/common/Button";
 import FloatingInput from "@/components/common/FloatingInput";
+import Select from "@/components/common/Select";
 
 import { RawMaterial } from "@/redux/types/rawMaterial";
 
@@ -151,18 +152,16 @@ const AddRawMaterialModal = ({ isOpen, setIsOpen, material }: Props) => {
           onChange={(e) => setDate(e.target.value)}
         />
 
-        <div className="flex flex-col gap-2">
-          <label className="text-sm text-gray-500">Status</label>
-
-          <select
-            className="border rounded-md p-2 bg-transparent"
-            value={status}
-            onChange={(e) => setStatus(e.target.value as "pending" | "paid")}
-          >
-            <option value="pending">Pending</option>
-            <option value="paid">Paid</option>
-          </select>
-        </div>
+        <Select
+          value={status}
+          onChange={(v) => setStatus(v as "pending" | "paid")}
+          options={[
+            { label: "Pending", value: "pending" },
+            { label: "Paid",    value: "paid"    },
+          ]}
+          placeholder="Status"
+          className="w-full max-w-full"
+        />
 
         <div className="flex justify-end gap-2 pt-2">
           <Button type="button" onClick={handleClose}>

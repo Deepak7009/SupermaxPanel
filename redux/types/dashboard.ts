@@ -1,3 +1,12 @@
+export interface DashboardState {
+  stats: DashboardStats;
+  recentOrders: RecentOrder[];
+  lowStockProducts: LowStockProduct[];
+  latestCategories: LatestCategory[];
+  loading: boolean;
+  error: string | null;
+}
+
 export interface DashboardStats {
   totalProducts: number;
   totalCategories: number;

@@ -1,5 +1,15 @@
 import { Order } from "./order";
 
+export interface CustomerState {
+  customers: CustomerList[];
+  customer: CustomerDetail | null;
+  loading: boolean;
+  error: string | null;
+  total: number;
+  page: number;
+  limit: number;
+}
+
 /** Customer used in LIST page */
 export interface CustomerList {
   _id: string;
@@ -25,9 +35,10 @@ export interface CustomerList {
 // }
 /** Customer used in DETAIL page */
 export interface OrdersPagination {
-  total: number;
-  page: number;
-  limit: number;
+  totalItems: number;
+  totalPages: number;
+  currentPage: number;
+  pageSize: number;
 }
 export interface CustomerDetail {
   _id: string;

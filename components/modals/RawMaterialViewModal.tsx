@@ -75,7 +75,7 @@ interface InfoProps {
 
 const Info = ({ label, value }: InfoProps) => (
   <div className="flex flex-col">
-    <span className="text-gray-500 text-sm">{label}</span>
+    <span className="text-[var(--muted-foreground)] text-sm">{label}</span>
     <span className="text-[15px] font-medium">{value}</span>
   </div>
 );

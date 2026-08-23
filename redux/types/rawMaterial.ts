@@ -1,3 +1,15 @@
+export interface RawMaterialState {
+  materials: RawMaterial[];
+  total: number;
+  page: number;
+  limit: number;
+  loading: boolean;
+  error: string | null;
+  totalAmount: number;
+  pendingAmount: number;
+  paidAmount: number;
+}
+
 export interface RawMaterial {
   _id: string;
   shopName: string;

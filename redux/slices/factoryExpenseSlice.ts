@@ -6,15 +6,13 @@ import {
   updateFactoryExpense,
 } from "../thunks/factoryExpenseThunks";
 
-export interface FactoryExpenseState {
+interface FactoryExpenseState {
   expenses: FactoryExpense[];
   total: number;
   page: number;
   limit: number;
   loading: boolean;
   error: string | null;
-
-  // NEW FIELDS FOR TOTALS
   totalPendingAmount: number;
   totalPayedAmount: number;
   totalMonthAmount: number;
@@ -27,7 +25,6 @@ const initialState: FactoryExpenseState = {
   limit: 10,
   loading: false,
   error: null,
-
   totalPendingAmount: 0,
   totalPayedAmount: 0,
   totalMonthAmount: 0,
@@ -72,8 +69,6 @@ const factoryExpenseSlice = createSlice({
         state.total = action.payload.total ?? 0;
         state.page = action.payload.page ?? 1;
         state.limit = action.payload.limit ?? 10;
-
-        // update totals from backend
         state.totalPendingAmount = action.payload.totalPendingAmount ?? 0;
         state.totalPayedAmount = action.payload.totalPayedAmount ?? 0;
         state.totalMonthAmount = action.payload.totalMonthAmount ?? 0;
@@ -101,7 +96,6 @@ const factoryExpenseSlice = createSlice({
         state.expenses.unshift(action.payload.expense);
         state.total += 1;
 
-        // Update totals locally for new expense
         if (action.payload.expense.status === "pending") {
           state.totalPendingAmount += action.payload.expense.amount;
         } else if (action.payload.expense.status === "paid") {
@@ -116,15 +110,14 @@ const factoryExpenseSlice = createSlice({
       state.error = action.payload as string;
     });
 
+    /* ================= UPDATE ================= */
     builder.addCase(updateFactoryExpense.fulfilled, (state, action) => {
       const updated = action.payload;
-
       const index = state.expenses.findIndex((e) => e._id === updated._id);
 
       if (index !== -1) {
         const old = state.expenses[index];
 
-        // remove old totals
         if (old.status === "pending") {
           state.totalPendingAmount -= old.amount;
         } else {
@@ -132,10 +125,8 @@ const factoryExpenseSlice = createSlice({
         }
         state.totalMonthAmount -= old.amount;
 
-        // update row
         state.expenses[index] = updated;
 
-        // add new totals
         if (updated.status === "pending") {
           state.totalPendingAmount += updated.amount;
         } else {
@@ -148,5 +139,4 @@ const factoryExpenseSlice = createSlice({
 });
 
 export const { setPage, setLimit } = factoryExpenseSlice.actions;
-
 export default factoryExpenseSlice.reducer;

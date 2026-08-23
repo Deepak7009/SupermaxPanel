@@ -20,12 +20,7 @@ interface FetchCustomersResponse {
   total: number;
 }
 
-interface FetchCustomerResponse {
-  success: boolean;
-  customer: CustomerDetail;
-}
-
-export const fetchCustomersThunk = createAsyncThunk<
+const fetchCustomersThunk = createAsyncThunk<
   FetchCustomersResponse,
   FetchCustomersParams
 >(
@@ -64,7 +59,7 @@ export const fetchCustomersThunk = createAsyncThunk<
   },
 );
 
-export const fetchCustomerDetailThunk = createAsyncThunk<
+const fetchCustomerDetailThunk = createAsyncThunk<
   CustomerDetail,
   {
     id: string;
@@ -94,9 +89,10 @@ export const fetchCustomerDetailThunk = createAsyncThunk<
     throw new Error("Failed to fetch customer");
   }
 
-  // ✅ MERGE pagination INTO customer
   return {
     ...data.customer,
     ordersPagination: data.ordersPagination,
   };
 });
+
+export { fetchCustomersThunk, fetchCustomerDetailThunk };

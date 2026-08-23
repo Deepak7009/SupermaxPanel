@@ -7,15 +7,15 @@ import {
 } from "../types/work";
 
 /* -------- FETCH WORK ENTRIES WITH PAGINATION -------- */
-export const fetchWorkEntries = createAsyncThunk<
+const fetchWorkEntries = createAsyncThunk<
   FetchWorkEntriesResponse,
-  { employeeId: string; page: number; limit: number }
+  { employeeId: string; page: number; limit: number; search?: string }
 >(
   "work/fetchWorkEntries",
-  async ({ employeeId, page, limit }, { rejectWithValue }) => {
+  async ({ employeeId, page, limit, search = "" }, { rejectWithValue }) => {
     try {
       const { data } = await axios.get<FetchWorkEntriesResponse>(
-        `/api/work?employeeId=${employeeId}&page=${page}&limit=${limit}`,
+        `/api/work?employeeId=${employeeId}&page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`,
       );
       return data;
     } catch (err: unknown) {
@@ -32,24 +32,29 @@ export const fetchWorkEntries = createAsyncThunk<
 );
 
 /* -------- CREATE WORK ENTRY -------- */
-export const createWorkEntry = createAsyncThunk<
+const createWorkEntry = createAsyncThunk<
   CreateWorkEntryResponse,
   CreateWorkEntryPayload
->("work/createWorkEntry", async (payload, { rejectWithValue }) => {
-  try {
-    const { data } = await axios.post<CreateWorkEntryResponse>(
-      "/api/work",
-      payload,
-    );
-    return data;
-  } catch (err: unknown) {
-    if (axios.isAxiosError(err)) {
+>(
+  "work/createWorkEntry",
+  async (payload, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.post<CreateWorkEntryResponse>(
+        "/api/work",
+        payload,
+      );
+      return data;
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        return rejectWithValue(
+          err.response?.data?.message || "Failed to create work entry",
+        );
+      }
       return rejectWithValue(
-        err.response?.data?.message || "Failed to create work entry",
+        err instanceof Error ? err.message : "Unknown error",
       );
     }
-    return rejectWithValue(
-      err instanceof Error ? err.message : "Unknown error",
-    );
-  }
-});
+  },
+);
+
+export { fetchWorkEntries, createWorkEntry };

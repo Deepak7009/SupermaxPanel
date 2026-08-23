@@ -5,13 +5,14 @@ import {
   FetchOrderByIdResponse,
   CreateOrderResponse,
   UpdateOrderResponse,
+  AddPaymentResponse,
   FetchOrdersParams,
   CreateOrderPayload,
-  UpdateOrderPayload,
+  AddPaymentPayload,
 } from "../types/order";
 
 /* -------- FETCH ALL ORDERS -------- */
-export const fetchOrders = createAsyncThunk<
+const fetchOrders = createAsyncThunk<
   FetchOrdersResponse,
   FetchOrdersParams | undefined
 >(
@@ -32,14 +33,11 @@ export const fetchOrders = createAsyncThunk<
       }
       return rejectWithValue(err instanceof Error ? err.message : "Unknown error");
     }
-  }
+  },
 );
 
 /* -------- FETCH ORDER BY ID -------- */
-export const fetchOrderById = createAsyncThunk<
-  FetchOrderByIdResponse,
-  string
->(
+const fetchOrderById = createAsyncThunk<FetchOrderByIdResponse, string>(
   "orders/fetchOrderById",
   async (id, { rejectWithValue }) => {
     try {
@@ -51,14 +49,11 @@ export const fetchOrderById = createAsyncThunk<
       }
       return rejectWithValue(err instanceof Error ? err.message : "Unknown error");
     }
-  }
+  },
 );
 
 /* -------- CREATE ORDER -------- */
-export const createOrder = createAsyncThunk<
-  CreateOrderResponse,
-  CreateOrderPayload
->(
+const createOrder = createAsyncThunk<CreateOrderResponse, CreateOrderPayload>(
   "orders/createOrder",
   async (orderData, { rejectWithValue }) => {
     try {
@@ -70,11 +65,11 @@ export const createOrder = createAsyncThunk<
       }
       return rejectWithValue(err instanceof Error ? err.message : "Unknown error");
     }
-  }
+  },
 );
 
 /* -------- UPDATE ORDER -------- */
-export const updateOrder = createAsyncThunk<
+const updateOrder = createAsyncThunk<
   UpdateOrderResponse,
   { id: string; updatedData: Partial<CreateOrderPayload> }
 >(
@@ -89,5 +84,26 @@ export const updateOrder = createAsyncThunk<
       }
       return rejectWithValue(err instanceof Error ? err.message : "Unknown error");
     }
-  }
+  },
 );
+
+/* -------- ADD PAYMENT TO ORDER -------- */
+const addPayment = createAsyncThunk<AddPaymentResponse, AddPaymentPayload>(
+  "orders/addPayment",
+  async ({ orderId, ...paymentData }, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.post<AddPaymentResponse>(
+        `/api/order/${orderId}/payment`,
+        paymentData,
+      );
+      return data;
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        return rejectWithValue(err.response?.data?.message || "Failed to record payment");
+      }
+      return rejectWithValue(err instanceof Error ? err.message : "Unknown error");
+    }
+  },
+);
+
+export { fetchOrders, fetchOrderById, createOrder, updateOrder, addPayment };

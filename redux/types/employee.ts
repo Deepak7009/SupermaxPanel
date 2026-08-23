@@ -1,3 +1,13 @@
+export interface EmployeeState {
+  employees: Employee[];
+  total: number;
+  page: number;
+  limit: number;
+  loading: boolean;
+  error: string | null;
+  currentEmployee: Employee | null;
+}
+
 export interface Employee {
   _id: string;
   name: string;

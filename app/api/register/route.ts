@@ -3,43 +3,49 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
 import Admin from "@/app/admin/models/Admin";
-import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "secret";
-
-// ---------------- ADMIN REGISTER ----------------
+// ---------------- REGISTER ----------------
+// First-ever registration → becomes superadmin.
+// After that, self-registration is disabled.
+// New users are created by the superadmin via /api/users.
 const adminRegister = async (req: NextRequest) => {
   try {
     await connectToDatabase();
-    const { email, password } = await req.json();
 
-    if (!email || !password) {
+    const { name, email, password } = await req.json();
+
+    if (!name || !email || !password) {
       return NextResponse.json(
-        { error: "Email and password required" },
+        { error: "Name, email and password are required" },
         { status: 400 }
       );
     }
 
-    const existing = await Admin.findOne({ email });
-    if (existing) {
+    const totalAdmins = await Admin.countDocuments();
+
+    if (totalAdmins > 0) {
       return NextResponse.json(
-        { error: "Admin already exists" },
-        { status: 400 }
+        { error: "Registration is disabled. Contact your superadmin." },
+        { status: 403 }
       );
     }
 
-    const admin = new Admin({ email, password });
+    // First user ever → superadmin
+    const admin = new Admin({
+      name,
+      email,
+      password,
+      role: "superadmin",
+      isActive: true,
+    });
+
     await admin.save();
 
-    // Optionally, auto-login by returning a token
-    const token = jwt.sign({ id: admin._id }, JWT_SECRET, { expiresIn: "7d" });
-
-    return NextResponse.json({ token });
+    return NextResponse.json({ success: true });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 };
 
-// ---------------- EXPORT HANDLER ----------------
 export { adminRegister as POST };

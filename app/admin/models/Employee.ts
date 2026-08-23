@@ -1,6 +1,7 @@
-import { Schema, Document, model, models } from "mongoose";
+import mongoose, { Schema, Document, model, models } from "mongoose";
 
 export interface IEmployee extends Document {
+  userId: mongoose.Types.ObjectId;
   name: string;
   email: string;
   phone: string;
@@ -14,6 +15,7 @@ export interface IEmployee extends Document {
 
 const employeeSchema = new Schema<IEmployee>(
   {
+    userId: { type: Schema.Types.ObjectId, ref: "Admin", required: true, index: true },
     name: { type: String, required: true },
 
     email: { type: String, required: true, lowercase: true },
@@ -28,8 +30,8 @@ const employeeSchema = new Schema<IEmployee>(
   { timestamps: true }
 );
 
-employeeSchema.index({ email: 1 }, { unique: true });
-employeeSchema.index({ phone: 1 }, { unique: true });
+employeeSchema.index({ userId: 1, email: 1 }, { unique: true });
+employeeSchema.index({ userId: 1, phone: 1 }, { unique: true });
 
 const Employee =
   models.Employee || model<IEmployee>("Employee", employeeSchema);

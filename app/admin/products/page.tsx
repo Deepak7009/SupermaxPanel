@@ -7,7 +7,7 @@ import { fetchProducts } from "@/redux/thunks/productThunks";
 import { fetchCategories } from "@/redux/thunks/categoryThunks";
 import ProductModal from "@/components/modals/ProductModal";
 import CategoryModal from "@/components/modals/CategoryModal";
-import { Product } from "@/redux/slices/productSlice";
+import { Product } from "@/redux/types/product";
 import { Card } from "@/components/ui/card";
 import Table, { Column } from "@/components/common/Table";
 
@@ -39,10 +39,15 @@ const ProductsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
 
-  // Fetch data from backend
+  // Fetch all categories for the dropdown (high limit so none are missed)
   useEffect(() => {
-    dispatch(fetchCategories());
+    dispatch(fetchCategories({ limit: 500 }));
   }, [dispatch]);
+
+  // Reset to page 1 when search or category filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, categoryFilter]);
 
   useEffect(() => {
     dispatch(
@@ -69,10 +74,10 @@ const ProductsPage = () => {
   const columns: Column<Product>[] = [
     { key: "_id", label: "#" },
     { key: "name", label: "Name" },
-    { key: "category", label: "Category" },
+    { key: "categories", label: "Categories" },
     { key: "finalPrice", label: "Price" },
     { key: "stock", label: "Stock" },
-    { key: "actions" as keyof Product, label: "Actions" }, // ✅ type assertion
+    { key: "actions" as keyof Product, label: "Actions" },
   ];
 
   const handleView = (product: Product) => {
@@ -83,30 +88,28 @@ const ProductsPage = () => {
   const totalPages = Math.ceil(total / limit);
 
   return (
-    <div className="p-6 bg-[var(--background)] text-[var(--foreground)]">
+    <div className="bg-[var(--background)] text-[var(--foreground)]">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-semibold">Products</h1>
       </div>
       {/* Filters and Actions */}
-      <div className="flex justify-between mb-4">
-        <div className="flex gap-4">
-          <Input
-            placeholder="Search by name..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <Select
-            value={categoryFilter || "all"}
-            onChange={(value) =>
-              setCategoryFilter(value === "all" ? "" : value)
-            }
-            options={[
-              { label: "All Categories", value: "all" },
-              ...categories.map((cat) => ({ label: cat.name, value: cat._id })),
-            ]}
-          />
-        </div>
-        <div className="flex gap-4">
+      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 mb-4">
+        <Input
+          placeholder="Search by name..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        <Select
+          value={categoryFilter || "all"}
+          onChange={(value) =>
+            setCategoryFilter(value === "all" ? "" : value)
+          }
+          options={[
+            { label: "All Categories", value: "all" },
+            ...categories.map((cat) => ({ label: cat.name, value: cat._id })),
+          ]}
+        />
+        <div className="flex gap-3 sm:ml-auto">
           <Button onClick={() => setAddProductOpen(true)}>Add Product</Button>
           <Button onClick={() => setAddCategoryOpen(true)}>Add Category</Button>
         </div>
@@ -135,11 +138,11 @@ const ProductsPage = () => {
                     {index + 1 + (currentPage - 1) * limit}
                   </span>
                 );
-              case "category":
-                return product.category?.name || "N/A";
+              case "categories":
+                return (product.categories ?? []).map((c) => c.name).join(", ") || "N/A";
               case "finalPrice":
                 return (
-                  <span className="font-semibold">${product.finalPrice}</span>
+                  <span className="font-semibold">₹{product.finalPrice}</span>
                 );
               case "stock":
                 return (

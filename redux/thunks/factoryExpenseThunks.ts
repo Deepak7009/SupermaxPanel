@@ -7,7 +7,7 @@ import {
 } from "../types/factoryExpense";
 
 /* ================= FETCH ALL EXPENSES ================= */
-export const fetchFactoryExpenses = createAsyncThunk<
+const fetchFactoryExpenses = createAsyncThunk<
   {
     success: boolean;
     expenses: FactoryExpense[];
@@ -54,7 +54,7 @@ export const fetchFactoryExpenses = createAsyncThunk<
 );
 
 /* ================= CREATE EXPENSE ================= */
-export const createFactoryExpense = createAsyncThunk<
+const createFactoryExpense = createAsyncThunk<
   { success: boolean; expense: FactoryExpense },
   CreateFactoryExpensePayload,
   { rejectValue: string }
@@ -77,7 +77,8 @@ export const createFactoryExpense = createAsyncThunk<
   },
 );
 
-export const updateFactoryExpense = createAsyncThunk<
+/* ================= UPDATE EXPENSE ================= */
+const updateFactoryExpense = createAsyncThunk<
   FactoryExpense,
   { id: string; updatedData: Partial<FactoryExpense> },
   { rejectValue: string }
@@ -103,3 +104,5 @@ export const updateFactoryExpense = createAsyncThunk<
     }
   },
 );
+
+export { fetchFactoryExpenses, createFactoryExpense, updateFactoryExpense };

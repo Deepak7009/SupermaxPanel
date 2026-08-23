@@ -11,6 +11,7 @@ import {
 
 import DialogModal from "@/components/common/DialogModal";
 import FloatingInput from "@/components/common/FloatingInput";
+import Select from "@/components/common/Select";
 import Button from "@/components/common/Button";
 
 import { FactoryExpense } from "@/redux/types/factoryExpense";
@@ -141,17 +142,16 @@ const AddFactoryExpenseModal = ({ isOpen, setIsOpen, expense }: Props) => {
           />
         </div>
 
-        <div>
-          <label className="text-sm text-gray-500">Status</label>
-          <select
-            className="border rounded-md p-2 w-full"
-            value={status}
-            onChange={(e) => setStatus(e.target.value as "pending" | "paid")}
-          >
-            <option value="pending">Pending</option>
-            <option value="paid">Paid</option>
-          </select>
-        </div>
+        <Select
+          value={status}
+          onChange={(v) => setStatus(v as "pending" | "paid")}
+          options={[
+            { label: "Pending", value: "pending" },
+            { label: "Paid",    value: "paid"    },
+          ]}
+          placeholder="Status"
+          className="w-full max-w-full"
+        />
 
         <div className="flex justify-end gap-2">
           <Button type="button" onClick={() => setIsOpen(false)}>

@@ -4,17 +4,21 @@ import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
 import Order from "@/app/admin/models/Order";
 import Product from "@/app/admin/models/Product";
+import { getSessionUser } from "@/lib/session";
 
-// ---------------- UPDATE ORDER ----------------
 interface Params {
-  id: string; // route parameter
+  id: string;
 }
 
+// -------- PUT /api/order/[id]  — update order status --------
 const updatedOrder = async (
   req: NextRequest,
   context: { params: Promise<Params> }
 ) => {
   try {
+    const { userId, error } = await getSessionUser();
+    if (error) return error;
+
     await connectToDatabase();
 
     const { id } = await context.params;
@@ -28,9 +32,7 @@ const updatedOrder = async (
       );
     }
 
-    // ⭐ LOAD existing order
-    const existingOrder = await Order.findById(id);
-
+    const existingOrder = await Order.findOne({ _id: id, userId });
     if (!existingOrder) {
       return NextResponse.json(
         { success: false, message: "Order not found" },
@@ -41,7 +43,7 @@ const updatedOrder = async (
     const prevStatus = existingOrder.status;
     const newStatus = data.status;
 
-    // ⭐ Cancel → restore stock
+    // Cancel → restore stock
     if (prevStatus !== "cancelled" && newStatus === "cancelled") {
       for (const item of existingOrder.items) {
         const product = await Product.findById(item.productId);
@@ -52,25 +54,27 @@ const updatedOrder = async (
       }
     }
 
-    // ⭐ Re-activate cancelled order → reduce stock again
+    // Re-activate cancelled order → reduce stock again
     if (prevStatus === "cancelled" && newStatus !== "cancelled") {
       for (const item of existingOrder.items) {
         const product = await Product.findById(item.productId);
         if (!product) continue;
-
         if (product.stock < item.quantity) {
           return NextResponse.json(
             { message: `${product.name} does not have enough stock` },
             { status: 400 }
           );
         }
-
         product.stock -= item.quantity;
         await product.save();
       }
     }
 
-    const updated = await Order.findByIdAndUpdate(id, data, { new: true }).lean();
+    const updated = await Order.findOneAndUpdate(
+      { _id: id, userId },
+      data,
+      { new: true }
+    ).lean();
 
     return NextResponse.json({ success: true, order: updated });
   } catch (error) {
@@ -81,6 +85,5 @@ const updatedOrder = async (
     );
   }
 };
-
 
 export { updatedOrder as PUT };
