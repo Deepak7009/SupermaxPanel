@@ -1,6 +1,7 @@
-import { Schema, Document, model, models } from "mongoose";
+import mongoose, { Schema, Document, model, models } from "mongoose";
 
 export interface IWorkEntry extends Document {
+  userId: mongoose.Types.ObjectId;
   employee: Schema.Types.ObjectId;
   date: Date;
   quantity?: number;
@@ -10,6 +11,7 @@ export interface IWorkEntry extends Document {
 
 const workEntrySchema = new Schema<IWorkEntry>(
   {
+    userId: { type: Schema.Types.ObjectId, ref: "Admin", required: true, index: true },
     employee: {
       type: Schema.Types.ObjectId,
       ref: "Employee",

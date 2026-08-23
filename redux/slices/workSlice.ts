@@ -6,8 +6,7 @@ import {
 } from "../types/work";
 import { createWorkEntry, fetchWorkEntries } from "../thunks/workThunk";
 
-/* -------- STATE TYPE -------- */
-export interface WorkState {
+interface WorkState {
   entries: WorkEntry[];
   loading: boolean;
   error: string | null;
@@ -16,7 +15,6 @@ export interface WorkState {
   limit: number;
 }
 
-/* -------- INITIAL STATE -------- */
 const initialState: WorkState = {
   entries: [],
   loading: false,
@@ -26,7 +24,6 @@ const initialState: WorkState = {
   limit: 5,
 };
 
-/* -------- SLICE -------- */
 const workSlice = createSlice({
   name: "work",
   initialState,
@@ -56,7 +53,7 @@ const workSlice = createSlice({
         state.loading = false;
         state.entries = action.payload.entries;
         state.total = action.payload.total ?? action.payload.entries.length;
-      }
+      },
     );
 
     builder.addCase(fetchWorkEntries.rejected, (state, action) => {
@@ -76,7 +73,7 @@ const workSlice = createSlice({
         state.loading = false;
         state.entries.unshift(action.payload.entry);
         state.total += 1;
-      }
+      },
     );
 
     builder.addCase(createWorkEntry.rejected, (state, action) => {
@@ -86,6 +83,5 @@ const workSlice = createSlice({
   },
 });
 
-/* -------- EXPORTS -------- */
 export const { clearWorkEntries, setPage, setLimit } = workSlice.actions;
 export default workSlice.reducer;

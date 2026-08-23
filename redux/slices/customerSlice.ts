@@ -1,16 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { fetchCustomersThunk, fetchCustomerDetailThunk } from "../thunks/customerThunks";
-import { CustomerDetail, CustomerList } from "../types/customer";
-
-interface CustomerState {
-  customers: CustomerList[];
-  customer: CustomerDetail | null; // <-- make nullable
-  loading: boolean;
-  error: string | null;
-  total: number;
-  page: number;
-  limit: number;
-}
+import { CustomerDetail, CustomerList, CustomerState } from "../types/customer";
 
 const initialState: CustomerState = {
   customers: [],

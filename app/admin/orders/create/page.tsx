@@ -6,7 +6,7 @@ import { fetchProducts } from "@/redux/thunks/productThunks";
 import { createOrder } from "@/redux/thunks/orderThunks";
 import { RootState, AppDispatch } from "@/redux/store";
 import { CreateOrderPayload } from "@/redux/types/order";
-import { Product } from "@/redux/slices/productSlice";
+import { Product } from "@/redux/types/product";
 import Button from "@/components/common/Button";
 import OrderFormModal from "@/components/modals/OrderFormModal";
 
@@ -35,13 +35,15 @@ const CreateOrderPage = () => {
   const [note, setNote] = useState("");
 
   const [amount, setAmount] = useState("");
+  const [advanceAmount, setAdvanceAmount] = useState("");
+  const [advanceMethod, setAdvanceMethod] = useState<"cash" | "upi" | "bank" | "other">("cash");
   const [status, setStatus] = useState<
     "pending" | "processing" | "shipped" | "delivered" | "cancelled"
   >("pending");
 
   useEffect(() => {
     dispatch(fetchProducts({ page: 1, limit: 100 }));
-  }, [dispatch]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const addToCart = (product: Product) => {
     setCart((prev) => {
@@ -128,6 +130,8 @@ const CreateOrderPage = () => {
         price: c.price,
       })),
       status,
+      advanceAmount: Number(advanceAmount) || 0,
+      advanceMethod,
     };
 
     const result = await dispatch(createOrder(payload));
@@ -143,8 +147,12 @@ const CreateOrderPage = () => {
 
       {/* PRODUCTS LIST */}
       <h2 className="text-lg font-semibold mb-3">Select Products</h2>
-      {productLoading && <p>Loading products...</p>}
 
+      {productLoading ? (
+        <p className="text-muted-foreground">Loading products...</p>
+      ) : products.length === 0 ? (
+        <p className="text-muted-foreground">No products found.</p>
+      ) : (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map((p) => {
           const cartItem = cart.find((c) => c.product === p._id);
@@ -178,6 +186,7 @@ const CreateOrderPage = () => {
           );
         })}
       </div>
+      )}
 
       {/* CART SUMMARY */}
       {cart.length > 0 && (
@@ -239,6 +248,10 @@ const CreateOrderPage = () => {
         orderLoading={orderLoading}
         cart={cart}
         totalAmount={totalAmount}
+        advanceAmount={advanceAmount}
+        setAdvanceAmount={setAdvanceAmount}
+        advanceMethod={advanceMethod}
+        setAdvanceMethod={setAdvanceMethod}
       />
     </div>
   );

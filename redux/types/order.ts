@@ -1,43 +1,30 @@
 /* ---------------------- ORDER TYPES ---------------------- */
 
-// export interface OrderItem {
-//   product: string;
-//   quantity: number;
-//   price: number;
-// }
-
 export interface OrderItem {
-  _id: string; 
+  _id: string;
   productId: string;
   name: string;
   quantity: number;
   price: number;
 }
 
+export interface PaymentEntry {
+  _id?: string;
+  amount: number;
+  type: "advance" | "partial" | "installment" | "full";
+  method: "cash" | "upi" | "bank" | "other";
+  note?: string;
+  date: string;
+}
 
-/**
- * USER CAN BE:
- * - registered user (user ID)
- * - OR null for manual order
- *
- * For manual orders, we store:
- * - customerName
- * - customerEmail
- */
 export interface Order {
   _id: string;
-
-  // Optional user reference (null if manual order)
   user?: string | null;
 
   customerName: string;
   customerEmail: string;
-
-  // NOTE: optional for manual orders
   customerMobile: string;
   customerAddress: string;
-
-  // NEW FIELD
   note: string;
 
   items: OrderItem[];
@@ -45,11 +32,16 @@ export interface Order {
 
   status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
 
+  // Payment tracking
+  paidAmount: number;
+  advanceAmount: number;
+  paymentStatus: "unpaid" | "advance" | "partial" | "paid" | "overpaid";
+  payments: PaymentEntry[];
+
   createdAt: string;
   updatedAt: string;
-  actions?:string;
+  actions?: string;
 }
-
 
 /* -------- RESPONSE TYPES -------- */
 
@@ -58,6 +50,9 @@ export interface FetchOrdersResponse {
   total: number;
   page: number;
   limit: number;
+  totalOrderAmount: number;
+  totalReceivedAmount: number;
+  totalPendingAmount: number;
 }
 
 export interface FetchOrderByIdResponse {
@@ -72,6 +67,10 @@ export interface UpdateOrderResponse {
   order: Order;
 }
 
+export interface AddPaymentResponse {
+  order: Order;
+}
+
 /* -------- THUNK PAYLOAD TYPES -------- */
 
 export interface FetchOrdersParams {
@@ -81,38 +80,37 @@ export interface FetchOrdersParams {
   limit?: number;
 }
 
-/**
- * Create order payload
- * Works for both MANUAL + REGISTERED users
- */
 export interface CreateOrderPayload {
   user?: string | null;
-
   customerName: string;
   customerEmail: string;
-
-  // NOTE: optional for manual orders
   customerMobile: string;
   customerAddress: string;
-
-  // NEW FIELD
   note: string;
-
   items: Array<{
     productId: string;
     name: string;
     quantity: number;
     price: number;
   }>;
-
   totalAmount: number;
   status?: Order["status"];
+  // optional advance payment at order creation
+  advanceAmount?: number;
+  advanceMethod?: "cash" | "upi" | "bank" | "other";
 }
-
 
 export interface UpdateOrderPayload {
   id: string;
   updatedData: Partial<Order>;
+}
+
+export interface AddPaymentPayload {
+  orderId: string;
+  amount: number;
+  type: PaymentEntry["type"];
+  method: PaymentEntry["method"];
+  note?: string;
 }
 
 /* -------- SLICE STATE TYPE -------- */
@@ -125,4 +123,7 @@ export interface OrderState {
   loading: boolean;
   error: string | null;
   currentOrder: Order | null;
+  totalOrderAmount: number;
+  totalReceivedAmount: number;
+  totalPendingAmount: number;
 }

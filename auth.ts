@@ -11,22 +11,14 @@ const authConfig = {
       name: "credentials",
 
       credentials: {
-        email: {
-          label: "Email",
-          type: "email",
-        },
-        password: {
-          label: "Password",
-          type: "password",
-        },
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
       },
 
       async authorize(
         credentials: Partial<Record<"email" | "password", unknown>>
       ) {
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
+        if (!credentials?.email || !credentials?.password) return null;
 
         await connectToDatabase();
 
@@ -34,22 +26,21 @@ const authConfig = {
           email: credentials.email as string,
         });
 
-        if (!admin) {
-          return null;
-        }
+        if (!admin) return null;
+        // isActive defaults to true; only block if explicitly set false
+        if (admin.isActive === false) return null;
 
         const isMatch = await admin.comparePassword(
           credentials.password as string
         );
 
-        if (!isMatch) {
-          return null;
-        }
+        if (!isMatch) return null;
 
         return {
           id: admin._id.toString(),
+          name: admin.name,
           email: admin.email,
-          role: "admin",
+          role: admin.role,
         };
       },
     }),
@@ -60,29 +51,19 @@ const authConfig = {
   },
 
   callbacks: {
-    async jwt({
-      token,
-      user,
-    }: {
-      token: JWT;
-      user?: User;
-    }) {
-      if (user?.role) {
+    async jwt({ token, user }: { token: JWT; user?: User }) {
+      if (user) {
+        token.id = user.id;
+        token.name = user.name;
         token.role = user.role;
       }
-
       return token;
     },
 
-    async session({
-      session,
-      token,
-    }: {
-      session: Session;
-      token: JWT;
-    }) {
+    async session({ session, token }: { session: Session; token: JWT }) {
+      session.user.id = token.id;
+      session.user.name = token.name;
       session.user.role = token.role;
-
       return session;
     },
   },

@@ -1,23 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
   Employee,
+  EmployeeState,
   FetchEmployeesResponse,
   FetchEmployeeByIdResponse,
   CreateEmployeeResponse,
 } from "../types/employee";
 import { createEmployee, fetchEmployeeById, fetchEmployees } from "../thunks/employeeThunk";
-
-
-/* -------- STATE TYPE -------- */
-export interface EmployeeState {
-  employees: Employee[];
-  total: number;
-  page: number;
-  limit: number;
-  loading: boolean;
-  error: string | null;
-  currentEmployee: Employee | null;
-}
 
 /* -------- INITIAL STATE -------- */
 const initialState: EmployeeState = {
@@ -38,6 +27,9 @@ const employeeSlice = createSlice({
     clearCurrentEmployee(state) {
       state.currentEmployee = null;
     },
+    setPage(state, action: PayloadAction<number>) {
+      state.page = action.payload;
+    },
   },
   extraReducers: (builder) => {
     /* ================= FETCH EMPLOYEES ================= */
@@ -54,7 +46,7 @@ const employeeSlice = createSlice({
         state.total = action.payload.total;
         state.page = action.payload.page;
         state.limit = action.payload.limit;
-      }
+      },
     );
 
     builder.addCase(fetchEmployees.rejected, (state, action) => {
@@ -73,7 +65,7 @@ const employeeSlice = createSlice({
       (state, action: PayloadAction<FetchEmployeeByIdResponse>) => {
         state.loading = false;
         state.currentEmployee = action.payload.employee;
-      }
+      },
     );
 
     builder.addCase(fetchEmployeeById.rejected, (state, action) => {
@@ -93,7 +85,7 @@ const employeeSlice = createSlice({
         state.loading = false;
         state.employees.unshift(action.payload.employee);
         state.total += 1;
-      }
+      },
     );
 
     builder.addCase(createEmployee.rejected, (state, action) => {
@@ -103,6 +95,5 @@ const employeeSlice = createSlice({
   },
 });
 
-/* -------- EXPORTS -------- */
-export const { clearCurrentEmployee } = employeeSlice.actions;
+export const { clearCurrentEmployee, setPage } = employeeSlice.actions;
 export default employeeSlice.reducer;

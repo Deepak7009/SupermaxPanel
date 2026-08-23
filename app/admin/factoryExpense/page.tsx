@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
 import { fetchFactoryExpenses } from "@/redux/thunks/factoryExpenseThunks";
 import { setPage } from "@/redux/slices/factoryExpenseSlice";
-import { useRouter } from "next/navigation";
 
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
@@ -30,9 +29,8 @@ const months = Array.from({ length: 12 }, (_, i) => ({
 
 const FactoryExpensePage = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const router = useRouter();
 
-  const { expenses, page, total, limit, loading } = useSelector(
+  const { expenses, page, total, limit, loading, totalPayedAmount, totalPendingAmount, totalMonthAmount } = useSelector(
     (state: RootState) => state.factoryExpense,
   );
 
@@ -78,17 +76,6 @@ const FactoryExpensePage = () => {
     }
   };
 
-  // Calculate totals for current page
-  const totalPaidAmount = expenses
-    .filter((e) => e.status === "paid")
-    .reduce((sum, e) => sum + e.amount, 0);
-
-  const totalPendingAmount = expenses
-    .filter((e) => e.status === "pending")
-    .reduce((sum, e) => sum + e.amount, 0);
-
-  const totalMonthExpense = totalPaidAmount + totalPendingAmount;
-
   // Status filter options
   const statusOptions = [
     { label: "All Status", value: "all" },
@@ -124,7 +111,7 @@ const FactoryExpensePage = () => {
   };
 
   return (
-    <div className="p-6 bg-[var(--background)] text-[var(--foreground)]">
+    <div className="bg-[var(--background)] text-[var(--foreground)]">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-semibold">Factory Expenses</h1>
       </div>
@@ -132,7 +119,7 @@ const FactoryExpensePage = () => {
       <AddFactoryExpenseModal isOpen={addOpen} setIsOpen={setAddOpen} />
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-4 mb-4">
+      <div className="flex flex-wrap gap-3 mb-4">
         <Input
           placeholder="Search expense..."
           value={search}
@@ -163,18 +150,18 @@ const FactoryExpensePage = () => {
       </div>
 
       {/* Totals cards */}
-      <div className="flex flex-wrap gap-4 mb-4">
-        <Card className="p-4 flex-1">
-          <h2 className="text-sm text-gray-500">Total Paid Amount</h2>
-          <p className="text-xl font-bold">₹ {totalPaidAmount}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+        <Card className="p-4">
+          <h2 className="text-sm text-[var(--muted-foreground)]">Total Paid Amount</h2>
+          <p className="text-xl font-bold">₹ {totalPayedAmount}</p>
         </Card>
-        <Card className="p-4 flex-1">
-          <h2 className="text-sm text-gray-500">Total Pending Amount</h2>
+        <Card className="p-4">
+          <h2 className="text-sm text-[var(--muted-foreground)]">Total Pending Amount</h2>
           <p className="text-xl font-bold">₹ {totalPendingAmount}</p>
         </Card>
-        <Card className="p-4 flex-1">
-          <h2 className="text-sm text-gray-500">Total Month Expense</h2>
-          <p className="text-xl font-bold">₹ {totalMonthExpense}</p>
+        <Card className="p-4">
+          <h2 className="text-sm text-[var(--muted-foreground)]">Total Month Expense</h2>
+          <p className="text-xl font-bold">₹ {totalMonthAmount}</p>
         </Card>
       </div>
 

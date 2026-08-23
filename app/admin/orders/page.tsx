@@ -29,11 +29,13 @@ type OrderStatus =
   | "delivered"
   | "cancelled";
 
+type PaymentStatus = "unpaid" | "advance" | "partial" | "paid" | "overpaid";
+
 const OrdersPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
-  const { orders, total, limit } = useSelector((s: RootState) => s.orders);
+  const { orders, total, limit, totalOrderAmount, totalReceivedAmount, totalPendingAmount } = useSelector((s: RootState) => s.orders);
 
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<"all" | OrderStatus>("all");
@@ -82,11 +84,20 @@ const OrdersPage = () => {
     }
   };
 
+  const paymentStatusColors: Record<PaymentStatus, string> = {
+    unpaid:   "bg-red-50 text-red-700 border-red-200",
+    advance:  "bg-purple-50 text-purple-700 border-purple-200",
+    partial:  "bg-orange-50 text-orange-700 border-orange-200",
+    paid:     "bg-green-50 text-green-700 border-green-200",
+    overpaid: "bg-yellow-50 text-yellow-700 border-yellow-200",
+  };
+
   const columns: Column<OrderTableRow>[] = [
     { key: "_id", label: "#" },
     { key: "customerName", label: "Customer" },
     { key: "totalAmount", label: "Amount" },
     { key: "status", label: "Status" },
+    { key: "paymentStatus", label: "Payment" },
     { key: "actions", label: "Actions" },
   ];
 
@@ -118,12 +129,9 @@ const OrdersPage = () => {
   };
 
   return (
-    <div className="p-6 bg-[var(--background)] text-[var(--foreground)] ">
+    <div className="bg-[var(--background)] text-[var(--foreground)]">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-semibold">Orders</h1>
-        {/* <Button onClick={() => router.push("/admin/orders/create")}>
-          Create Order
-        </Button> */}
       </div>
 
       <OrderViewModal
@@ -132,7 +140,23 @@ const OrdersPage = () => {
         order={viewOrder}
       />
 
-      {/* <div className="flex gap-4 mb-4">
+      {/* Totals cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+        <Card className="p-4">
+          <h2 className="text-sm text-[var(--muted-foreground)]">Total Amount Get</h2>
+          <p className="text-xl font-bold">₹ {totalReceivedAmount.toFixed(2)}</p>
+        </Card>
+        <Card className="p-4">
+          <h2 className="text-sm text-[var(--muted-foreground)]">Total Amount Pending</h2>
+          <p className="text-xl font-bold">₹ {totalPendingAmount.toFixed(2)}</p>
+        </Card>
+        <Card className="p-4">
+          <h2 className="text-sm text-[var(--muted-foreground)]">Total Order Amount</h2>
+          <p className="text-xl font-bold">₹ {totalOrderAmount.toFixed(2)}</p>
+        </Card>
+      </div>
+
+      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 mb-4">
         <Input
           placeholder="Search name or email..."
           value={search}
@@ -144,27 +168,12 @@ const OrdersPage = () => {
           options={statusOptions}
           placeholder="Select status"
         />
-      </div> */}
-
-      <div className="flex justify-between mb-4">
-        <div className="flex gap-4">
-          <Input
-            placeholder="Search name or email..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <Select
-            value={status}
-            onChange={(value) => setStatus(value as "all" | OrderStatus)}
-            options={statusOptions}
-            placeholder="Select status"
-          />
-        </div>
-        <div className="flex gap-4">
-          <Button onClick={() => router.push("/admin/orders/create")}>
-            Create Order
-          </Button>
-        </div>
+        <Button
+          onClick={() => router.push("/admin/orders/create")}
+          className="sm:ml-auto"
+        >
+          Create Order
+        </Button>
       </div>
 
       <Card className="p-4 rounded-xl">
@@ -178,20 +187,38 @@ const OrdersPage = () => {
               case "_id":
                 return <span>{index + 1 + (currentPage - 1) * limit}</span>;
               case "totalAmount":
-                return `$${order.totalAmount.toFixed(2)}`;
+                return (
+                  <span>
+                    ₹{order.totalAmount.toFixed(2)}
+                    {(order.paidAmount ?? 0) > 0 && (
+                      <span className="block text-xs text-[var(--amount-paid)]">
+                        paid ₹{(order.paidAmount ?? 0).toFixed(2)}
+                      </span>
+                    )}
+                  </span>
+                );
               case "status":
-                // Apply status color from theme
                 return (
                   <span
                     className={`px-2 py-1 rounded-md border text-sm capitalize ${
-                      order.status
-                        ? statusColors[order.status as OrderStatus]
-                        : ""
+                      order.status ? statusColors[order.status as OrderStatus] : ""
                     }`}
                   >
                     {order.status}
                   </span>
                 );
+              case "paymentStatus": {
+                // cancelled orders show a neutral dash — no payment badge
+                if (order.status === "cancelled") {
+                  return <span className="text-muted-foreground text-xs">—</span>;
+                }
+                const ps = (order.paymentStatus ?? "unpaid") as PaymentStatus;
+                return (
+                  <span className={`px-2 py-1 rounded-md border text-xs font-semibold capitalize ${paymentStatusColors[ps]}`}>
+                    {ps}
+                  </span>
+                );
+              }
               case "actions":
                 return (
                   <Button onClick={() => handleView(order)}>

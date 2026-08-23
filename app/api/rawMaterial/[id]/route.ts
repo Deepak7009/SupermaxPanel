@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
 import mongoose from "mongoose";
 import RawMaterial from "@/app/admin/models/RawMaterial";
+import { getSessionUser } from "@/lib/session";
 
 interface Params {
   id: string;
@@ -14,6 +15,9 @@ const updateRawMaterial = async (
   context: { params: Promise<Params> },
 ) => {
   try {
+    const { userId, error } = await getSessionUser();
+    if (error) return error;
+
     await connectToDatabase();
 
     const { id } = await context.params;
@@ -23,9 +27,11 @@ const updateRawMaterial = async (
       return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
     }
 
-    const updatedMaterial = await RawMaterial.findByIdAndUpdate(id, body, {
-      new: true,
-    });
+    const updatedMaterial = await RawMaterial.findOneAndUpdate(
+      { _id: id, userId },
+      body,
+      { new: true }
+    );
 
     if (!updatedMaterial) {
       return NextResponse.json(

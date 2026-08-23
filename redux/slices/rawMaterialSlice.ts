@@ -1,23 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RawMaterial } from "../types/rawMaterial";
+import { RawMaterial, RawMaterialState } from "../types/rawMaterial";
 import {
   fetchRawMaterials,
   createRawMaterial,
   updateRawMaterial,
 } from "../thunks/rawMaterialThunks";
-
-interface RawMaterialState {
-  materials: RawMaterial[];
-  total: number;
-  page: number;
-  limit: number;
-  loading: boolean;
-  error: string | null;
-
-  totalAmount: number;
-  pendingAmount: number;
-  paidAmount: number;
-}
 
 const initialState: RawMaterialState = {
   materials: [],

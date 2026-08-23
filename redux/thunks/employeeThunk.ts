@@ -9,7 +9,7 @@ import {
 } from "../types/employee";
 
 /* -------- FETCH ALL EMPLOYEES -------- */
-export const fetchEmployees = createAsyncThunk<
+const fetchEmployees = createAsyncThunk<
   FetchEmployeesResponse,
   FetchEmployeesParams | undefined
 >(
@@ -23,50 +23,47 @@ export const fetchEmployees = createAsyncThunk<
       if (params?.limit) query.append("limit", params.limit.toString());
 
       const { data } = await axios.get<FetchEmployeesResponse>(
-        `/api/employees?${query.toString()}`
+        `/api/employees?${query.toString()}`,
       );
 
       return data;
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         return rejectWithValue(
-          err.response?.data?.message || "Failed to fetch employees"
+          err.response?.data?.message || "Failed to fetch employees",
         );
       }
       return rejectWithValue(
-        err instanceof Error ? err.message : "Unknown error"
+        err instanceof Error ? err.message : "Unknown error",
       );
     }
-  }
+  },
 );
 
 /* -------- FETCH EMPLOYEE BY ID -------- */
-export const fetchEmployeeById = createAsyncThunk<
-  FetchEmployeeByIdResponse,
-  string
->(
+const fetchEmployeeById = createAsyncThunk<FetchEmployeeByIdResponse, string>(
   "employee/fetchEmployeeById",
   async (id, { rejectWithValue }) => {
     try {
       const { data } = await axios.get<FetchEmployeeByIdResponse>(
-        `/api/employees?id=${id}`
+        `/api/employees?id=${id}`,
       );
       return data;
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         return rejectWithValue(
-          err.response?.data?.message || "Failed to fetch employee"
+          err.response?.data?.message || "Failed to fetch employee",
         );
       }
       return rejectWithValue(
-        err instanceof Error ? err.message : "Unknown error"
+        err instanceof Error ? err.message : "Unknown error",
       );
     }
-  }
+  },
 );
 
 /* -------- CREATE EMPLOYEE -------- */
-export const createEmployee = createAsyncThunk<
+const createEmployee = createAsyncThunk<
   CreateEmployeeResponse,
   CreateEmployeePayload
 >(
@@ -75,18 +72,20 @@ export const createEmployee = createAsyncThunk<
     try {
       const { data } = await axios.post<CreateEmployeeResponse>(
         "/api/employees",
-        employeeData
+        employeeData,
       );
       return data;
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
         return rejectWithValue(
-          err.response?.data?.message || "Failed to create employee"
+          err.response?.data?.message || "Failed to create employee",
         );
       }
       return rejectWithValue(
-        err instanceof Error ? err.message : "Unknown error"
+        err instanceof Error ? err.message : "Unknown error",
       );
     }
-  }
+  },
 );
+
+export { fetchEmployees, fetchEmployeeById, createEmployee };

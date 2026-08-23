@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import { useDispatch, useSelector } from "react-redux";
+import { useSession } from "next-auth/react";
 
 import { RootState, AppDispatch } from "@/redux/store";
 import { fetchDashboard } from "@/redux/thunks/dashboardThunks";
@@ -22,6 +23,7 @@ import { LowStockProduct, RecentOrder } from "@/redux/types/dashboard";
 
 const AdminDashboard = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const { data: session } = useSession();
 
   const {
     stats,
@@ -60,7 +62,7 @@ const AdminDashboard = () => {
     },
     {
       title: "Revenue",
-      value: `₹${stats.totalRevenue.toLocaleString()}`,
+      value: `₹${(stats?.totalRevenue ?? 0).toLocaleString()}`,
       icon: IndianRupee,
     },
   ];
@@ -92,20 +94,25 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="space-y-6 p-4 md:p-6">
+    <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">
+        <h1 className="text-2xl font-bold sm:text-3xl">
           Dashboard
         </h1>
 
         <p className="text-muted-foreground mt-1">
-          Welcome back Admin
+          Welcome back, {session?.user.name ?? "Admin"}
+          {session?.user.role === "superadmin" && (
+            <span className="ml-2 text-xs font-semibold text-[var(--badge-superadmin-text)] dark:text-[var(--badge-superadmin-text)]">
+              (Super Admin)
+            </span>
+          )}
         </p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-5">
         {cards.map((card) => {
           const Icon = card.icon;
 
@@ -135,31 +142,35 @@ const AdminDashboard = () => {
       </div>
 
       {/* Main Content */}
-      <div className="grid gap-6 xl:grid-cols-3">
-        {/* Recent Orders */}
-        <Card className="p-4 xl:col-span-2">
-          <h2 className="mb-4 text-lg font-semibold">
-            Recent Orders
-          </h2>
+      <div className="grid gap-4 lg:grid-cols-3">
 
+        {/* Recent Orders — full width on mobile, 2/3 on lg */}
+        <Card className="p-4 lg:col-span-2 min-w-0">
+          <h2 className="mb-4 text-lg font-semibold">Recent Orders</h2>
+
+          {/* Truncate Order ID to first 8 chars on mobile */}
           <Table
             columns={orderColumns}
             data={recentOrders}
             loading={loading}
             renderCell={(order, key) => {
               switch (key) {
+                case "_id":
+                  return (
+                    <span className="font-mono text-xs">
+                      <span className="hidden sm:inline">{order._id}</span>
+                      <span className="sm:hidden">{order._id.slice(0, 8)}…</span>
+                    </span>
+                  );
                 case "totalAmount":
                   return (
-                    <span className="font-semibold">
+                    <span className="font-semibold whitespace-nowrap">
                       ₹{order.totalAmount.toLocaleString()}
                     </span>
                   );
-
                 default:
                   const value = order[key];
-
-                  return typeof value === "string" ||
-                    typeof value === "number"
+                  return typeof value === "string" || typeof value === "number"
                     ? value
                     : "";
               }
@@ -167,13 +178,12 @@ const AdminDashboard = () => {
           />
         </Card>
 
-        {/* Right Side */}
-        <div className="space-y-6">
+        {/* Right column — stacks below on mobile, sidebar on lg */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+
           {/* Low Stock Products */}
           <Card className="p-4">
-            <h2 className="mb-4 text-lg font-semibold">
-              Low Stock Products
-            </h2>
+            <h2 className="mb-4 text-lg font-semibold">Low Stock Products</h2>
 
             <Table
               columns={lowStockColumns}
@@ -183,16 +193,13 @@ const AdminDashboard = () => {
                 switch (key) {
                   case "stock":
                     return (
-                      <span className="bg-error text-error-foreground rounded-md px-2 py-1 text-xs font-medium">
+                      <span className="bg-destructive/15 text-destructive rounded-md px-2 py-1 text-xs font-medium">
                         {product.stock}
                       </span>
                     );
-
                   default:
                     const value = product[key];
-
-                    return typeof value === "string" ||
-                      typeof value === "number"
+                    return typeof value === "string" || typeof value === "number"
                       ? value
                       : "";
                 }
@@ -202,9 +209,7 @@ const AdminDashboard = () => {
 
           {/* Latest Categories */}
           <Card className="p-4">
-            <h2 className="mb-4 text-lg font-semibold">
-              Latest Categories
-            </h2>
+            <h2 className="mb-4 text-lg font-semibold">Latest Categories</h2>
 
             {latestCategories.length > 0 ? (
               <div className="space-y-2">
@@ -213,9 +218,7 @@ const AdminDashboard = () => {
                     key={category._id}
                     className="bg-muted rounded-lg border px-3 py-2"
                   >
-                    <span className="font-medium">
-                      {category.name}
-                    </span>
+                    <span className="font-medium text-sm">{category.name}</span>
                   </div>
                 ))}
               </div>
@@ -225,6 +228,7 @@ const AdminDashboard = () => {
               </div>
             )}
           </Card>
+
         </div>
       </div>
     </div>

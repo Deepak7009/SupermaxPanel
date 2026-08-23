@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
-
 import connectToDatabase from "@/lib/mongodb";
-
 import Product from "@/app/admin/models/Product";
 import Category from "@/app/admin/models/Category";
 import Order from "@/app/admin/models/Order";
 import Customer from "@/app/admin/models/Customer";
+import { getSessionUser } from "@/lib/session";
 
 const getDashboard = async () => {
   try {
+    const { userId, error } = await getSessionUser();
+    if (error) return error;
+
     await connectToDatabase();
 
     const [
@@ -20,34 +22,18 @@ const getDashboard = async () => {
       lowStockProducts,
       latestCategories,
     ] = await Promise.all([
-      Product.countDocuments(),
-
-      Category.countDocuments(),
-
-      Order.countDocuments(),
-
-      Customer.countDocuments(),
-
-      Order.find().sort({ createdAt: -1 }).limit(5),
-
-      Product.find({
-        stock: { $lte: 10 },
-      })
-        .select("name stock")
-        .limit(5),
-
-      Category.find().sort({ createdAt: -1 }).limit(5).select("name"),
+      Product.countDocuments({ userId }),
+      Category.countDocuments({ userId }),
+      Order.countDocuments({ userId }),
+      Customer.countDocuments({ userId }),
+      Order.find({ userId }).sort({ createdAt: -1 }).limit(5),
+      Product.find({ userId, stock: { $lte: 10 } }).select("name stock").limit(5),
+      Category.find({ userId }).sort({ createdAt: -1 }).limit(5).select("name"),
     ]);
 
     const revenueResult = await Order.aggregate([
-      {
-        $group: {
-          _id: null,
-          totalRevenue: {
-            $sum: "$totalAmount",
-          },
-        },
-      },
+      { $match: { userId: { $eq: userId } } },
+      { $group: { _id: null, totalRevenue: { $sum: "$totalAmount" } } },
     ]);
 
     return NextResponse.json({
@@ -58,24 +44,13 @@ const getDashboard = async () => {
         totalCustomers,
         totalRevenue: revenueResult[0]?.totalRevenue || 0,
       },
-
       recentOrders,
-
       lowStockProducts,
-
       latestCategories,
     });
   } catch (error) {
     console.error("Dashboard Error:", error);
-
-    return NextResponse.json(
-      {
-        error: "Failed to load dashboard",
-      },
-      {
-        status: 500,
-      },
-    );
+    return NextResponse.json({ error: "Failed to load dashboard" }, { status: 500 });
   }
 };
 

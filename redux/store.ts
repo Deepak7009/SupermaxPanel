@@ -8,10 +8,11 @@ import workReducer from "./slices/workSlice";
 import factoryExpenseReducer from "./slices/factoryExpenseSlice";
 import rawMaterialReducer from "./slices/rawMaterialSlice";
 import dashboardReducer from "./slices/dashboardSlice";
+import userReducer from "./slices/userSlice";
 
 export const store = configureStore({
   reducer: {
-    // user: userReducer,
+    users: userReducer,
     product: productReducer,
     category: categoryReducer,
     orders: orderReducer,

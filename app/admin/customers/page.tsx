@@ -33,6 +33,11 @@ const CustomerPage = () => {
 
   const totalPages = Math.ceil(total / limit);
 
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    dispatch(setPage(1));
+  }, [search, dispatch]);
+
   useEffect(() => {
     dispatch(
       fetchCustomersThunk({
@@ -54,11 +59,10 @@ const CustomerPage = () => {
   ];
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="space-y-4">
       <h1 className="text-xl font-semibold">Customers</h1>
 
       <Input
-        className="w-72"
         placeholder="Search by name or email"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
@@ -77,11 +81,11 @@ const CustomerPage = () => {
                 return (
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <Mail className="w-4 h-4 text-blue-500" />
+                      <Mail className="w-4 h-4 text-[var(--icon-mail)]" />
                       {customer.email}
                     </div>
                     <div className="flex items-center gap-2">
-                      <Phone className="w-4 h-4 text-green-500" />
+                      <Phone className="w-4 h-4 text-[var(--icon-phone)]" />
                       {customer.phone}
                     </div>
                   </div>

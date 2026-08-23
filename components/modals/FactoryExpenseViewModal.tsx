@@ -62,7 +62,7 @@ const FactoryExpenseViewModal = ({ isOpen, setIsOpen, expenseId }: Props) => {
 
 const Info = ({ label, value }: { label: string; value: string }) => (
   <div>
-    <p className="text-gray-500 text-sm">{label}</p>
+    <p className="text-[var(--muted-foreground)] text-sm">{label}</p>
     <p className="font-medium">{value}</p>
   </div>
 );

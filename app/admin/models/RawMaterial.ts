@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface IRawMaterial extends Document {
+  userId: mongoose.Types.ObjectId;
   shopName: string;
   materialName: string;
   quantity: number;
@@ -12,6 +13,7 @@ export interface IRawMaterial extends Document {
 
 const RawMaterialSchema: Schema = new Schema(
   {
+    userId: { type: Schema.Types.ObjectId, ref: "Admin", required: true, index: true },
     shopName: {
       type: String,
       required: true,

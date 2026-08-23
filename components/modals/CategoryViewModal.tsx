@@ -5,7 +5,7 @@ import { useState } from "react";
 import DialogModal from "@/components/common/DialogModal";
 import Button from "@/components/common/Button";
 
-import { Category } from "@/redux/slices/categorySlice";
+import { Category } from "@/redux/types/category";
 import CategoryModal from "./CategoryModal";
 
 interface CategoryViewModalProps {

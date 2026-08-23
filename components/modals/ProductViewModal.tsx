@@ -3,7 +3,7 @@
 import { useState } from "react";
 import DialogModal from "@/components/common/DialogModal";
 import ProductModal from "./ProductModal";
-import { Product } from "@/redux/slices/productSlice";
+import { Product } from "@/redux/types/product";
 import Button from "../common/Button";
 
 interface ProductViewModalProps {
@@ -31,8 +31,11 @@ const ProductViewModal = ({
       <DialogModal isOpen={isOpen} setIsOpen={setIsOpen} title="View Product">
         <div className="grid grid-cols-2 gap-3 p-2 text-sm">
           <Info label="Name" value={product.name || "N/A"} />
-          <Info label="Category" value={product.category?.name || "N/A"} />
-          <Info label="Price" value={`$${product.finalPrice ?? 0}`} />
+          <Info
+            label="Categories"
+            value={(product.categories ?? []).map((c) => c.name).join(", ") || "N/A"}
+          />
+          <Info label="Price" value={`₹${product.finalPrice ?? 0}`} />
           <Info label="Stock" value={product.stock?.toString() ?? "0"} />
           <Info label="SKU" value={product.sku || "N/A"} />
           <Info label="Brand" value={product.brand || "N/A"} />

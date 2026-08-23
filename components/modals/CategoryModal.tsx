@@ -5,9 +5,9 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { RootState, AppDispatch } from "@/redux/store";
 
-import { createCategory, updateCategory } from "@/redux/thunks/categoryThunks";
+import { createCategory, updateCategory, fetchCategories } from "@/redux/thunks/categoryThunks";
 
-import { Category } from "@/redux/slices/categorySlice";
+import { Category } from "@/redux/types/category";
 
 import DialogModal from "@/components/common/DialogModal";
 import Select from "@/components/common/Select";
@@ -27,6 +27,11 @@ const CategoryModal = ({ isOpen, setIsOpen, category }: CategoryModalProps) => {
 
   const { categories } = useSelector((state: RootState) => state.category);
 
+  // Ensure all categories are loaded for the parent dropdown
+  useEffect(() => {
+    dispatch(fetchCategories({ limit: 500 }));
+  }, [dispatch]);
+
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [parent, setParent] = useState("");
@@ -44,7 +49,7 @@ const CategoryModal = ({ isOpen, setIsOpen, category }: CategoryModalProps) => {
       setParent("");
       setIsActive(true);
     }
-  }, [category, isOpen]);
+  }, [category]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -55,14 +60,12 @@ const CategoryModal = ({ isOpen, setIsOpen, category }: CategoryModalProps) => {
 
     const payload = {
       name,
+      // Recompute slug from current name on every save
       slug: name.toLowerCase().replace(/\s+/g, "-"),
       description,
-      parent: parentCategory
-        ? {
-            _id: parentCategory._id,
-            name: parentCategory.name,
-          }
-        : null,
+      // The API accepts either a plain ObjectId string or {_id,name}.
+      // We cast here to satisfy the Category type while sending only the id.
+      parent: (parentCategory ? parentCategory._id : null) as Category["parent"],
       isActive,
     };
 
@@ -128,7 +131,7 @@ const CategoryModal = ({ isOpen, setIsOpen, category }: CategoryModalProps) => {
           <span>Active</span>
         </div>
 
-        <Button type="submit" className="bg-green-600 hover:bg-green-700">
+        <Button type="submit" className="bg-[var(--btn-success-bg)] hover:bg-[var(--btn-success-hover-bg)]">
           {category ? "Update Category" : "Save Category"}
         </Button>
       </form>

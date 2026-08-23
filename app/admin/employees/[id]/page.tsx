@@ -7,6 +7,7 @@ import { RootState, AppDispatch } from "@/redux/store";
 
 import { fetchEmployeeById } from "@/redux/thunks/employeeThunk";
 import { fetchWorkEntries } from "@/redux/thunks/workThunk";
+import { setPage } from "@/redux/slices/workSlice";
 
 import { Card } from "@/components/ui/card";
 import Table, { Column } from "@/components/common/Table";
@@ -48,13 +49,13 @@ const EmployeeDetailPage = () => {
 
   useEffect(() => {
     if (!id) return;
-    dispatch(fetchWorkEntries({ employeeId: id, page, limit: PAGE_SIZE }));
-  }, [id, dispatch, page]);
+    dispatch(fetchWorkEntries({ employeeId: id, page, limit: PAGE_SIZE, search }));
+  }, [id, dispatch, page, search]);
 
   if (empLoading || workLoading) return <div className="p-6">Loading...</div>;
-  if (empError) return <div className="p-6 text-red-500">{empError}</div>;
+  if (empError) return <div className="p-6 text-[var(--text-error)]">{empError}</div>;
   if (!currentEmployee) return <div className="p-6">Employee not found</div>;
-  if (workError) return <div className="p-6 text-red-500">{workError}</div>;
+  if (workError) return <div className="p-6 text-[var(--text-error)]">{workError}</div>;
 
   const columns: Column<WorkEntry>[] = [
     { key: "date", label: "Date" },
@@ -64,7 +65,7 @@ const EmployeeDetailPage = () => {
   ];
 
   return (
-    <div className="p-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
       {/* LEFT PROFILE */}
       <Card className="p-5 rounded-xl">
         <div className="flex flex-col items-center text-center gap-3">
@@ -126,11 +127,7 @@ const EmployeeDetailPage = () => {
 
         <Table
           columns={columns}
-          data={entries.filter(
-            (e) =>
-              e.date.toLowerCase().includes(search.toLowerCase()) ||
-              String(e.amount ?? "").includes(search),
-          )}
+          data={entries}
           renderCell={(entry, key) => {
             switch (key) {
               case "date":
@@ -159,7 +156,7 @@ const EmployeeDetailPage = () => {
           currentPage={page}
           totalPages={Math.ceil(total / PAGE_SIZE)}
           totalItems={total}
-          onPageChange={(p) => dispatch({ type: "work/setPage", payload: p })}
+          onPageChange={(p) => dispatch(setPage(p))}
         />
       </Card>
 

@@ -131,7 +131,7 @@ const Navbar = () => {
         ))}
 
         <button
-          className="w-full bg-red-400 text-white px-4 py-2 rounded hover:opacity-80 transition"
+          className="w-full bg-[var(--btn-danger-bg)] text-white px-4 py-2 rounded hover:opacity-80 transition"
           onClick={closeMenu}
         >
           Login

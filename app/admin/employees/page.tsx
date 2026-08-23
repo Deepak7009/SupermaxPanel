@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { RootState, AppDispatch } from "@/redux/store";
 import { fetchEmployees } from "@/redux/thunks/employeeThunk";
+import { setPage } from "@/redux/slices/employeeSlice";
 import { Employee } from "@/redux/types/employee";
 
 import Table, { Column } from "@/components/common/Table";
@@ -28,6 +29,11 @@ const EmployeesPage = () => {
 
   const totalPages = Math.ceil(total / limit);
 
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    dispatch(setPage(1));
+  }, [search, dispatch]);
+
   useEffect(() => {
     dispatch(fetchEmployees({ search, page, limit }));
   }, [search, page, limit, dispatch]);
@@ -42,21 +48,19 @@ const EmployeesPage = () => {
   ];
 
   return (
-    <div className="p-6 bg-[var(--background)] text-[var(--foreground)]">
+    <div className="bg-[var(--background)] text-[var(--foreground)]">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-semibold">Employees</h1>
       </div>
 
       {/* Search Section */}
-      <div className="flex justify-between mb-4">
-        <div className="flex gap-4">
-          <Input
-            placeholder="Search by name or phone..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <Input
+          placeholder="Search by name or phone..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
         <Button onClick={() => setAddEmployeeOpen(true)}>Add Employee</Button>
       </div>
 
@@ -95,9 +99,7 @@ const EmployeesPage = () => {
           currentPage={page}
           totalPages={totalPages}
           totalItems={total}
-          onPageChange={(p) =>
-            dispatch({ type: "employee/setPage", payload: p })
-          }
+          onPageChange={(p) => dispatch(setPage(p))}
         />
       </Card>
 

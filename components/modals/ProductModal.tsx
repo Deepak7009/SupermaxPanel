@@ -6,15 +6,13 @@ import { RootState, AppDispatch } from "@/redux/store";
 import { createProduct, updateProduct } from "@/redux/thunks/productThunks";
 
 import DialogModal from "@/components/common/DialogModal";
-
-// ✅ Common Components
 import FloatingInput from "@/components/common/FloatingInput";
-import Select from "@/components/common/Select";
+import MultiSelect from "@/components/common/MultiSelect";
 import Button from "@/components/common/Button";
 
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Product } from "@/redux/slices/productSlice";
+import { Product } from "@/redux/types/product";
 
 interface ProductModalProps {
   isOpen: boolean;
@@ -27,21 +25,21 @@ const ProductModal = ({ isOpen, setIsOpen, product }: ProductModalProps) => {
   const { categories } = useSelector((state: RootState) => state.category);
 
   // ---------------- STATE ----------------
-  const [name, setName] = useState(product?.name || "");
-  const [description, setDescription] = useState(product?.description || "");
-  const [price, setPrice] = useState(product?.price || 0);
-  const [discount, setDiscount] = useState(product?.discount || 0);
-  const [stock, setStock] = useState(product?.stock || 0);
-  const [sku, setSku] = useState(product?.sku || "");
-  const [categoryId, setCategoryId] = useState(product?.category?._id || "");
-  const [brand, setBrand] = useState(product?.brand || "");
-  const [weight, setWeight] = useState(product?.weight || "");
-  const [dimensions, setDimensions] = useState(product?.dimensions || { length: 0, width: 0, height: 0 });
-  const [tags, setTags] = useState((product?.tags ?? []).join(","));
-  const [images, setImages] = useState((product?.images ?? []).join(","));
-  const [isFeatured, setIsFeatured] = useState(product?.isFeatured || false);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [price, setPrice] = useState(0);
+  const [discount, setDiscount] = useState(0);
+  const [stock, setStock] = useState(0);
+  const [sku, setSku] = useState("");
+  const [categoryIds, setCategoryIds] = useState<string[]>([]);
+  const [brand, setBrand] = useState("");
+  const [weight, setWeight] = useState("");
+  const [dimensions, setDimensions] = useState({ length: 0, width: 0, height: 0 });
+  const [tags, setTags] = useState("");
+  const [images, setImages] = useState("");
+  const [isFeatured, setIsFeatured] = useState(false);
 
-  // ---------------- RESET FORM ON PRODUCT CHANGE ----------------
+  // ---------------- RESET FORM WHEN product / isOpen CHANGES ----------------
   useEffect(() => {
     if (product) {
       setName(product.name || "");
@@ -50,10 +48,18 @@ const ProductModal = ({ isOpen, setIsOpen, product }: ProductModalProps) => {
       setDiscount(product.discount || 0);
       setStock(product.stock || 0);
       setSku(product.sku || "");
-      setCategoryId(product.category?._id || "");
+      setCategoryIds((product.categories ?? []).map((c) => c._id));
       setBrand(product.brand || "");
       setWeight(product.weight || "");
-      setDimensions(product.dimensions || { length: 0, width: 0, height: 0 });
+      setDimensions(
+        product.dimensions
+          ? {
+              length: product.dimensions.length ?? 0,
+              width: product.dimensions.width ?? 0,
+              height: product.dimensions.height ?? 0,
+            }
+          : { length: 0, width: 0, height: 0 }
+      );
       setTags((product.tags ?? []).join(","));
       setImages((product.images ?? []).join(","));
       setIsFeatured(product.isFeatured || false);
@@ -64,7 +70,7 @@ const ProductModal = ({ isOpen, setIsOpen, product }: ProductModalProps) => {
       setDiscount(0);
       setStock(0);
       setSku("");
-      setCategoryId("");
+      setCategoryIds([]);
       setBrand("");
       setWeight("");
       setDimensions({ length: 0, width: 0, height: 0 });
@@ -78,8 +84,9 @@ const ProductModal = ({ isOpen, setIsOpen, product }: ProductModalProps) => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    const selectedCategory = categories.find((c) => c._id === categoryId);
-    if (!selectedCategory) return alert("Select a valid category");
+    if (categoryIds.length === 0) {
+      return alert("Please select at least one category");
+    }
 
     const payload = {
       name,
@@ -89,12 +96,13 @@ const ProductModal = ({ isOpen, setIsOpen, product }: ProductModalProps) => {
       discount,
       stock,
       sku,
-      category: { _id: selectedCategory._id, name: selectedCategory.name },
+      // Send as plain IDs; API stores them and returns populated {_id, name} objects
+      categories: categoryIds as unknown as { _id: string; name: string }[],
       brand,
       weight,
       dimensions,
-      tags: tags.split(",").map((t) => t.trim()),
-      images: images.split(",").map((t) => t.trim()),
+      tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
+      images: images.split(",").map((t) => t.trim()).filter(Boolean),
       isFeatured,
       isActive: true,
     };
@@ -115,29 +123,80 @@ const ProductModal = ({ isOpen, setIsOpen, product }: ProductModalProps) => {
 
   // ---------------- JSX ----------------
   return (
-    <DialogModal isOpen={isOpen} setIsOpen={setIsOpen} title={product ? "Edit Product" : "Add Product"} className="max-w-4xl">
+    <DialogModal
+      isOpen={isOpen}
+      setIsOpen={setIsOpen}
+      title={product ? "Edit Product" : "Add Product"}
+      className="max-w-4xl"
+    >
       <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-        {/* Row 1: Name + Category */}
+        {/* Row 1: Name + Categories */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FloatingInput label="Product Name" value={name} onChange={(e) => setName(e.target.value)} />
-          <Select value={categoryId} onChange={setCategoryId} options={categoryOptions} placeholder="Select Category" />
+          <FloatingInput
+            label="Product Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-[var(--muted-foreground)] font-medium">
+              Categories <span className="text-[var(--text-error)]">*</span>
+            </label>
+            <MultiSelect
+              options={categoryOptions}
+              value={categoryIds}
+              onChange={setCategoryIds}
+              placeholder="Select categories..."
+            />
+          </div>
         </div>
 
         {/* Description */}
-        <Textarea value={description} placeholder="Description" className="w-full h-24 resize-none" onChange={(e) => setDescription(e.target.value)} />
+        <Textarea
+          value={description}
+          placeholder="Description"
+          className="w-full h-24 resize-none"
+          onChange={(e) => setDescription(e.target.value)}
+        />
 
         {/* Row 2: Price, Discount, Stock */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <FloatingInput label="Price" type="number" value={price.toString()} onChange={(e) => setPrice(Number(e.target.value))} />
-          <FloatingInput label="Discount" type="number" value={discount.toString()} onChange={(e) => setDiscount(Number(e.target.value))} />
-          <FloatingInput label="Stock" type="number" value={stock.toString()} onChange={(e) => setStock(Number(e.target.value))} />
+          <FloatingInput
+            label="Price"
+            type="number"
+            value={price.toString()}
+            onChange={(e) => setPrice(Number(e.target.value))}
+          />
+          <FloatingInput
+            label="Discount (%)"
+            type="number"
+            value={discount.toString()}
+            onChange={(e) => setDiscount(Number(e.target.value))}
+          />
+          <FloatingInput
+            label="Stock"
+            type="number"
+            value={stock.toString()}
+            onChange={(e) => setStock(Number(e.target.value))}
+          />
         </div>
 
         {/* Row 3: SKU, Brand, Weight */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <FloatingInput label="SKU" value={sku} onChange={(e) => setSku(e.target.value)} />
-          <FloatingInput label="Brand" value={brand} onChange={(e) => setBrand(e.target.value)} />
-          <FloatingInput label="Weight" value={weight} onChange={(e) => setWeight(e.target.value)} />
+          <FloatingInput
+            label="SKU"
+            value={sku}
+            onChange={(e) => setSku(e.target.value)}
+          />
+          <FloatingInput
+            label="Brand"
+            value={brand}
+            onChange={(e) => setBrand(e.target.value)}
+          />
+          <FloatingInput
+            label="Weight"
+            value={weight}
+            onChange={(e) => setWeight(e.target.value)}
+          />
         </div>
 
         {/* Row 4: Dimensions, Tags, Images */}
@@ -150,19 +209,32 @@ const ProductModal = ({ isOpen, setIsOpen, product }: ProductModalProps) => {
               setDimensions({ length: l || 0, width: w || 0, height: h || 0 });
             }}
           />
-          <FloatingInput label="Tags (comma separated)" value={tags} onChange={(e) => setTags(e.target.value)} />
-          <FloatingInput label="Image URLs (comma separated)" value={images} onChange={(e) => setImages(e.target.value)} />
+          <FloatingInput
+            label="Tags (comma separated)"
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
+          />
+          <FloatingInput
+            label="Image URLs (comma separated)"
+            value={images}
+            onChange={(e) => setImages(e.target.value)}
+          />
         </div>
 
         {/* Featured */}
         <div className="flex items-center gap-2">
-          <Checkbox checked={isFeatured} onCheckedChange={(checked) => setIsFeatured(Boolean(checked))} />
-          Featured
+          <Checkbox
+            checked={isFeatured}
+            onCheckedChange={(checked) => setIsFeatured(Boolean(checked))}
+          />
+          <span>Featured</span>
         </div>
 
-        {/* Submit Button */}
+        {/* Submit */}
         <div className="flex justify-end">
-          <Button type="submit">{product ? "Update Product" : "Save Product"}</Button>
+          <Button type="submit">
+            {product ? "Update Product" : "Save Product"}
+          </Button>
         </div>
       </form>
     </DialogModal>

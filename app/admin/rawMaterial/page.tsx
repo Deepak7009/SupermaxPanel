@@ -5,7 +5,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
 import { fetchRawMaterials } from "@/redux/thunks/rawMaterialThunks";
 import { setPage } from "@/redux/slices/rawMaterialSlice";
-import { useRouter } from "next/navigation";
 
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
@@ -30,9 +29,8 @@ const months = Array.from({ length: 12 }, (_, i) => ({
 
 const RawMaterialPage = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const router = useRouter();
 
-  const { materials, page, total, limit, loading } = useSelector(
+  const { materials, page, total, limit, loading, totalAmount, pendingAmount, paidAmount } = useSelector(
     (state: RootState) => state.rawMaterial,
   );
 
@@ -77,17 +75,6 @@ const RawMaterialPage = () => {
     }
   };
 
-  // totals
-  const totalPaidAmount = materials
-    .filter((m) => m.status === "paid")
-    .reduce((sum, m) => sum + m.amount, 0);
-
-  const totalPendingAmount = materials
-    .filter((m) => m.status === "pending")
-    .reduce((sum, m) => sum + m.amount, 0);
-
-  const totalAmount = totalPaidAmount + totalPendingAmount;
-
   const statusOptions = [
     { label: "All Status", value: "all" },
     { label: "Pending", value: "pending" },
@@ -122,7 +109,7 @@ const RawMaterialPage = () => {
   };
 
   return (
-    <div className="p-6 bg-[var(--background)] text-[var(--foreground)]">
+    <div className="bg-[var(--background)] text-[var(--foreground)]">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-semibold">Raw Materials</h1>
       </div>
@@ -130,8 +117,7 @@ const RawMaterialPage = () => {
       <AddRawMaterialModal isOpen={addOpen} setIsOpen={setAddOpen} />
 
       {/* Filters */}
-
-      <div className="flex flex-wrap gap-4 mb-4">
+      <div className="flex flex-wrap gap-3 mb-4">
         <Input
           placeholder="Search material..."
           value={search}
@@ -166,20 +152,17 @@ const RawMaterialPage = () => {
       </div>
 
       {/* Cards */}
-
-      <div className="flex flex-wrap gap-4 mb-4">
-        <Card className="p-4 flex-1">
-          <h2 className="text-sm text-gray-500">Tota Paid Amount</h2>
-          <p className="text-xl font-bold">₹ {totalPaidAmount}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+        <Card className="p-4">
+          <h2 className="text-sm text-[var(--muted-foreground)]">Total Paid Amount</h2>
+          <p className="text-xl font-bold">₹ {paidAmount}</p>
         </Card>
-
-        <Card className="p-4 flex-1">
-          <h2 className="text-sm text-gray-500">Total Pending Amount</h2>
-          <p className="text-xl font-bold">₹ {totalPendingAmount}</p>
+        <Card className="p-4">
+          <h2 className="text-sm text-[var(--muted-foreground)]">Total Pending Amount</h2>
+          <p className="text-xl font-bold">₹ {pendingAmount}</p>
         </Card>
-
-        <Card className="p-4 flex-1">
-          <h2 className="text-sm text-gray-500">Total Month Expense</h2>
+        <Card className="p-4">
+          <h2 className="text-sm text-[var(--muted-foreground)]">Total Month Expense</h2>
           <p className="text-xl font-bold">₹ {totalAmount}</p>
         </Card>
       </div>

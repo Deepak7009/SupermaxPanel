@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
 import mongoose from "mongoose";
 import FactoryExpense from "@/app/admin/models/FactoryExpense";
+import { getSessionUser } from "@/lib/session";
 
 /* ================= UPDATE FACTORY EXPENSE ================= */
 
@@ -16,9 +17,11 @@ const updateFactoryExpense = async (
   context: { params: Promise<Params> },
 ) => {
   try {
+    const { userId, error } = await getSessionUser();
+    if (error) return error;
+
     await connectToDatabase();
 
-    // ✅ IMPORTANT (new Next.js pattern)
     const { id } = await context.params;
 
     const body = await req.json();
@@ -46,9 +49,8 @@ const updateFactoryExpense = async (
       return NextResponse.json({ error: "Invalid ID" }, { status: 400 });
     }
 
-    // ✅ Update document
-    const updatedExpense = await FactoryExpense.findByIdAndUpdate(
-      id,
+    const updatedExpense = await FactoryExpense.findOneAndUpdate(
+      { _id: id, userId },
       {
         name,
         amount,

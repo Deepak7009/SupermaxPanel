@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useSession } from "next-auth/react";
 
 import {
   Home,
@@ -14,14 +15,17 @@ import {
   User,
   Package,
   DollarSign,
+  Users,
 } from "lucide-react";
 
 interface SidebarProps {
   collapsed: boolean;
+  onMobileClose: () => void;
 }
 
-const Sidebar = ({ collapsed }: SidebarProps) => {
+const Sidebar = ({ collapsed, onMobileClose }: SidebarProps) => {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
   const [mounted, setMounted] = useState(false);
@@ -32,69 +36,32 @@ const Sidebar = ({ collapsed }: SidebarProps) => {
     return () => setMounted(false);
   }, []);
 
-  const menuItems = [
-    {
-      name: "Dashboard",
-      href: "/admin",
-      icon: Home,
-    },
-    {
-      name: "Categories",
-      href: "/admin/categories",
-      icon: Box,
-    },
-    {
-      name: "Products",
-      href: "/admin/products",
-      icon: Package,
-    },
-    {
-      name: "Orders",
-      href: "/admin/orders",
-      icon: ListOrdered,
-    },
-    {
-      name: "Factory Exp",
-      href: "/admin/factoryExpense",
-      icon: Receipt,
-    },
-    {
-      name: "Raw Material",
-      href: "/admin/rawMaterial",
-      icon: Package,
-    },
-    {
-      name: "Employee Exp",
-      href: "/admin/employees",
-      icon: User,
-    },
-    {
-      name: "Customers",
-      href: "/admin/customers",
-      icon: User,
-    },
-    {
-      name: "Total Exp",
-      href: "/admin/expenses",
-      icon: DollarSign,
-    },
+  const allMenuItems = [
+    { name: "Dashboard",    href: "/admin",               icon: Home,         roles: ["superadmin", "user"] },
+    { name: "Users",        href: "/admin/users",         icon: Users,        roles: ["superadmin"] },
+    { name: "Categories",   href: "/admin/categories",    icon: Box,          roles: ["superadmin", "user"] },
+    { name: "Products",     href: "/admin/products",      icon: Package,      roles: ["superadmin", "user"] },
+    { name: "Orders",       href: "/admin/orders",        icon: ListOrdered,  roles: ["superadmin", "user"] },
+    { name: "Factory Exp",  href: "/admin/factoryExpense", icon: Receipt,     roles: ["superadmin", "user"] },
+    { name: "Raw Material", href: "/admin/rawMaterial",   icon: Package,      roles: ["superadmin", "user"] },
+    { name: "Employee Exp", href: "/admin/employees",     icon: User,         roles: ["superadmin", "user"] },
+    { name: "Customers",    href: "/admin/customers",     icon: User,         roles: ["superadmin", "user"] },
+    { name: "Total Exp",    href: "/admin/totalExpenses", icon: DollarSign,   roles: ["superadmin", "user"] },
   ];
+
+  const role = session?.user.role ?? "user";
+  const menuItems = allMenuItems.filter((item) => item.roles.includes(role));
 
   const handleMouseEnter = (itemName: string) => {
     const element = itemRefs.current[itemName];
     if (element) {
       const rect = element.getBoundingClientRect();
-      setTooltipPosition({
-        top: rect.top + rect.height / 2,
-        left: rect.right + 12,
-      });
+      setTooltipPosition({ top: rect.top + rect.height / 2, left: rect.right + 12 });
     }
     setHoveredItem(itemName);
   };
 
-  const handleMouseLeave = () => {
-    setHoveredItem(null);
-  };
+  const handleMouseLeave = () => setHoveredItem(null);
 
   return (
     <div className="flex h-full flex-col">
@@ -119,13 +86,9 @@ const Sidebar = ({ collapsed }: SidebarProps) => {
               height={42}
               className="rounded-xl border border-[var(--border)]"
             />
-
             <div>
               <h2 className="text-lg font-bold">Admin Panel</h2>
-
-              <p className="text-xs text-[var(--muted-foreground)]">
-                Management System
-              </p>
+              <p className="text-xs text-[var(--muted-foreground)]">Management System</p>
             </div>
           </div>
         )}
@@ -136,7 +99,6 @@ const Sidebar = ({ collapsed }: SidebarProps) => {
         <ul className="space-y-1">
           {menuItems.map((item) => {
             const Icon = item.icon;
-
             const isActive =
               item.href === "/admin"
                 ? pathname === "/admin"
@@ -150,45 +112,24 @@ const Sidebar = ({ collapsed }: SidebarProps) => {
                 onMouseLeave={handleMouseLeave}
               >
                 <Link
-                  ref={(el) => {
-                    itemRefs.current[item.name] = el;
-                  }}
+                  ref={(el) => { itemRefs.current[item.name] = el; }}
                   href={item.href}
+                  onClick={onMobileClose}
                   className={`
                     relative flex items-center rounded-xl px-3 py-3
                     transition-all duration-300
-
                     ${collapsed ? "justify-center" : "gap-3"}
-
-                    ${
-                      isActive
-                        ? `
-                          bg-[var(--sidebar-active)]
-                          text-[var(--sidebar-active-text)]
-                          shadow-sm
-                        `
-                        : `
-                          text-[var(--sidebar-foreground)]
-                          hover:bg-[var(--sidebar-accent)]
-                          hover:scale-[1.02]
-                        `
+                    ${isActive
+                      ? "bg-[var(--sidebar-active)] text-[var(--sidebar-active-text)] shadow-sm"
+                      : "text-[var(--sidebar-foreground)] hover:bg-[var(--sidebar-accent)] hover:scale-[1.02]"
                     }
                   `}
                 >
-                  {/* Active Indicator */}
                   {isActive && (
                     <span className="absolute left-0 top-1/2 h-8 w-1 -translate-y-1/2 rounded-r-full bg-[var(--sidebar-primary)]" />
                   )}
-
-                  <Icon
-                    className={`h-5 w-5 shrink-0 ${
-                      isActive ? "text-[var(--sidebar-primary)]" : ""
-                    }`}
-                  />
-
-                  {!collapsed && (
-                    <span className="font-medium">{item.name}</span>
-                  )}
+                  <Icon className={`h-5 w-5 shrink-0 ${isActive ? "text-[var(--sidebar-primary)]" : ""}`} />
+                  {!collapsed && <span className="font-medium">{item.name}</span>}
                 </Link>
               </li>
             );
@@ -200,59 +141,33 @@ const Sidebar = ({ collapsed }: SidebarProps) => {
       {!collapsed && (
         <div className="mt-auto border-t border-[var(--sidebar-border)] pt-4">
           <div className="rounded-xl bg-[var(--muted)] p-3">
-            <p className="text-sm font-medium">Admin Dashboard</p>
-
-            <p className="text-xs text-[var(--muted-foreground)]">
-              Version 1.0.0
+            <p className="text-sm font-medium truncate">
+              {session?.user.name ?? "Admin"}
+            </p>
+            <p className="text-xs text-[var(--muted-foreground)] capitalize">
+              {role === "superadmin" ? "Super Admin" : "User"}
             </p>
           </div>
         </div>
       )}
 
       {/* Portal Tooltip */}
-      {mounted &&
-        collapsed &&
-        hoveredItem &&
+      {mounted && collapsed && hoveredItem &&
         createPortal(
           <div
             className="fixed z-[9999] pointer-events-none"
-            style={{
-              top: tooltipPosition.top,
-              left: tooltipPosition.left,
-              transform: "translateY(-50%)",
-            }}
+            style={{ top: tooltipPosition.top, left: tooltipPosition.left, transform: "translateY(-50%)" }}
           >
             <div className="relative">
-              {/* Tooltip Arrow */}
               <div className="absolute -left-1.5 top-1/2 -translate-y-1/2">
                 <div className="h-2 w-2 rotate-45 bg-[var(--tooltip-bg)]" />
               </div>
-
-              {/* Tooltip Content */}
-              <div
-                className="
-                rounded-lg
-                bg-[var(--tooltip-bg)]
-                px-4 py-2.5
-                text-sm
-                font-medium
-                text-[var(--tooltip-text)]
-                shadow-lg
-                border border-[var(--border)]
-                whitespace-nowrap
-                min-w-[80px]
-                text-center
-                animate-in
-                fade-in-0
-                zoom-in-95
-                duration-200
-              "
-              >
+              <div className="rounded-lg bg-[var(--tooltip-bg)] px-4 py-2.5 text-sm font-medium text-[var(--tooltip-text)] shadow-lg border border-[var(--border)] whitespace-nowrap min-w-[80px] text-center animate-in fade-in-0 zoom-in-95 duration-200">
                 {hoveredItem}
               </div>
             </div>
           </div>,
-          document.body,
+          document.body
         )}
     </div>
   );

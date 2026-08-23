@@ -1,27 +1,21 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import { Category } from "../slices/categorySlice";
-
-export interface FetchCategoriesResponse {
-  categories: Category[];
-  total: number;
-  page: number;
-  limit: number;
-}
+import { Category, FetchCategoriesResponse } from "../types/category";
 
 // ============================
 // Fetch Categories
 // ============================
-export const fetchCategories = createAsyncThunk<
+const fetchCategories = createAsyncThunk<
   FetchCategoriesResponse,
   | {
       search?: string;
       page?: number;
       limit?: number;
+      parent?: string;
     }
   | undefined
 >("category/fetchCategories", async (params, { rejectWithValue }) => {
-  const { search = "", page = 1, limit = 10 } = params ?? {};
+  const { search = "", page = 1, limit = 10, parent = "" } = params ?? {};
 
   try {
     const { data } = await axios.get("/api/categories", {
@@ -29,6 +23,7 @@ export const fetchCategories = createAsyncThunk<
         search,
         page,
         limit,
+        ...(parent ? { parent } : {}),
       },
     });
 
@@ -49,7 +44,7 @@ export const fetchCategories = createAsyncThunk<
 // ============================
 // Create Category
 // ============================
-export const createCategory = createAsyncThunk<
+const createCategory = createAsyncThunk<
   Category,
   Omit<Category, "_id" | "ancestors" | "level">
 >("category/createCategory", async (categoryData, { rejectWithValue }) => {
@@ -73,7 +68,10 @@ export const createCategory = createAsyncThunk<
   }
 });
 
-export const updateCategory = createAsyncThunk<
+// ============================
+// Update Category
+// ============================
+const updateCategory = createAsyncThunk<
   Category,
   {
     id: string;
@@ -96,3 +94,5 @@ export const updateCategory = createAsyncThunk<
     );
   }
 });
+
+export { fetchCategories, createCategory, updateCategory };
