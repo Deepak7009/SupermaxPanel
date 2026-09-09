@@ -49,11 +49,11 @@ const TotalExpensesPage = () => {
   const empState = useSelector((state: RootState) => state.employee);
   const ordersState = useSelector((state: RootState) => state.orders);
 
-  /* fetch all on mount / filter change */
+  /* fetch totals on mount / filter change (no limit override — keep list pages' limit intact) */
   useEffect(() => {
-    dispatch(fetchFactoryExpenses({ month, year, limit: 1 }));
-    dispatch(fetchRawMaterials({ month: Number(month), year: Number(year), limit: 1 }));
-    dispatch(fetchOrders({ limit: 1 }));
+    dispatch(fetchFactoryExpenses({ month, year }));
+    dispatch(fetchRawMaterials({ month: Number(month), year: Number(year) }));
+    dispatch(fetchOrders({}));
   }, [dispatch, month, year]);
 
   useEffect(() => {

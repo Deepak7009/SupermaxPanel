@@ -150,6 +150,42 @@
   --auth-social-border:   rgba(255, 255, 255, 0.14);
   --auth-social-color:    rgba(255, 255, 255, 0.70);
   --auth-error-bg:        rgba(239, 68, 68, 0.10);
+
+  /* ── Form page variables (light) ── */
+  --form-section-bg:          #ffffff;
+  --form-section-header-bg:   #f8f9fb;
+  --form-section-title:       #374151;
+  --form-border:              #e5e7eb;
+  --form-border-hover:        #9ca3af;
+  --form-field-bg:            #ffffff;
+  --form-field-hover:         #f3f4f6;
+  --form-label:               #374151;
+  --form-placeholder:         #9ca3af;
+  --form-focus-ring:          rgba(37, 99, 235, 0.20);
+  --form-icon-bg:             #eff6ff;
+  --form-preview-bg:          #f0fdf4;
+  --form-preview-border:      #bbf7d0;
+  --form-error-bg:            #fef2f2;
+  --form-error-border:        #fecaca;
+
+  /* ── Product page section accents (light) ── */
+  --section-pricing-bg:          #f0fdf4;
+  --section-pricing-icon:        #16a34a;
+  --section-identity-bg:         #eff6ff;
+  --section-identity-icon:       #2563eb;
+  --section-classification-bg:   #f5f3ff;
+  --section-classification-icon: #7c3aed;
+  --section-description-bg:      #fff7ed;
+  --section-description-icon:    #ea580c;
+  --stat-strip-bg:                #f8fafc;
+  --stat-strip-border:            #e2e8f0;
+  --stat-strip-value:             #0f172a;
+  --chip-bg:                      #f1f5f9;
+  --chip-text:                    #334155;
+  --chip-border:                  #e2e8f0;
+  --thumb-border:                 #e5e7eb;
+  --sticky-bar-bg:                rgba(255, 255, 255, 0.92);
+  --sticky-bar-border:            #e5e7eb;
 }
 
 @theme inline {
@@ -344,6 +380,42 @@
   --btn-success-bg:       #22c55e;
   --btn-success-hover-bg: #16a34a;
   --btn-danger-bg:        #ef4444;
+
+  /* ── Form page variables (dark) ── */
+  --form-section-bg:          oklch(0.26 0 0);
+  --form-section-header-bg:   oklch(0.28 0 0);
+  --form-section-title:       oklch(0.88 0 0);
+  --form-border:              oklch(0.35 0 0 / 60%);
+  --form-border-hover:        oklch(0.50 0 0);
+  --form-field-bg:            oklch(0.30 0 0);
+  --form-field-hover:         oklch(0.33 0 0);
+  --form-label:               oklch(0.85 0 0);
+  --form-placeholder:         oklch(0.55 0 0);
+  --form-focus-ring:          rgba(59, 130, 246, 0.25);
+  --form-icon-bg:             rgba(59, 130, 246, 0.15);
+  --form-preview-bg:          rgba(34, 197, 94, 0.10);
+  --form-preview-border:      rgba(34, 197, 94, 0.25);
+  --form-error-bg:            rgba(239, 68, 68, 0.10);
+  --form-error-border:        rgba(239, 68, 68, 0.30);
+
+  /* ── Product page section accents (dark) ── */
+  --section-pricing-bg:          rgba(34, 197, 94, 0.10);
+  --section-pricing-icon:        #4ade80;
+  --section-identity-bg:         rgba(59, 130, 246, 0.10);
+  --section-identity-icon:       #60a5fa;
+  --section-classification-bg:   rgba(124, 58, 237, 0.14);
+  --section-classification-icon: #c4b5fd;
+  --section-description-bg:      rgba(234, 88, 12, 0.12);
+  --section-description-icon:    #fb923c;
+  --stat-strip-bg:                oklch(0.28 0 0);
+  --stat-strip-border:            oklch(0.35 0 0 / 60%);
+  --stat-strip-value:             oklch(0.96 0 0);
+  --chip-bg:                      oklch(0.32 0 0);
+  --chip-text:                    oklch(0.88 0 0);
+  --chip-border:                  oklch(0.40 0 0 / 60%);
+  --thumb-border:                 oklch(0.38 0 0 / 60%);
+  --sticky-bar-bg:                rgba(38, 38, 38, 0.92);
+  --sticky-bar-border:            oklch(0.35 0 0 / 60%);
 }
 
 body {
@@ -377,17 +449,11 @@ body {
   100% { transform: translateY(0px)   translateX(0px)  scale(1);    }
 }
 
-/* ── Real water drop — transparent lens with rim highlight only ── */
 .drop {
   position: absolute;
   border-radius: 50%;
   pointer-events: none;
 
-  /*
-   * Almost fully transparent centre.
-   * Only the very edge gets a slight tint from refraction.
-   * This lets the background show through cleanly.
-   */
   background: radial-gradient(
     circle at 50% 50%,
     rgba(255, 255, 255, 0.00)  0%,
@@ -397,37 +463,23 @@ body {
     rgba(80,  140, 200, 0.28) 100%
   );
 
-  /* Thin bright rim — visible only on the lit (top-left) side */
   border: 1.5px solid rgba(200, 235, 255, 0.50);
 
   box-shadow:
-    /* Soft inner bright arc top-left — the lens catch-light */
     inset  5px  5px 12px rgba(255, 255, 255, 0.22),
-    /* Faint inner dark arc bottom-right — spherical depth */
     inset -3px -3px  8px rgba(30,  80, 140, 0.20),
-    /* Soft shadow pool below — refracted teal */
     0px 8px 20px rgba(0, 80, 150, 0.28),
-    /* Ambient outer glow */
     0px 0px 14px rgba(140, 210, 255, 0.06);
 
-  /* Lens distortion: slightly brighten + blur what's behind the drop */
   backdrop-filter: blur(3px) brightness(1.18) saturate(1.2);
   -webkit-backdrop-filter: blur(3px) brightness(1.18) saturate(1.2);
 }
 
-/*
- * PRIMARY SPECULAR — wide soft arc along the top-left inner edge.
- * Shaped like a banana / crescent, NOT a circle.
- */
 .drop::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  /*
-   * paint only the top-left arc bright:
-   * inner radial from top-left corner fading to nothing by the centre.
-   */
   background: radial-gradient(
     ellipse 70% 55% at 28% 26%,
     rgba(255, 255, 255, 0.82)  0%,
@@ -437,9 +489,6 @@ body {
   );
 }
 
-/*
- * PINPOINT GLINT — tiny hard bright dot, upper-right of the main arc.
- */
 .drop::after {
   content: "";
   position: absolute;
@@ -453,9 +502,6 @@ body {
   box-shadow: 0 0 3px 2px rgba(255, 255, 255, 0.55);
 }
 
-/* ── Water drops rising bottom → top ── */
-
-/* Rise from bottom, slight left/right wobble, fade out near top */
 @keyframes drop-rise {
   0%   { transform: translateY(0px)    translateX(0px)  scale(1);    opacity: 0;   }
   8%   { opacity: 0.9; }
@@ -483,23 +529,13 @@ body {
   100% { transform: translateY(-92vh)  translateX(-4px) scale(0.93); opacity: 0;   }
 }
 
-/*
- * Real water-drop TEARDROP shape:
- * - Round at the bottom (the heavy belly)
- * - Pointed/tapered at the top (pulled upward by motion)
- * border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%
- * gives the classic teardrop profile.
- * The drop is rotated 180deg because it rises (point faces up).
- */
 .drop-rise {
   position: absolute;
-  bottom: -60px;          /* spawn just below the viewport */
+  bottom: -60px;
   pointer-events: none;
 
-  /* Teardrop: wide round bottom, narrow tapered top */
   border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
 
-  /* Transparent centre, coloured rim — same real-water approach */
   background: radial-gradient(
     ellipse at 50% 65%,
     rgba(255, 255, 255, 0.00)  0%,
@@ -512,20 +548,15 @@ body {
   border: 1.5px solid rgba(200, 238, 255, 0.50);
 
   box-shadow:
-    /* inner top-left catch-light */
     inset  4px  4px 10px rgba(255, 255, 255, 0.22),
-    /* inner bottom-right depth shadow */
     inset -3px -3px  8px rgba(20,  70, 140, 0.20),
-    /* refracted shadow pool — elongated below the drop */
     0px 10px 22px -4px rgba(0, 80, 160, 0.30),
-    /* faint ambient glow */
     0px  0px 12px  2px rgba(120, 200, 255, 0.06);
 
   backdrop-filter: blur(3px) brightness(1.20) saturate(1.25);
   -webkit-backdrop-filter: blur(3px) brightness(1.20) saturate(1.25);
 }
 
-/* Crescent specular — upper-left arc of the teardrop belly */
 .drop-rise::before {
   content: "";
   position: absolute;
@@ -540,7 +571,6 @@ body {
   );
 }
 
-/* Tiny sharp pinpoint glint — upper-right */
 .drop-rise::after {
   content: "";
   position: absolute;
@@ -558,7 +588,10 @@ body {
   * {
     @apply border-border outline-ring/50;
   }
+  html,
   body {
     @apply bg-background text-foreground;
+    height: 100%;
+    overflow: hidden;
   }
 }
