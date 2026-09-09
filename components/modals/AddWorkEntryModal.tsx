@@ -150,7 +150,7 @@ const AddWorkEntryModal = ({ isOpen, setIsOpen, employee, entry }: Props) => {
               type="button"
               disabled={loading}
               onClick={handleMarkWorkOff}
-              className="text-red-600 border-red-300 hover:bg-red-50 dark:text-red-400 dark:border-red-800/60 dark:hover:bg-red-950/40"
+              className="text-[color:var(--color-btn-danger-text)] border-[color:var(--color-btn-danger-border)] hover:bg-[color:var(--color-btn-danger-hover-bg)]"
             >
               Mark as Work Off
             </Button>

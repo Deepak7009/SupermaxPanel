@@ -81,6 +81,79 @@
   --status-cancelled-text: #991b1b; /* text-red-700 */
   --status-cancelled-border: #fca5a5; /* border-red-600/20 */
 
+  /* Payment status badge colors (light) */
+  --payment-unpaid-bg:      #fef2f2;
+  --payment-unpaid-text:    #b91c1c;
+  --payment-unpaid-border:  #fecaca;
+
+  --payment-advance-bg:     #f5f3ff;
+  --payment-advance-text:   #6d28d9;
+  --payment-advance-border: #ddd6fe;
+
+  --payment-partial-bg:     #fff7ed;
+  --payment-partial-text:   #c2410c;
+  --payment-partial-border: #fed7aa;
+
+  --payment-paid-bg:        #f0fdf4;
+  --payment-paid-text:      #166534;
+  --payment-paid-border:    #bbf7d0;
+
+  --payment-overpaid-bg:    #fefce8;
+  --payment-overpaid-text:  #854d0e;
+  --payment-overpaid-border:#fef08a;
+
+  /* Warning / info banner (orange) */
+  --banner-warning-bg:      #fff7ed;
+  --banner-warning-text:    #7c2d12;
+  --banner-warning-border:  #fed7aa;
+  --banner-warning-label:   #c2410c;
+
+  /* Work entry status badges */
+  --work-status-active-bg:   #f0fdf4;
+  --work-status-active-text: #166534;
+  --work-status-off-bg:      #fef2f2;
+  --work-status-off-text:    #991b1b;
+
+  /* Payment type badges (ADVANCE vs SALARY_PAYMENT) */
+  --pay-type-advance-bg:     #fff7ed;
+  --pay-type-advance-text:   #c2410c;
+  --pay-type-salary-bg:      #f0fdf4;
+  --pay-type-salary-text:    #166534;
+
+  /* Advance / salary inline text colors */
+  --pay-advance-text:        #c2410c;
+  --pay-salary-text:         #166534;
+
+  /* Balance badge (positive / negative / zero) */
+  --balance-positive-bg:   #dcfce7;
+  --balance-positive-text: #166534;
+  --balance-negative-bg:   #fee2e2;
+  --balance-negative-text: #991b1b;
+  --balance-zero-bg:       #f3f4f6;
+  --balance-zero-text:     #4b5563;
+
+  /* Category card accent colors */
+  --cat-factory-color:  #ea580c;
+  --cat-factory-bg:     #fff7ed;
+  --cat-factory-border: #fed7aa;
+
+  --cat-rawmat-color:   #2563eb;
+  --cat-rawmat-bg:      #eff6ff;
+  --cat-rawmat-border:  #bfdbfe;
+
+  --cat-employee-color: #7c3aed;
+  --cat-employee-bg:    #f5f3ff;
+  --cat-employee-border:#ddd6fe;
+
+  --cat-orders-color:   #16a34a;
+  --cat-orders-bg:      #f0fdf4;
+  --cat-orders-border:  #bbf7d0;
+
+  /* Danger button (destructive action) */
+  --btn-danger-text:        #dc2626;
+  --btn-danger-border:      #fca5a5;
+  --btn-danger-hover-bg:    #fef2f2;
+
   /* New Table Header colors */
   --table-header-bg: oklch(0.92 0.05 260); /* Light purple-ish */
   --table-header-text: oklch(0.12 0 0);
@@ -236,6 +309,79 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
+  /* Payment status badge colors */
+  --color-payment-unpaid-bg:      var(--payment-unpaid-bg);
+  --color-payment-unpaid-text:    var(--payment-unpaid-text);
+  --color-payment-unpaid-border:  var(--payment-unpaid-border);
+
+  --color-payment-advance-bg:     var(--payment-advance-bg);
+  --color-payment-advance-text:   var(--payment-advance-text);
+  --color-payment-advance-border: var(--payment-advance-border);
+
+  --color-payment-partial-bg:     var(--payment-partial-bg);
+  --color-payment-partial-text:   var(--payment-partial-text);
+  --color-payment-partial-border: var(--payment-partial-border);
+
+  --color-payment-paid-bg:        var(--payment-paid-bg);
+  --color-payment-paid-text:      var(--payment-paid-text);
+  --color-payment-paid-border:    var(--payment-paid-border);
+
+  --color-payment-overpaid-bg:    var(--payment-overpaid-bg);
+  --color-payment-overpaid-text:  var(--payment-overpaid-text);
+  --color-payment-overpaid-border:var(--payment-overpaid-border);
+
+  /* Warning / info banner */
+  --color-banner-warning-bg:     var(--banner-warning-bg);
+  --color-banner-warning-text:   var(--banner-warning-text);
+  --color-banner-warning-border: var(--banner-warning-border);
+  --color-banner-warning-label:  var(--banner-warning-label);
+
+  /* Work entry status badges */
+  --color-work-status-active-bg:   var(--work-status-active-bg);
+  --color-work-status-active-text: var(--work-status-active-text);
+  --color-work-status-off-bg:      var(--work-status-off-bg);
+  --color-work-status-off-text:    var(--work-status-off-text);
+
+  /* Payment type badges */
+  --color-pay-type-advance-bg:   var(--pay-type-advance-bg);
+  --color-pay-type-advance-text: var(--pay-type-advance-text);
+  --color-pay-type-salary-bg:    var(--pay-type-salary-bg);
+  --color-pay-type-salary-text:  var(--pay-type-salary-text);
+
+  /* Advance / salary inline text */
+  --color-pay-advance-text: var(--pay-advance-text);
+  --color-pay-salary-text:  var(--pay-salary-text);
+
+  /* Balance badge */
+  --color-balance-positive-bg:   var(--balance-positive-bg);
+  --color-balance-positive-text: var(--balance-positive-text);
+  --color-balance-negative-bg:   var(--balance-negative-bg);
+  --color-balance-negative-text: var(--balance-negative-text);
+  --color-balance-zero-bg:       var(--balance-zero-bg);
+  --color-balance-zero-text:     var(--balance-zero-text);
+
+  /* Category card accent colors */
+  --color-cat-factory-color:  var(--cat-factory-color);
+  --color-cat-factory-bg:     var(--cat-factory-bg);
+  --color-cat-factory-border: var(--cat-factory-border);
+
+  --color-cat-rawmat-color:   var(--cat-rawmat-color);
+  --color-cat-rawmat-bg:      var(--cat-rawmat-bg);
+  --color-cat-rawmat-border:  var(--cat-rawmat-border);
+
+  --color-cat-employee-color: var(--cat-employee-color);
+  --color-cat-employee-bg:    var(--cat-employee-bg);
+  --color-cat-employee-border:var(--cat-employee-border);
+
+  --color-cat-orders-color:   var(--cat-orders-color);
+  --color-cat-orders-bg:      var(--cat-orders-bg);
+  --color-cat-orders-border:  var(--cat-orders-border);
+
+  /* Danger button */
+  --color-btn-danger-text:     var(--btn-danger-text);
+  --color-btn-danger-border:   var(--btn-danger-border);
+  --color-btn-danger-hover-bg: var(--btn-danger-hover-bg);
+
   /* Order status colors */
   --color-status-pending-bg: var(--status-pending-bg);
   --color-status-pending-text: var(--status-pending-text);
@@ -339,6 +485,79 @@
   --status-cancelled-bg:    rgba(153, 27, 27, 0.20);
   --status-cancelled-text:  #fca5a5;
   --status-cancelled-border: rgba(153, 27, 27, 0.40);
+
+  /* Payment status badge colors (dark) */
+  --payment-unpaid-bg:      rgba(153, 27, 27, 0.20);
+  --payment-unpaid-text:    #fca5a5;
+  --payment-unpaid-border:  rgba(153, 27, 27, 0.40);
+
+  --payment-advance-bg:     rgba(109, 40, 217, 0.20);
+  --payment-advance-text:   #c4b5fd;
+  --payment-advance-border: rgba(109, 40, 217, 0.40);
+
+  --payment-partial-bg:     rgba(194, 65, 12, 0.20);
+  --payment-partial-text:   #fdba74;
+  --payment-partial-border: rgba(194, 65, 12, 0.40);
+
+  --payment-paid-bg:        rgba(22, 101, 52, 0.20);
+  --payment-paid-text:      #86efac;
+  --payment-paid-border:    rgba(22, 101, 52, 0.40);
+
+  --payment-overpaid-bg:    rgba(133, 77, 14, 0.20);
+  --payment-overpaid-text:  #fde047;
+  --payment-overpaid-border:rgba(133, 77, 14, 0.40);
+
+  /* Warning / info banner (dark) */
+  --banner-warning-bg:      rgba(194, 65, 12, 0.15);
+  --banner-warning-text:    #fed7aa;
+  --banner-warning-border:  rgba(194, 65, 12, 0.35);
+  --banner-warning-label:   #fdba74;
+
+  /* Work entry status badges (dark) */
+  --work-status-active-bg:   rgba(22, 101, 52, 0.20);
+  --work-status-active-text: #86efac;
+  --work-status-off-bg:      rgba(153, 27, 27, 0.20);
+  --work-status-off-text:    #fca5a5;
+
+  /* Payment type badges (dark) */
+  --pay-type-advance-bg:     rgba(194, 65, 12, 0.20);
+  --pay-type-advance-text:   #fdba74;
+  --pay-type-salary-bg:      rgba(22, 101, 52, 0.20);
+  --pay-type-salary-text:    #86efac;
+
+  /* Advance / salary inline text colors (dark) */
+  --pay-advance-text:        #fb923c;
+  --pay-salary-text:         #4ade80;
+
+  /* Balance badge (dark) */
+  --balance-positive-bg:   rgba(22, 101, 52, 0.25);
+  --balance-positive-text: #86efac;
+  --balance-negative-bg:   rgba(153, 27, 27, 0.25);
+  --balance-negative-text: #fca5a5;
+  --balance-zero-bg:       rgba(75, 85, 99, 0.30);
+  --balance-zero-text:     #9ca3af;
+
+  /* Category card accent colors (dark) */
+  --cat-factory-color:  #fb923c;
+  --cat-factory-bg:     rgba(194, 65, 12, 0.15);
+  --cat-factory-border: rgba(194, 65, 12, 0.35);
+
+  --cat-rawmat-color:   #60a5fa;
+  --cat-rawmat-bg:      rgba(37, 99, 235, 0.15);
+  --cat-rawmat-border:  rgba(37, 99, 235, 0.35);
+
+  --cat-employee-color: #c4b5fd;
+  --cat-employee-bg:    rgba(124, 58, 237, 0.15);
+  --cat-employee-border:rgba(124, 58, 237, 0.35);
+
+  --cat-orders-color:   #4ade80;
+  --cat-orders-bg:      rgba(22, 101, 52, 0.15);
+  --cat-orders-border:  rgba(22, 101, 52, 0.35);
+
+  /* Danger button (dark) */
+  --btn-danger-text:        #f87171;
+  --btn-danger-border:      rgba(153, 27, 27, 0.50);
+  --btn-danger-hover-bg:    rgba(153, 27, 27, 0.20);
 
   /* New Table Header colors */
   --table-header-bg: oklch(0.35 0.05 260); /* Dark purple-ish */

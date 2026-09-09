@@ -103,9 +103,9 @@ const AddAdvancePaymentModal = ({ isOpen, setIsOpen, employee, selectedMonth, se
 
         {/* ---- info banner when paying salary ---- */}
         {type === "SALARY_PAYMENT" && (
-          <div className="rounded-md px-3 py-2 text-sm bg-orange-50 border border-orange-200 text-orange-900 dark:bg-orange-950/40 dark:border-orange-800/50 dark:text-orange-200">
+          <div className="rounded-md px-3 py-2 text-sm bg-[color:var(--color-banner-warning-bg)] border border-[color:var(--color-banner-warning-border)] text-[color:var(--color-banner-warning-text)]">
             {selectedMonth && (
-              <p className="text-xs font-semibold mb-1 text-orange-600 dark:text-orange-400">
+              <p className="text-xs font-semibold mb-1 text-[color:var(--color-banner-warning-label)]">
                 Showing for: {new Date(Number(selectedYear), Number(selectedMonth) - 1).toLocaleString("default", { month: "long" })} {selectedYear}
               </p>
             )}
@@ -117,7 +117,7 @@ const AddAdvancePaymentModal = ({ isOpen, setIsOpen, employee, selectedMonth, se
             <p className="text-xs mt-1 font-semibold">
               Net to pay: ₹{totalWorkAmount} − ₹{totalAdvance} − ₹{totalSalaryPaid} = ₹{netToPay}
             </p>
-            <p className="text-xs mt-0.5 text-orange-600 dark:text-orange-400">
+            <p className="text-xs mt-0.5 text-[color:var(--color-banner-warning-label)]">
               Amount is pre-filled. You can edit it before saving.
             </p>
           </div>

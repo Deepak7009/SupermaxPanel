@@ -191,7 +191,7 @@ const EmployeeDetailPage = () => {
                   </div>
 
                   {isFiltered && (
-                    <div className="text-xs text-center rounded px-2 py-0.5 bg-orange-50 border border-orange-200 text-orange-700 dark:bg-orange-950/40 dark:border-orange-800/50 dark:text-orange-300">
+                    <div className="text-xs text-center rounded px-2 py-0.5 bg-[color:var(--color-banner-warning-bg)] border border-[color:var(--color-banner-warning-border)] text-[color:var(--color-banner-warning-label)]">
                       Showing {monthLabel} {year}
                     </div>
                   )}
@@ -203,12 +203,12 @@ const EmployeeDetailPage = () => {
 
                   <div className="flex justify-between text-sm">
                     <span>Advance Given</span>
-                    <span className="font-semibold text-orange-600 dark:text-orange-400">₹ {displayAdvance}</span>
+                    <span className="font-semibold text-[color:var(--color-pay-advance-text)]">₹ {displayAdvance}</span>
                   </div>
 
                   <div className="flex justify-between text-sm">
                     <span>Salary Paid</span>
-                    <span className="font-semibold text-green-600 dark:text-green-400">₹ {displaySalary}</span>
+                    <span className="font-semibold text-[color:var(--color-pay-salary-text)]">₹ {displaySalary}</span>
                   </div>
 
                   {/* +ve → owe emp salary → green | -ve → emp owes advance → red | 0 → settled */}
@@ -217,10 +217,10 @@ const EmployeeDetailPage = () => {
                     <span
                       className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                         netBalance > 0
-                          ? "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400"
+                          ? "bg-[color:var(--color-balance-positive-bg)] text-[color:var(--color-balance-positive-text)]"
                           : netBalance < 0
-                          ? "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400"
-                          : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                          ? "bg-[color:var(--color-balance-negative-bg)] text-[color:var(--color-balance-negative-text)]"
+                          : "bg-[color:var(--color-balance-zero-bg)] text-[color:var(--color-balance-zero-text)]"
                       }`}
                     >
                       {netBalance > 0
@@ -285,7 +285,7 @@ const EmployeeDetailPage = () => {
             )}
             {/* show filtered total work amount when a month is selected */}
             {month !== "all" && (
-              <div className="flex items-center gap-1 text-sm font-semibold rounded-md px-3 py-1 bg-orange-50 border border-orange-200 text-orange-700 dark:bg-orange-950/40 dark:border-orange-800/50 dark:text-orange-300">
+              <div className="flex items-center gap-1 text-sm font-semibold rounded-md px-3 py-1 bg-[color:var(--color-banner-warning-bg)] border border-[color:var(--color-banner-warning-border)] text-[color:var(--color-banner-warning-label)]">
                 {MONTHS.find((m) => m.value === month)?.label} total: ₹{totalWorkAmount}
               </div>
             )}
@@ -303,8 +303,8 @@ const EmployeeDetailPage = () => {
                     <span
                       className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                         entry.status === "WORK"
-                          ? "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400"
-                          : "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400"
+                          ? "bg-[color:var(--color-work-status-active-bg)] text-[color:var(--color-work-status-active-text)]"
+                          : "bg-[color:var(--color-work-status-off-bg)] text-[color:var(--color-work-status-off-text)]"
                       }`}
                     >
                       {entry.status === "WORK" ? "Work" : "Work Off"}
@@ -313,7 +313,7 @@ const EmployeeDetailPage = () => {
                 case "quantity":
                   if (entry.status === "WORK_OFF") {
                     return (
-                      <span className="text-xs font-semibold italic text-red-600 dark:text-red-400">
+                      <span className="text-xs font-semibold italic text-[color:var(--color-work-status-off-text)]">
                         No entry for this day
                       </span>
                     );
@@ -390,8 +390,8 @@ const EmployeeDetailPage = () => {
                     <span
                       className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                         p.type === "ADVANCE"
-                          ? "bg-orange-100 text-orange-700 dark:bg-orange-950/50 dark:text-orange-400"
-                          : "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400"
+                          ? "bg-[color:var(--color-pay-type-advance-bg)] text-[color:var(--color-pay-type-advance-text)]"
+                          : "bg-[color:var(--color-pay-type-salary-bg)] text-[color:var(--color-pay-type-salary-text)]"
                       }`}
                     >
                       {p.type === "ADVANCE" ? "Advance" : "Salary Paid"}
@@ -401,7 +401,7 @@ const EmployeeDetailPage = () => {
                   /* ADVANCE = you paid out  → show + (money left your pocket)  */
                   /* SALARY  = deduct owed   → show − (reduces employee balance) */
                   return (
-                    <span className={`font-semibold ${p.type === "ADVANCE" ? "text-orange-600 dark:text-orange-400" : "text-green-600 dark:text-green-400"}`}>
+                    <span className={`font-semibold ${p.type === "ADVANCE" ? "text-[color:var(--color-pay-advance-text)]" : "text-[color:var(--color-pay-salary-text)]"}`}>
                       {p.type === "ADVANCE" ? `+ ₹${p.amount}` : `− ₹${p.amount}`}
                     </span>
                   );
