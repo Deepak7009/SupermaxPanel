@@ -85,11 +85,11 @@ const OrdersPage = () => {
   };
 
   const paymentStatusColors: Record<PaymentStatus, string> = {
-    unpaid:   "bg-red-50 text-red-700 border-red-200",
-    advance:  "bg-purple-50 text-purple-700 border-purple-200",
-    partial:  "bg-orange-50 text-orange-700 border-orange-200",
-    paid:     "bg-green-50 text-green-700 border-green-200",
-    overpaid: "bg-yellow-50 text-yellow-700 border-yellow-200",
+    unpaid:   "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/40 dark:text-red-400 dark:border-red-800/50",
+    advance:  "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/40 dark:text-purple-400 dark:border-purple-800/50",
+    partial:  "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/40 dark:text-orange-400 dark:border-orange-800/50",
+    paid:     "bg-green-50 text-green-700 border-green-200 dark:bg-green-950/40 dark:text-green-400 dark:border-green-800/50",
+    overpaid: "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-400 dark:border-yellow-800/50",
   };
 
   const columns: Column<OrderTableRow>[] = [

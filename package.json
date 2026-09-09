@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "node scripts/seed.js"
+    "seed": "node scripts/seed.js",
+    "seed:work": "node scripts/seedWorkEntries.js",
+    "reset": "node scripts/reset.js"
   },
   "dependencies": {
     "@getbrevo/brevo": "^6.0.3",

@@ -319,26 +319,26 @@
   --error-foreground: oklch(0.92 0.2 25);
   --shadow-color: rgba(0, 0, 0, 0.45);
 
-  /* Dark mode overrides (optional, adjust if needed) */
-  --status-pending-bg: #fef3c7;
-  --status-pending-text: #b45309;
-  --status-pending-border: #fde68a;
+  /* Order / expense status badge colors — dark mode */
+  --status-pending-bg:      rgba(180, 83, 9, 0.20);
+  --status-pending-text:    #fcd34d;
+  --status-pending-border:  rgba(180, 83, 9, 0.40);
 
-  --status-processing-bg: #eff6ff;
-  --status-processing-text: #1d4ed8;
-  --status-processing-border: #93c5fd;
+  --status-processing-bg:   rgba(29, 78, 216, 0.20);
+  --status-processing-text: #93c5fd;
+  --status-processing-border: rgba(29, 78, 216, 0.40);
 
-  --status-shipped-bg: #f5f3ff;
-  --status-shipped-text: #5b21b6;
-  --status-shipped-border: #c4b5fd;
+  --status-shipped-bg:      rgba(91, 33, 182, 0.20);
+  --status-shipped-text:    #c4b5fd;
+  --status-shipped-border:  rgba(91, 33, 182, 0.40);
 
-  --status-delivered-bg: #ecfdf5;
-  --status-delivered-text: #166534;
-  --status-delivered-border: #86efac;
+  --status-delivered-bg:    rgba(22, 101, 52, 0.20);
+  --status-delivered-text:  #86efac;
+  --status-delivered-border: rgba(22, 101, 52, 0.40);
 
-  --status-cancelled-bg: #fef2f2;
-  --status-cancelled-text: #991b1b;
-  --status-cancelled-border: #fca5a5;
+  --status-cancelled-bg:    rgba(153, 27, 27, 0.20);
+  --status-cancelled-text:  #fca5a5;
+  --status-cancelled-border: rgba(153, 27, 27, 0.40);
 
   /* New Table Header colors */
   --table-header-bg: oklch(0.35 0.05 260); /* Dark purple-ish */
