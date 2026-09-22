@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Mail, Lock, ShieldCheck, ArrowRight, User } from "lucide-react";
+import { Mail, ArrowRight, User, CheckCircle } from "lucide-react";
 import AdminPublicLayout from "../public-layout";
 
 const AdminRegisterPage = () => {
@@ -10,21 +10,12 @@ const AdminRegisterPage = () => {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [localError, setLocalError] = useState("");
+  const [success, setSuccess] = useState(false);
 
   const handleRegister = async (e: FormEvent) => {
     e.preventDefault();
-
-    if (password !== confirmPassword) {
-      setLocalError("Passwords do not match");
-      return;
-    }
-
-    setLocalError("");
     setError("");
 
     try {
@@ -33,7 +24,7 @@ const AdminRegisterPage = () => {
       const res = await fetch("/api/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ name, email }),
       });
 
       const data = await res.json();
@@ -43,7 +34,13 @@ const AdminRegisterPage = () => {
         return;
       }
 
-      router.push("/admin/login");
+      if (data.firstUser) {
+        // Legacy: first-ever superadmin registration — redirect to login
+        router.push("/admin/login");
+        return;
+      }
+
+      setSuccess(true);
     } catch (err) {
       console.error(err);
       setError("Something went wrong");
@@ -149,127 +146,108 @@ const AdminRegisterPage = () => {
             style={{ background: "var(--auth-shine)" }}
           />
 
-          {/* Heading */}
-          <h1 className="text-[1.6rem] font-bold text-center mb-1 tracking-tight">
-            Create account
-          </h1>
-          <p className="text-sm text-center mb-7" style={{ color: "var(--auth-muted-color)" }}>
-            Fill in your details to get started.
-          </p>
-
-          <form onSubmit={handleRegister} noValidate>
-            {/* Name */}
-            <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "var(--auth-label-color)" }}>
-              Full Name
-            </label>
-            <div
-              className="flex items-center gap-2 rounded-xl px-3.5 mb-4 focus-within:ring-2 focus-within:ring-white/30 transition-all"
-              style={{ background: "var(--auth-input-bg)", border: "1px solid var(--auth-input-border)" }}
-            >
-              <User className="w-4 h-4 shrink-0" style={{ color: "var(--auth-icon-color)" }} />
-              <input
-                type="text"
-                placeholder="Enter your full name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                className="w-full bg-transparent py-3 text-sm focus:outline-none placeholder:text-white/25"
-              />
-            </div>
-
-            {/* Email */}
-            <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "var(--auth-label-color)" }}>
-              Email
-            </label>
-            <div
-              className="flex items-center gap-2 rounded-xl px-3.5 mb-4 focus-within:ring-2 focus-within:ring-white/30 transition-all"
-              style={{ background: "var(--auth-input-bg)", border: "1px solid var(--auth-input-border)" }}
-            >
-              <Mail className="w-4 h-4 shrink-0" style={{ color: "var(--auth-icon-color)" }} />
-              <input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full bg-transparent py-3 text-sm focus:outline-none placeholder:text-white/25"
-              />
-            </div>
-
-            {/* Password */}
-            <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "var(--auth-label-color)" }}>
-              Password
-            </label>
-            <div
-              className="flex items-center gap-2 rounded-xl px-3.5 mb-4 focus-within:ring-2 focus-within:ring-white/30 transition-all"
-              style={{ background: "var(--auth-input-bg)", border: "1px solid var(--auth-input-border)" }}
-            >
-              <Lock className="w-4 h-4 shrink-0" style={{ color: "var(--auth-icon-color)" }} />
-              <input
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full bg-transparent py-3 text-sm focus:outline-none placeholder:text-white/25"
-              />
-            </div>
-
-            {/* Confirm Password */}
-            <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "var(--auth-label-color)" }}>
-              Confirm Password
-            </label>
-            <div
-              className="flex items-center gap-2 rounded-xl px-3.5 mb-5 focus-within:ring-2 focus-within:ring-white/30 transition-all"
-              style={{ background: "var(--auth-input-bg)", border: "1px solid var(--auth-input-border)" }}
-            >
-              <ShieldCheck className="w-4 h-4 shrink-0" style={{ color: "var(--auth-icon-color)" }} />
-              <input
-                type="password"
-                placeholder="Confirm your password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-                className="w-full bg-transparent py-3 text-sm focus:outline-none placeholder:text-white/25"
-              />
-            </div>
-
-            {/* Errors */}
-            {localError && (
-              <p className="text-[var(--text-error)] text-xs mb-3 text-center rounded-lg py-2" style={{ background: "var(--auth-error-bg)" }}>
-                {localError}
+          {success ? (
+            /* ── Success state ── */
+            <div className="flex flex-col items-center text-center py-4">
+              <CheckCircle className="w-14 h-14 mb-5" style={{ color: "var(--auth-accent-text)" }} />
+              <h1 className="text-[1.4rem] font-bold mb-2 tracking-tight">Check your inbox</h1>
+              <p className="text-sm mb-6" style={{ color: "var(--auth-muted-color)" }}>
+                We sent a <strong>Set Password</strong> link to{" "}
+                <span style={{ color: "var(--auth-accent-text)" }}>{email}</span>.
+                Open it to activate your account.
               </p>
-            )}
-            {error && (
-              <p className="text-[var(--text-error)] text-xs mb-3 text-center rounded-lg py-2" style={{ background: "var(--auth-error-bg)" }}>
-                {error}
-              </p>
-            )}
-
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all duration-200 disabled:opacity-50 active:scale-[0.98]"
-              style={{ background: "var(--auth-btn-bg-reg)", boxShadow: "var(--auth-btn-shadow-reg)" }}
-            >
-              {loading ? "Creating account…" : "Sign Up"}
-              {!loading && <ArrowRight className="w-4 h-4" />}
-            </button>
-
-            {/* Login link */}
-            <p className="text-center text-xs mt-6" style={{ color: "var(--auth-dimmed-color)" }}>
-              Already have an account?{" "}
               <button
                 type="button"
                 onClick={() => router.push("/admin/login")}
-                className="font-semibold hover:text-white transition-colors"
-                style={{ color: "var(--auth-accent-text)" }}
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all duration-200 active:scale-[0.98]"
+                style={{ background: "var(--auth-btn-bg)", boxShadow: "var(--auth-btn-shadow)" }}
               >
-                Sign in
+                Back to Sign In
+                <ArrowRight className="w-4 h-4" />
               </button>
-            </p>
-          </form>
+            </div>
+          ) : (
+            <>
+              {/* Heading */}
+              <h1 className="text-[1.6rem] font-bold text-center mb-1 tracking-tight">
+                Create account
+              </h1>
+              <p className="text-sm text-center mb-7" style={{ color: "var(--auth-muted-color)" }}>
+                Enter your details — we&apos;ll email you a link to set your password.
+              </p>
+
+              <form onSubmit={handleRegister} noValidate>
+                {/* Name */}
+                <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "var(--auth-label-color)" }}>
+                  Full Name
+                </label>
+                <div
+                  className="flex items-center gap-2 rounded-xl px-3.5 mb-4 focus-within:ring-2 focus-within:ring-white/30 transition-all"
+                  style={{ background: "var(--auth-input-bg)", border: "1px solid var(--auth-input-border)" }}
+                >
+                  <User className="w-4 h-4 shrink-0" style={{ color: "var(--auth-icon-color)" }} />
+                  <input
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    className="w-full bg-transparent py-3 text-sm focus:outline-none placeholder:text-white/25"
+                  />
+                </div>
+
+                {/* Email */}
+                <label className="block text-xs font-semibold uppercase tracking-widest mb-1.5" style={{ color: "var(--auth-label-color)" }}>
+                  Email
+                </label>
+                <div
+                  className="flex items-center gap-2 rounded-xl px-3.5 mb-5 focus-within:ring-2 focus-within:ring-white/30 transition-all"
+                  style={{ background: "var(--auth-input-bg)", border: "1px solid var(--auth-input-border)" }}
+                >
+                  <Mail className="w-4 h-4 shrink-0" style={{ color: "var(--auth-icon-color)" }} />
+                  <input
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full bg-transparent py-3 text-sm focus:outline-none placeholder:text-white/25"
+                  />
+                </div>
+
+                {/* Error */}
+                {error && (
+                  <p className="text-[var(--text-error)] text-xs mb-3 text-center rounded-lg py-2" style={{ background: "var(--auth-error-bg)" }}>
+                    {error}
+                  </p>
+                )}
+
+                {/* Submit */}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all duration-200 disabled:opacity-50 active:scale-[0.98]"
+                  style={{ background: "var(--auth-btn-bg-reg)", boxShadow: "var(--auth-btn-shadow-reg)" }}
+                >
+                  {loading ? "Sending link…" : "Sign Up"}
+                  {!loading && <ArrowRight className="w-4 h-4" />}
+                </button>
+
+                {/* Login link */}
+                <p className="text-center text-xs mt-6" style={{ color: "var(--auth-dimmed-color)" }}>
+                  Already have an account?{" "}
+                  <button
+                    type="button"
+                    onClick={() => router.push("/admin/login")}
+                    className="font-semibold hover:text-white transition-colors"
+                    style={{ color: "var(--auth-accent-text)" }}
+                  >
+                    Sign in
+                  </button>
+                </p>
+              </form>
+            </>
+          )}
         </div>
       </div>
     </AdminPublicLayout>

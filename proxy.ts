@@ -7,22 +7,26 @@ export default auth((req) => {
   const pathname = req.nextUrl.pathname;
 
   const isAdminRoute = pathname.startsWith("/admin");
-  const isLoginPage = pathname === "/admin/login";
-  const isRegisterPage = pathname === "/admin/register";
+  const isLoginPage        = pathname === "/admin/login";
+  const isRegisterPage     = pathname === "/admin/register";
+  const isSetPasswordPage  = pathname === "/admin/set-password";
+  const isForgotPage       = pathname === "/admin/forgot-password";
 
-  // Not logged in → protect admin routes
+  // Not logged in → protect admin routes (allow login, register, set-password, forgot-password)
   if (
     isAdminRoute &&
     !isLoggedIn &&
     !isLoginPage &&
-    !isRegisterPage
+    !isRegisterPage &&
+    !isSetPasswordPage &&
+    !isForgotPage
   ) {
     return NextResponse.redirect(
       new URL("/admin/login", req.url)
     );
   }
 
-  // Already logged in → don't allow login/register page
+  // Already logged in → don't allow login/register page (set-password is allowed)
   if (
     isLoggedIn &&
     (isLoginPage || isRegisterPage)

@@ -21,7 +21,12 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const { data: session, status } = useSession();
 
   const isAuthPage =
-    pathname?.includes("/login") || pathname?.includes("/register");
+    pathname?.includes("/login") ||
+    pathname?.includes("/register") ||
+    pathname?.includes("/set-password") ||
+    pathname?.includes("/forgot-password");
+
+  const isSetPassword = pathname?.includes("/set-password");
 
   // Route protection: redirect to login if not authenticated on protected pages
   useEffect(() => {
@@ -29,10 +34,11 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     if (!session && !isAuthPage) {
       router.replace("/admin/login");
     }
-    if (session && isAuthPage) {
+    // Only redirect away from login/register when session exists, NOT set-password
+    if (session && isAuthPage && !isSetPassword) {
       router.replace("/admin");
     }
-  }, [session, status, isAuthPage, router]);
+  }, [session, status, isAuthPage, isSetPassword, router]);
 
   // Show nothing while checking auth on protected pages to avoid flash
   if (status === "loading" && !isAuthPage) return null;

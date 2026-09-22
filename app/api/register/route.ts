@@ -1,47 +1,76 @@
 "use server";
 
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
 import connectToDatabase from "@/lib/mongodb";
 import Admin from "@/app/admin/models/Admin";
+import { sendSetPasswordEmail } from "@/lib/mailer";
 
 // ---------------- REGISTER ----------------
-// First-ever registration → becomes superadmin.
-// After that, self-registration is disabled.
-// New users are created by the superadmin via /api/users.
+// First-ever registration → becomes superadmin (legacy path, keeps password fields).
+// All subsequent registrations: accepts name + email only, creates an inactive account,
+// and sends a "Set your password" email. The user activates via /admin/set-password.
 const adminRegister = async (req: NextRequest) => {
   try {
     await connectToDatabase();
 
     const { name, email, password } = await req.json();
 
-    if (!name || !email || !password) {
+    if (!name || !email) {
       return NextResponse.json(
-        { error: "Name, email and password are required" },
+        { error: "Name and email are required" },
+        { status: 400 }
+      );
+    }
+
+    const existing = await Admin.findOne({ email: email.toLowerCase() });
+    if (existing) {
+      return NextResponse.json(
+        { error: "An account with this email already exists" },
         { status: 400 }
       );
     }
 
     const totalAdmins = await Admin.countDocuments();
 
-    if (totalAdmins > 0) {
-      return NextResponse.json(
-        { error: "Registration is disabled. Contact your superadmin." },
-        { status: 403 }
-      );
+    if (totalAdmins === 0) {
+      // ── First user ever → superadmin (requires password) ──
+      if (!password) {
+        return NextResponse.json(
+          { error: "Password is required for the first registration" },
+          { status: 400 }
+        );
+      }
+      const admin = new Admin({
+        name,
+        email,
+        password,
+        role: "superadmin",
+        isActive: true,
+      });
+      await admin.save();
+      return NextResponse.json({ success: true, firstUser: true });
     }
 
-    // First user ever → superadmin
+    // ── Subsequent users: passwordless signup ──
+    const token = crypto.randomBytes(32).toString("hex");
+    const expiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 h
+
     const admin = new Admin({
       name,
       email,
-      password,
-      role: "superadmin",
-      isActive: true,
+      password: "", // no password yet — blocked from login until set
+      role: "user",
+      isActive: false,
+      passwordToken: token,
+      passwordTokenExpiry: expiry,
     });
 
     await admin.save();
 
-    return NextResponse.json({ success: true });
+    await sendSetPasswordEmail(email, name, token);
+
+    return NextResponse.json({ success: true, emailSent: true });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });

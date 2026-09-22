@@ -8,3 +8,20 @@ export interface InvoiceContext {
   /** human-readable change description, e.g. "Status changed to Shipped" */
   changeNote?: string;
 }
+
+export interface SetPasswordContext {
+  toName: string;
+  link: string;
+}
+
+export interface ForgotPasswordContext {
+  toName: string;
+  link: string;
+}
+
+export interface SendEmailOptions {
+  to: { email: string; name: string };
+  subject: string;
+  html: string;
+  attachment?: { name: string; content: string };
+}
