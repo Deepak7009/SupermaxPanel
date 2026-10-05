@@ -21,14 +21,38 @@ const getEmployees = async (req: NextRequest) => {
     const search = url.searchParams.get("search") || "";
     const page = Number(url.searchParams.get("page") || "1");
     const limit = Number(url.searchParams.get("limit") || "10");
+    const month = url.searchParams.get("month");
+    const year = url.searchParams.get("year");
 
     if (id && mongoose.Types.ObjectId.isValid(id)) {
-      const employee = await Employee.findOne({ _id: id, userId }).populate("workEntries").lean();
+      const employee = await Employee.findOne({ _id: id, userId }).lean();
 
       if (!employee) {
         return NextResponse.json({ success: false, message: "Employee not found" }, { status: 404 });
       }
-      return NextResponse.json({ success: true, employee });
+
+      const totalsAgg = await AdvancePayment.aggregate([
+        { $match: { employee: new mongoose.Types.ObjectId(id), userId: new mongoose.Types.ObjectId(userId) } },
+        {
+          $group: {
+            _id: "$employee",
+            advancePayment: { $sum: { $cond: [{ $eq: ["$type", "ADVANCE"] }, "$amount", 0] } },
+            paidPayment:    { $sum: { $cond: [{ $eq: ["$type", "SALARY_PAYMENT"] }, "$amount", 0] } },
+          },
+        },
+      ]);
+
+      const advancePayment = totalsAgg[0]?.advancePayment ?? 0;
+      const paidPayment = totalsAgg[0]?.paidPayment ?? 0;
+
+      return NextResponse.json({
+        success: true,
+        employee: {
+          ...employee,
+          advancePayment,
+          paidPayment,
+        },
+      });
     }
 
     if (id && !mongoose.Types.ObjectId.isValid(id)) {
@@ -43,16 +67,52 @@ const getEmployees = async (req: NextRequest) => {
     }
 
     const skip = (page - 1) * limit;
+    const userObjectId = new mongoose.Types.ObjectId(userId);
 
-    const [employees, total] = await Promise.all([
+    const advanceMatch: Record<string, unknown> = { userId: userObjectId };
+    if (month && year) {
+      const start = new Date(Number(year), Number(month) - 1, 1);
+      const end = new Date(Number(year), Number(month), 0, 23, 59, 59, 999);
+      advanceMatch.date = { $gte: start, $lte: end };
+    } else if (year) {
+      const start = new Date(Number(year), 0, 1);
+      const end = new Date(Number(year), 11, 31, 23, 59, 59, 999);
+      advanceMatch.date = { $gte: start, $lte: end };
+    }
+
+    const [employees, total, overallTotalsAgg] = await Promise.all([
       Employee.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
       Employee.countDocuments(query),
+      AdvancePayment.aggregate([
+        { $match: advanceMatch },
+        {
+          $group: {
+            _id: null,
+            totalAdvance: { $sum: { $cond: [{ $eq: ["$type", "ADVANCE"] }, "$amount", 0] } },
+            totalPaid:    { $sum: { $cond: [{ $eq: ["$type", "SALARY_PAYMENT"] }, "$amount", 0] } },
+          },
+        },
+      ]),
     ]);
 
     /* ---- sync advancePayment / paidPayment from AdvancePayment collection ---- */
     const employeeIds = employees.map((e) => e._id);
+    const empAdvanceMatch: Record<string, unknown> = {
+      employee: { $in: employeeIds },
+      userId: userObjectId,
+    };
+    if (month && year) {
+      const start = new Date(Number(year), Number(month) - 1, 1);
+      const end = new Date(Number(year), Number(month), 0, 23, 59, 59, 999);
+      empAdvanceMatch.date = { $gte: start, $lte: end };
+    } else if (year) {
+      const start = new Date(Number(year), 0, 1);
+      const end = new Date(Number(year), 11, 31, 23, 59, 59, 999);
+      empAdvanceMatch.date = { $gte: start, $lte: end };
+    }
+
     const totalsAgg = await AdvancePayment.aggregate([
-      { $match: { employee: { $in: employeeIds }, userId: new mongoose.Types.ObjectId(userId) } },
+      { $match: empAdvanceMatch },
       {
         $group: {
           _id: "$employee",
@@ -72,7 +132,18 @@ const getEmployees = async (req: NextRequest) => {
       };
     });
 
-    return NextResponse.json({ success: true, employees: syncedEmployees, total, page, limit });
+    const totalAdvance = overallTotalsAgg[0]?.totalAdvance ?? 0;
+    const totalPaid    = overallTotalsAgg[0]?.totalPaid    ?? 0;
+
+    return NextResponse.json({
+      success: true,
+      employees: syncedEmployees,
+      total,
+      page,
+      limit,
+      totalAdvance,
+      totalPaid,
+    });
   } catch (error: unknown) {
     console.error(error);
     if (error instanceof Error) {

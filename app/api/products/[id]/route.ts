@@ -3,15 +3,43 @@
 import { NextRequest, NextResponse } from "next/server";
 import connectToDatabase from "@/lib/mongodb";
 import Product from "@/app/admin/models/Product";
+import "@/app/admin/models/Category";
 import { getSessionUser } from "@/lib/session";
 
 interface Params {
   id: string;
 }
 
+const getProduct = async (
+  _req: NextRequest,
+  context: { params: Promise<Params> },
+) => {
+  try {
+    const { userId, error } = await getSessionUser();
+    if (error) return error;
+
+    await connectToDatabase();
+
+    const { id } = await context.params;
+    const product = await Product.findOne({ _id: id, userId }).populate("categories").lean();
+
+    if (!product) {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(product);
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json(
+      { error: "Failed to fetch product" },
+      { status: 500 },
+    );
+  }
+};
+
 const updatedProduct = async (
   req: NextRequest,
-  context: { params: Promise<Params> }
+  context: { params: Promise<Params> },
 ) => {
   try {
     const { userId, error } = await getSessionUser();
@@ -66,7 +94,7 @@ const updatedProduct = async (
         isFeatured: isFeatured || false,
         isActive: isActive ?? true,
       },
-      { new: true }
+      { new: true },
     ).populate("categories");
 
     if (!updatedProduct) {
@@ -78,9 +106,9 @@ const updatedProduct = async (
     console.error(err);
     return NextResponse.json(
       { error: "Failed to update product" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 };
 
-export { updatedProduct as PUT };
+export { getProduct as GET, updatedProduct as PUT };

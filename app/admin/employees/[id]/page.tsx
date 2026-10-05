@@ -79,11 +79,14 @@ const EmployeeDetailPage = () => {
 
   /* ---------------- DEBOUNCE SEARCH ---------------- */
   useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearch(search), 400);
+    const t = setTimeout(() => {
+      setDebouncedSearch(search);
+      dispatch(setPage(1));
+    }, 400);
     return () => clearTimeout(t);
-  }, [search]);
+  }, [search, dispatch]);
 
-  /* ---------------- FETCH DATA ---------------- */
+  /* ---------------- FETCH INITIAL DATA ---------------- */
   useEffect(() => {
     if (!id) return;
     dispatch(fetchEmployeeById(id));
@@ -91,42 +94,40 @@ const EmployeeDetailPage = () => {
     dispatch(fetchAllTimeWorkTotal(id));
   }, [id, dispatch]);
 
-  /* re-fetch both work entries AND payment totals whenever month/year/debouncedSearch changes */
+  /* ---------------- FETCH WORK ENTRIES ---------------- */
   useEffect(() => {
     if (!id) return;
     const activeMonth = month !== "all" ? month : undefined;
     const activeYear = activeMonth ? year : undefined;
 
-    dispatch(setPage(1));
-    dispatch(fetchWorkEntries({ employeeId: id, page: 1, limit: PAGE_SIZE, search: debouncedSearch, month: activeMonth, year: activeYear }));
-    dispatch(fetchAdvancePayments({ employeeId: id, page: 1, limit: 5, month: activeMonth, year: activeYear }));
-  }, [id, dispatch, debouncedSearch, month, year]);
+    dispatch(
+      fetchWorkEntries({
+        employeeId: id,
+        page,
+        limit: PAGE_SIZE,
+        search: debouncedSearch,
+        month: activeMonth,
+        year: activeYear,
+      }),
+    );
+  }, [id, dispatch, page, debouncedSearch, month, year]);
 
-  /* re-fetch payment history when payPage changes */
+  /* ---------------- FETCH ADVANCE PAYMENTS ---------------- */
   useEffect(() => {
     if (!id) return;
     const activeMonth = month !== "all" ? month : undefined;
-    dispatch(fetchAdvancePayments({
-      employeeId: id,
-      page:  payPage,
-      limit: 5,
-      month: activeMonth,
-      year:  activeMonth ? year : undefined,
-    }));
-  }, [payPage]);
+    const activeYear = activeMonth ? year : undefined;
 
-  useEffect(() => {
-    if (!id) return;
-    const activeMonth = month !== "all" ? month : undefined;
-    dispatch(fetchWorkEntries({
-      employeeId: id,
-      page,
-      limit: PAGE_SIZE,
-      search: debouncedSearch,
-      month: activeMonth,
-      year:  activeMonth ? year : undefined,
-    }));
-  }, [page]);   // page change keeps existing work filters
+    dispatch(
+      fetchAdvancePayments({
+        employeeId: id,
+        page: payPage,
+        limit: 5,
+        month: activeMonth,
+        year: activeYear,
+      }),
+    );
+  }, [id, dispatch, payPage, month, year]);
 
   /* only block on employee profile load — work/payment load in background */
   if (empLoading) return <div className="p-6">Loading...</div>;
@@ -269,7 +270,11 @@ const EmployeeDetailPage = () => {
             />
             <Select
               value={month}
-              onChange={(v) => setMonth(v)}
+              onChange={(v) => {
+                setMonth(v);
+                dispatch(setPage(1));
+                dispatch(setPayPage(1));
+              }}
               options={MONTHS}
               placeholder="All Months"
               className="w-40"
@@ -277,7 +282,11 @@ const EmployeeDetailPage = () => {
             {month !== "all" && (
               <Select
                 value={year}
-                onChange={(v) => setYear(v)}
+                onChange={(v) => {
+                  setYear(v);
+                  dispatch(setPage(1));
+                  dispatch(setPayPage(1));
+                }}
                 options={YEARS}
                 placeholder="Year"
                 className="w-28"
@@ -431,6 +440,8 @@ const EmployeeDetailPage = () => {
         isOpen={addWorkOpen}
         setIsOpen={setAddWorkOpen}
         employee={currentEmployee}
+        selectedMonth={month}
+        selectedYear={year}
       />
 
       {/* direct edit for WORK_OFF rows — opens with date pre-filled, qty/amount blank */}
@@ -439,6 +450,8 @@ const EmployeeDetailPage = () => {
         setIsOpen={setEditWorkOpen}
         employee={currentEmployee}
         entry={entries.find((e) => e._id === selectedEntryId) ?? null}
+        selectedMonth={month}
+        selectedYear={year}
       />
 
       <AddAdvancePaymentModal

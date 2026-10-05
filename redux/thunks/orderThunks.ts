@@ -24,6 +24,8 @@ const fetchOrders = createAsyncThunk<
       if (params?.status) query.append("status", params.status);
       if (params?.page) query.append("page", params.page.toString());
       if (params?.limit) query.append("limit", params.limit.toString());
+      if (params?.month) query.append("month", params.month.toString());
+      if (params?.year) query.append("year", params.year.toString());
 
       const { data } = await axios.get<FetchOrdersResponse>(`/api/order?${query.toString()}`);
       return data;

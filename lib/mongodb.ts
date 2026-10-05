@@ -3,23 +3,40 @@ import mongoose from 'mongoose';
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/supermax';
 if (!MONGO_URI) throw new Error('Please define MONGO_URI in .env');
 
-let conn: typeof mongoose | null = null;
-let promise: Promise<typeof mongoose> | null = null;
+interface MongooseCache {
+  conn: typeof mongoose | null;
+  promise: Promise<typeof mongoose> | null;
+}
+
+declare global {
+  var mongooseCache: MongooseCache | undefined;
+}
+
+const cached: MongooseCache = global.mongooseCache ?? { conn: null, promise: null };
+global.mongooseCache = cached;
 
 export default async function connectToDatabase() {
-  if (conn) {
-    console.log('✅ Using cached MongoDB connection');
-    return conn;
+  if (cached.conn) {
+    return cached.conn;
   }
 
-  if (!promise) {
-    console.log('🔌 Creating new MongoDB connection...');
-    promise = mongoose.connect(MONGO_URI).then((mongooseInstance) => {
-      console.log('✅ MongoDB connected');
+  if (!cached.promise) {
+    const opts = {
+      bufferCommands: false,
+      maxPoolSize: 10,
+    };
+
+    cached.promise = mongoose.connect(MONGO_URI, opts).then((mongooseInstance) => {
       return mongooseInstance;
     });
   }
 
-  conn = await promise;
-  return conn;
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    throw e;
+  }
+
+  return cached.conn;
 }

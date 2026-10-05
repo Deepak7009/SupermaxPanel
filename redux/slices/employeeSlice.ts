@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
-  Employee,
   EmployeeState,
   FetchEmployeesResponse,
   FetchEmployeeByIdResponse,
@@ -14,6 +13,8 @@ const initialState: EmployeeState = {
   total: 0,
   page: 1,
   limit: 10,
+  totalAdvance: 0,
+  totalPaid: 0,
   loading: false,
   error: null,
   currentEmployee: null,
@@ -45,7 +46,9 @@ const employeeSlice = createSlice({
         state.employees = action.payload.employees;
         state.total = action.payload.total;
         state.page = action.payload.page;
-        state.limit = action.payload.limit;
+        // Do NOT overwrite limit — list page manages its own limit
+        state.totalAdvance = action.payload.totalAdvance ?? 0;
+        state.totalPaid = action.payload.totalPaid ?? 0;
       },
     );
 

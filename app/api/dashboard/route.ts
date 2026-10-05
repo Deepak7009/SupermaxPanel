@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 import connectToDatabase from "@/lib/mongodb";
 import Product from "@/app/admin/models/Product";
 import Category from "@/app/admin/models/Category";
@@ -31,8 +32,9 @@ const getDashboard = async () => {
       Category.find({ userId }).sort({ createdAt: -1 }).limit(5).select("name"),
     ]);
 
+    const userObjectId = new mongoose.Types.ObjectId(userId);
     const revenueResult = await Order.aggregate([
-      { $match: { userId: { $eq: userId } } },
+      { $match: { userId: userObjectId } },
       { $group: { _id: null, totalRevenue: { $sum: "$totalAmount" } } },
     ]);
 

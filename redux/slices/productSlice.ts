@@ -1,9 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { createProduct, fetchProducts, updateProduct } from "../thunks/productThunks";
+import { createProduct, fetchProducts, fetchProductById, updateProduct } from "../thunks/productThunks";
 import { Product, ProductState } from "../types/product";
 
 const initialState: ProductState = {
   products: [],
+  currentProduct: null,
   total: 0,
   page: 1,
   limit: 10,
@@ -17,6 +18,9 @@ const productSlice = createSlice({
   reducers: {
     setError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
+    },
+    clearCurrentProduct: (state) => {
+      state.currentProduct = null;
     },
   },
   extraReducers: (builder) => {
@@ -48,6 +52,24 @@ const productSlice = createSlice({
       state.error = action.payload as string;
     });
 
+    // fetchProductById
+    builder.addCase(fetchProductById.pending, (state) => {
+      state.loading = true;
+      state.error = null;
+    });
+    builder.addCase(fetchProductById.fulfilled, (state, action: PayloadAction<Product>) => {
+      state.loading = false;
+      state.currentProduct = action.payload;
+      const index = state.products.findIndex((p) => p._id === action.payload._id);
+      if (index !== -1) {
+        state.products[index] = action.payload;
+      }
+    });
+    builder.addCase(fetchProductById.rejected, (state, action) => {
+      state.loading = false;
+      state.error = action.payload as string;
+    });
+
     // createProduct
     builder.addCase(createProduct.pending, (state) => {
       state.loading = true;
@@ -69,6 +91,9 @@ const productSlice = createSlice({
     });
     builder.addCase(updateProduct.fulfilled, (state, action: PayloadAction<Product>) => {
       state.loading = false;
+      if (state.currentProduct?._id === action.payload._id) {
+        state.currentProduct = action.payload;
+      }
       const index = state.products.findIndex((p) => p._id === action.payload._id);
       if (index !== -1) state.products[index] = action.payload;
     });
@@ -79,5 +104,5 @@ const productSlice = createSlice({
   },
 });
 
-export const { setError } = productSlice.actions;
+export const { setError, clearCurrentProduct } = productSlice.actions;
 export default productSlice.reducer;

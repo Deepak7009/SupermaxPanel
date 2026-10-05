@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Checkbox } from "@/components/ui/checkbox";
 import Input from "@/components/common/Input";
 import Button from "@/components/common/Button";
-import { ChevronDown, X } from "lucide-react";
+import { ChevronDown, X, Check } from "lucide-react";
 
 export interface MultiSelectOption {
   label: string;
@@ -130,21 +129,23 @@ const MultiSelect = ({
                   role="option"
                   aria-selected={checked}
                   onClick={() => toggle(opt.value)}
-                  className="flex items-center gap-2.5 px-3 py-2 text-sm cursor-pointer hover:bg-[var(--muted)] transition-colors"
+                  className="flex items-center gap-2.5 px-3 py-2 text-sm cursor-pointer hover:bg-[var(--muted)] transition-colors select-none"
                 >
-                  <Checkbox
-                    checked={checked}
-                    onCheckedChange={() => toggle(opt.value)}
-                    id={`ms-${opt.value}`}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                  <label
-                    htmlFor={`ms-${opt.value}`}
-                    className="cursor-pointer select-none text-[var(--foreground)]"
-                    onClick={(e) => e.stopPropagation()}
+                  <div
+                    className={`
+                      size-4 shrink-0 rounded-[4px] border flex items-center justify-center transition-colors
+                      ${
+                        checked
+                          ? "bg-primary border-primary text-primary-foreground dark:bg-primary"
+                          : "border-input bg-transparent dark:bg-input/30"
+                      }
+                    `}
                   >
+                    {checked && <Check className="size-3.5 stroke-[3]" />}
+                  </div>
+                  <span className="text-[var(--foreground)]">
                     {opt.label}
-                  </label>
+                  </span>
                 </li>
               );
             })}

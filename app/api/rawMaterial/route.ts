@@ -33,7 +33,11 @@ const getRawMaterials = async (req: NextRequest) => {
 
     if (month && year) {
       const start = new Date(Number(year), Number(month) - 1, 1);
-      const end = new Date(Number(year), Number(month), 0, 23, 59, 59);
+      const end = new Date(Number(year), Number(month), 0, 23, 59, 59, 999);
+      query.date = { $gte: start, $lte: end };
+    } else if (year) {
+      const start = new Date(Number(year), 0, 1);
+      const end = new Date(Number(year), 11, 31, 23, 59, 59, 999);
       query.date = { $gte: start, $lte: end };
     }
 

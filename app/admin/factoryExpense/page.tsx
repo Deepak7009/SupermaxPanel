@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
 import { fetchFactoryExpenses } from "@/redux/thunks/factoryExpenseThunks";
+import { useDebounce } from "@/hooks/useDebounce";
 import { setPage } from "@/redux/slices/factoryExpenseSlice";
 
 import Button from "@/components/common/Button";
@@ -38,6 +39,7 @@ const FactoryExpensePage = () => {
 
   // Filters
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 400);
   const [status, setStatus] = useState<"all" | ExpenseStatus>("all");
   const [month, setMonth] = useState<string>(String(new Date().getMonth() + 1));
   const [year, setYear] = useState<string>(String(new Date().getFullYear()));
@@ -51,19 +53,23 @@ const FactoryExpensePage = () => {
     direction: "asc" | "desc";
   } | null>(null);
 
+  useEffect(() => {
+    dispatch(setPage(1));
+  }, [debouncedSearch, dispatch]);
+
   // Fetch expenses from backend
   useEffect(() => {
     dispatch(
       fetchFactoryExpenses({
         page,
         limit,
-        search,
+        search: debouncedSearch,
         status: status === "all" ? undefined : status,
         month,
         year,
       }),
     );
-  }, [dispatch, page, limit, search, status, month, year]);
+  }, [dispatch, page, limit, debouncedSearch, status, month, year]);
 
   const handleSort = (key: keyof ExpenseTableRow) => {
     if (sortConfig?.key === key) {
@@ -123,10 +129,7 @@ const FactoryExpensePage = () => {
         <Input
           placeholder="Search expense..."
           value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            dispatch(setPage(1));
-          }}
+          onChange={(e) => setSearch(e.target.value)}
         />
         <Select
           value={status}

@@ -78,6 +78,8 @@ export interface FetchOrdersParams {
   status?: string;
   page?: number;
   limit?: number;
+  month?: string | number;
+  year?: string | number;
 }
 
 export interface CreateOrderPayload {

@@ -3,6 +3,8 @@ export interface EmployeeState {
   total: number;
   page: number;
   limit: number;
+  totalAdvance: number;
+  totalPaid: number;
   loading: boolean;
   error: string | null;
   currentEmployee: Employee | null;
@@ -25,6 +27,8 @@ export interface FetchEmployeesParams {
   search?: string;
   page?: number;
   limit?: number;
+  month?: string | number;
+  year?: string | number;
 }
 
 export interface FetchEmployeesResponse {
@@ -33,6 +37,8 @@ export interface FetchEmployeesResponse {
   total: number;
   page: number;
   limit: number;
+  totalAdvance?: number;
+  totalPaid?: number;
 }
 
 export interface FetchEmployeeByIdResponse {

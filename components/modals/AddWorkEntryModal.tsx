@@ -4,7 +4,7 @@ import { useState, useEffect, FormEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 
-import { createWorkEntry, updateWorkEntry, fetchWorkEntries } from "@/redux/thunks/workThunk";
+import { createWorkEntry, updateWorkEntry, fetchWorkEntries, fetchAllTimeWorkTotal } from "@/redux/thunks/workThunk";
 import { Employee } from "@/redux/types/employee";
 import { WorkEntry } from "@/redux/types/work";
 
@@ -13,19 +13,24 @@ import FloatingInput from "@/components/common/FloatingInput";
 import Button from "@/components/common/Button";
 
 interface Props {
-  isOpen:    boolean;
-  setIsOpen: (open: boolean) => void;
-  employee:  Employee | null;
-  entry?:    WorkEntry | null; // if provided → edit mode
+  isOpen:         boolean;
+  setIsOpen:      (open: boolean) => void;
+  employee:       Employee | null;
+  entry?:         WorkEntry | null; // if provided → edit mode
+  selectedMonth?: string;
+  selectedYear?:  string;
 }
 
-const AddWorkEntryModal = ({ isOpen, setIsOpen, employee, entry }: Props) => {
+const AddWorkEntryModal = ({ isOpen, setIsOpen, employee, entry, selectedMonth, selectedYear }: Props) => {
   const dispatch = useDispatch<AppDispatch>();
   const { page, limit, loading } = useSelector((state: RootState) => state.work);
 
   const [date,     setDate]     = useState("");
   const [quantity, setQuantity] = useState("");
   const [amount,   setAmount]   = useState("");
+
+  const activeMonth = selectedMonth && selectedMonth !== "all" ? selectedMonth : undefined;
+  const activeYear = activeMonth ? selectedYear : undefined;
 
   /* ---- populate fields in edit mode ---- */
   useEffect(() => {
@@ -51,7 +56,7 @@ const AddWorkEntryModal = ({ isOpen, setIsOpen, employee, entry }: Props) => {
 
   /* ---- mark a WORK entry as Work Off (clear qty + amount) ---- */
   const handleMarkWorkOff = async () => {
-    if (!entry) return;
+    if (!entry || !employee) return;
     const result = await dispatch(
       updateWorkEntry({
         id:       entry._id,
@@ -60,7 +65,11 @@ const AddWorkEntryModal = ({ isOpen, setIsOpen, employee, entry }: Props) => {
         amount:   undefined,
       }),
     );
-    if (updateWorkEntry.fulfilled.match(result)) setIsOpen(false);
+    if (updateWorkEntry.fulfilled.match(result)) {
+      dispatch(fetchWorkEntries({ employeeId: employee._id, page, limit, month: activeMonth, year: activeYear }));
+      dispatch(fetchAllTimeWorkTotal(employee._id));
+      setIsOpen(false);
+    }
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -89,6 +98,8 @@ const AddWorkEntryModal = ({ isOpen, setIsOpen, employee, entry }: Props) => {
         }),
       );
       if (updateWorkEntry.fulfilled.match(result)) {
+        dispatch(fetchWorkEntries({ employeeId: employee._id, page, limit, month: activeMonth, year: activeYear }));
+        dispatch(fetchAllTimeWorkTotal(employee._id));
         setIsOpen(false);
       }
     } else {
@@ -102,7 +113,8 @@ const AddWorkEntryModal = ({ isOpen, setIsOpen, employee, entry }: Props) => {
         }),
       );
       if (createWorkEntry.fulfilled.match(result)) {
-        dispatch(fetchWorkEntries({ employeeId: employee._id, page, limit }));
+        dispatch(fetchWorkEntries({ employeeId: employee._id, page, limit, month: activeMonth, year: activeYear }));
+        dispatch(fetchAllTimeWorkTotal(employee._id));
         setIsOpen(false);
       }
     }

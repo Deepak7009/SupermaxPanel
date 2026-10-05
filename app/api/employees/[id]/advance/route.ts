@@ -128,11 +128,39 @@ const addAdvancePayment = async (
     /* ---- return fresh balance ---- */
     const allPayments = await AdvancePayment.find({ employee: id, userId }).lean();
 
-    const totalAdvance = allPayments.filter((p) => p.type === "ADVANCE").reduce((s, p) => s + p.amount, 0);
-    const totalSalaryPaid = allPayments.filter((p) => p.type === "SALARY_PAYMENT").reduce((s, p) => s + p.amount, 0);
-    const balance = totalAdvance - totalSalaryPaid;
+    const allTimeAdvance = allPayments.filter((p) => p.type === "ADVANCE").reduce((s, p) => s + p.amount, 0);
+    const allTimeSalaryPaid = allPayments.filter((p) => p.type === "SALARY_PAYMENT").reduce((s, p) => s + p.amount, 0);
+    const allTimeBalance = allTimeAdvance - allTimeSalaryPaid;
 
-    return NextResponse.json({ success: true, payment, totalAdvance, totalSalaryPaid, balance });
+    const month = req.nextUrl.searchParams.get("month");
+    const year = req.nextUrl.searchParams.get("year");
+
+    let totalAdvance = allTimeAdvance;
+    let totalSalaryPaid = allTimeSalaryPaid;
+    let balance = allTimeBalance;
+
+    if (month && year) {
+      const start = new Date(Number(year), Number(month) - 1, 1);
+      const end = new Date(Number(year), Number(month), 0, 23, 59, 59, 999);
+      const filtered = allPayments.filter((p) => {
+        const d = new Date(p.date);
+        return d >= start && d <= end;
+      });
+      totalAdvance = filtered.filter((p) => p.type === "ADVANCE").reduce((s, p) => s + p.amount, 0);
+      totalSalaryPaid = filtered.filter((p) => p.type === "SALARY_PAYMENT").reduce((s, p) => s + p.amount, 0);
+      balance = totalAdvance - totalSalaryPaid;
+    }
+
+    return NextResponse.json({
+      success: true,
+      payment,
+      totalAdvance,
+      totalSalaryPaid,
+      balance,
+      allTimeAdvance,
+      allTimeSalaryPaid,
+      allTimeBalance,
+    });
   } catch (error: unknown) {
     console.error(error);
     return NextResponse.json(

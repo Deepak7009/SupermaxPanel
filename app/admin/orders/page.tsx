@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
 import { fetchOrders } from "@/redux/thunks/orderThunks";
+import { useDebounce } from "@/hooks/useDebounce";
 import { Eye } from "lucide-react";
 
 import Button from "@/components/common/Button";
@@ -38,6 +39,7 @@ const OrdersPage = () => {
   const { orders, total, limit, totalOrderAmount, totalReceivedAmount, totalPendingAmount } = useSelector((s: RootState) => s.orders);
 
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 400);
   const [status, setStatus] = useState<"all" | OrderStatus>("all");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -51,18 +53,18 @@ const OrdersPage = () => {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, status]);
+  }, [debouncedSearch, status]);
 
   useEffect(() => {
     dispatch(
       fetchOrders({
-        search,
+        search: debouncedSearch,
         status: status === "all" ? "" : status,
         page: currentPage,
         limit,
       })
     );
-  }, [dispatch, search, status, currentPage, limit]);
+  }, [dispatch, debouncedSearch, status, currentPage, limit]);
 
   const statusOptions = [
     { label: "All Status", value: "all" },

@@ -28,6 +28,22 @@ const fetchProducts = createAsyncThunk<
   },
 );
 
+// Fetch single product by id
+const fetchProductById = createAsyncThunk<Product, string>(
+  "product/fetchProductById",
+  async (id, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.get<Product>(`/api/products/${id}`);
+      return data;
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        return rejectWithValue(err.response?.data?.error || "Failed to fetch product");
+      }
+      return rejectWithValue(err instanceof Error ? err.message : "Unknown error");
+    }
+  },
+);
+
 // Create new product
 const createProduct = createAsyncThunk<Product, Omit<Product, "_id" | "finalPrice">>(
   "product/createProduct",
@@ -60,4 +76,4 @@ const updateProduct = createAsyncThunk<Product, { id: string; updatedData: Parti
   },
 );
 
-export { fetchProducts, createProduct, updateProduct };
+export { fetchProducts, fetchProductById, createProduct, updateProduct };

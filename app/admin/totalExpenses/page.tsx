@@ -53,25 +53,16 @@ const TotalExpensesPage = () => {
   useEffect(() => {
     dispatch(fetchFactoryExpenses({ month, year }));
     dispatch(fetchRawMaterials({ month: Number(month), year: Number(year) }));
-    dispatch(fetchOrders({}));
+    dispatch(fetchOrders({ month, year }));
+    dispatch(fetchEmployees({ limit: 1, month, year }));
   }, [dispatch, month, year]);
 
-  useEffect(() => {
-    dispatch(fetchEmployees({ limit: 9999 }));
-  }, [dispatch]);
-
-  /* employee totals aggregated from the list */
+  /* employee totals aggregated directly from server */
   const empTotals = useMemo(() => {
-    const totalAdvance = empState.employees.reduce(
-      (s, e) => s + (e.advancePayment ?? 0),
-      0,
-    );
-    const totalPaid = empState.employees.reduce(
-      (s, e) => s + (e.paidPayment ?? 0),
-      0,
-    );
+    const totalAdvance = empState.totalAdvance ?? 0;
+    const totalPaid = empState.totalPaid ?? 0;
     return { totalAdvance, totalPaid, grand: totalAdvance + totalPaid };
-  }, [empState.employees]);
+  }, [empState.totalAdvance, empState.totalPaid]);
 
   /* combined grand totals */
   const grandTotal =

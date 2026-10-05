@@ -45,8 +45,13 @@ const addAdvancePayment = createAsyncThunk<
   "advancePayment/addAdvancePayment",
   async (payload, { rejectWithValue }) => {
     try {
+      const query = new URLSearchParams();
+      if (payload.month) query.append("month", payload.month);
+      if (payload.year) query.append("year", payload.year);
+      const url = `/api/employees/${payload.employee}/advance${query.toString() ? `?${query.toString()}` : ""}`;
+
       const { data } = await axios.post<CreateAdvancePaymentResponse>(
-        `/api/employees/${payload.employee}/advance`,
+        url,
         payload,
       );
       return data;

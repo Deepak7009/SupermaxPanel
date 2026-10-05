@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect, FormEvent } from "react";
+import { useState, useEffect, useMemo, FormEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 
 import { RootState, AppDispatch } from "@/redux/store";
-import { fetchProducts, updateProduct } from "@/redux/thunks/productThunks";
+import { fetchProductById, updateProduct } from "@/redux/thunks/productThunks";
 import { fetchCategories } from "@/redux/thunks/categoryThunks";
 
 import FloatingInput from "@/components/common/FloatingInput";
@@ -16,6 +16,11 @@ import Button from "@/components/common/Button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, PackageCheck, IndianRupee, Ruler } from "lucide-react";
+
+const featuredOptions = [
+  { label: "Yes", value: "yes" },
+  { label: "No",  value: "no"  },
+];
 
 const SectionHeader = ({
   icon: Icon,
@@ -45,7 +50,7 @@ const EditProductPage = () => {
   const { id } = useParams<{ id: string }>();
 
   const { categories } = useSelector((state: RootState) => state.category);
-  const { products, loading } = useSelector((state: RootState) => state.product);
+  const { products, currentProduct, loading } = useSelector((state: RootState) => state.product);
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -67,15 +72,17 @@ const EditProductPage = () => {
 
   useEffect(() => {
     dispatch(fetchCategories({ limit: 500 }));
-    if (products.length === 0) dispatch(fetchProducts({ limit: 9999 }));
-  }, [dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (id) dispatch(fetchProductById(id));
+  }, [dispatch, id]);
+
+  const product = (currentProduct?._id === id ? currentProduct : null) ?? products.find((p) => p._id === id) ?? null;
 
   useEffect(() => {
-    const product = products.find((p) => p._id === id);
     if (!product) {
-      if (products.length > 0) setNotFound(true);
+      if (!loading) setNotFound(true);
       return;
     }
+    setNotFound(false);
     const d = product.dimensions;
     setName(product.name || "");
     setDescription(product.description || "");
@@ -130,11 +137,10 @@ const EditProductPage = () => {
     }
   };
 
-  const categoryOptions = categories.map((c) => ({ label: c.name, value: c._id }));
-  const featuredOptions = [
-    { label: "Yes", value: "yes" },
-    { label: "No",  value: "no"  },
-  ];
+  const categoryOptions = useMemo(
+    () => categories.map((c) => ({ label: c.name, value: c._id })),
+    [categories]
+  );
 
   if (notFound) {
     return (

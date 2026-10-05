@@ -28,6 +28,7 @@ export interface FetchProductsParams {
 
 export interface ProductState {
   products: Product[];
+  currentProduct: Product | null;
   total: number;
   page: number;
   limit: number;

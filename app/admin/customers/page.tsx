@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { RootState, AppDispatch } from "@/redux/store";
 import { fetchCustomersThunk } from "@/redux/thunks/customerThunks";
+import { useDebounce } from "@/hooks/useDebounce";
 import { setPage } from "@/redux/slices/customerSlice";
 
 import Table, { Column } from "@/components/common/Table";
@@ -29,26 +30,27 @@ const CustomerPage = () => {
   );
 
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 400);
   const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
 
   const totalPages = Math.ceil(total / limit);
 
-  // Reset to page 1 when search changes
+  // Reset to page 1 when debouncedSearch changes
   useEffect(() => {
     dispatch(setPage(1));
-  }, [search, dispatch]);
+  }, [debouncedSearch, dispatch]);
 
   useEffect(() => {
     dispatch(
       fetchCustomersThunk({
-        search,
+        search: debouncedSearch,
         page,
         limit,
         sortKey: sortConfig?.key,
         sortDirection: sortConfig?.direction,
       })
     );
-  }, [search, page, limit, sortConfig, dispatch]);
+  }, [debouncedSearch, page, limit, sortConfig, dispatch]);
 
   const columns: Column<CustomerList>[] = [
     { key: "_id", label: "#" },

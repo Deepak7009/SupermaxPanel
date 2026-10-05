@@ -40,6 +40,8 @@ export interface CreateAdvancePaymentPayload {
   amount: number;
   note?: string;
   date: string;
+  month?: string;
+  year?: string;
 }
 
 /* ================= CREATE RESPONSE ================= */
@@ -49,4 +51,7 @@ export interface CreateAdvancePaymentResponse {
   totalAdvance: number;
   totalSalaryPaid: number;
   balance: number;
+  allTimeAdvance?: number;
+  allTimeSalaryPaid?: number;
+  allTimeBalance?: number;
 }

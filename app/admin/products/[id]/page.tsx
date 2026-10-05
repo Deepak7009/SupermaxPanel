@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 
 import { RootState, AppDispatch } from "@/redux/store";
-import { fetchProducts, updateProduct } from "@/redux/thunks/productThunks";
+import { fetchProductById, updateProduct } from "@/redux/thunks/productThunks";
 import { fetchCategories } from "@/redux/thunks/categoryThunks";
 
 import FloatingInput from "@/components/common/FloatingInput";
@@ -101,19 +101,22 @@ const ProductDetailPage = () => {
 
   const finalPrice = price - (price * discount) / 100;
 
+  const { currentProduct } = useSelector((state: RootState) => state.product);
+
   useEffect(() => {
     dispatch(fetchCategories({ limit: 500 }));
-    if (products.length === 0) dispatch(fetchProducts({ limit: 9999 }));
-  }, [dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (id) dispatch(fetchProductById(id));
+  }, [dispatch, id]);
 
-  const product = products.find((p) => p._id === id) ?? null;
+  const product = (currentProduct?._id === id ? currentProduct : null) ?? products.find((p) => p._id === id) ?? null;
 
   /* populate form when product loads */
   useEffect(() => {
     if (!product) {
-      if (products.length > 0) setNotFound(true);
+      if (!loading) setNotFound(true);
       return;
     }
+    setNotFound(false);
     const d = product.dimensions;
     setName(product.name || "");
     setDescription(product.description || "");

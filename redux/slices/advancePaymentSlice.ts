@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { AdvancePayment, FetchAdvancePaymentsResponse } from "../types/advancePayment";
+import { AdvancePayment, FetchAdvancePaymentsResponse, CreateAdvancePaymentResponse } from "../types/advancePayment";
 import { fetchAdvancePayments, addAdvancePayment, fetchAllTimeTotals } from "../thunks/advancePaymentThunks";
 
 interface AdvancePaymentState {
@@ -87,15 +87,16 @@ const advancePaymentSlice = createSlice({
 
     builder.addCase(
       addAdvancePayment.fulfilled,
-      (state, action: PayloadAction<{ success: boolean; payment: AdvancePayment; totalAdvance: number; totalSalaryPaid: number; balance: number }>) => {
+      (state, action: PayloadAction<CreateAdvancePaymentResponse>) => {
         state.loading = false;
         state.payments.unshift(action.payload.payment);
+        state.total += 1;
         state.totalAdvance = action.payload.totalAdvance;
         state.totalSalaryPaid = action.payload.totalSalaryPaid;
         state.balance = action.payload.balance;
-        state.allTimeAdvance = action.payload.totalAdvance;
-        state.allTimeSalaryPaid = action.payload.totalSalaryPaid;
-        state.allTimeBalance = action.payload.balance;
+        state.allTimeAdvance = action.payload.allTimeAdvance ?? action.payload.totalAdvance;
+        state.allTimeSalaryPaid = action.payload.allTimeSalaryPaid ?? action.payload.totalSalaryPaid;
+        state.allTimeBalance = action.payload.allTimeBalance ?? action.payload.balance;
       },
     );
 

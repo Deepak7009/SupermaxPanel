@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, FormEvent } from "react";
+import { useState, useEffect, useMemo, FormEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -16,6 +16,11 @@ import Button from "@/components/common/Button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, PackagePlus, IndianRupee, Ruler } from "lucide-react";
+
+const featuredOptions = [
+  { label: "Yes", value: "yes" },
+  { label: "No",  value: "no"  },
+];
 
 const SectionHeader = ({
   icon: Icon,
@@ -102,11 +107,10 @@ const AddProductPage = () => {
     }
   };
 
-  const categoryOptions = categories.map((c) => ({ label: c.name, value: c._id }));
-  const featuredOptions = [
-    { label: "Yes", value: "yes" },
-    { label: "No",  value: "no"  },
-  ];
+  const categoryOptions = useMemo(
+    () => categories.map((c) => ({ label: c.name, value: c._id })),
+    [categories]
+  );
 
   return (
     <div className="bg-[var(--background)] text-[var(--foreground)] pb-24 md:pb-6">

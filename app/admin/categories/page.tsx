@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
 
 import { fetchCategories } from "@/redux/thunks/categoryThunks";
+import { useDebounce } from "@/hooks/useDebounce";
 import { Category } from "@/redux/types/category";
 
 import Button from "@/components/common/Button";
@@ -27,6 +28,7 @@ const CategoriesPage = () => {
   );
 
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 400);
   const [parentFilter, setParentFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [parentOptions, setParentOptions] = useState<{ label: string; value: string }[]>([]);
@@ -49,18 +51,18 @@ const CategoriesPage = () => {
   useEffect(() => {
     dispatch(
       fetchCategories({
-        search,
+        search: debouncedSearch,
         parent: parentFilter || undefined,
         page: currentPage,
         limit: 10,
       }),
     );
-  }, [dispatch, search, parentFilter, currentPage]);
+  }, [dispatch, debouncedSearch, parentFilter, currentPage]);
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, parentFilter]);
+  }, [debouncedSearch, parentFilter]);
 
   const columns: Column<Category>[] = [
     {

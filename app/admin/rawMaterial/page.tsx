@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
 import { fetchRawMaterials } from "@/redux/thunks/rawMaterialThunks";
+import { useDebounce } from "@/hooks/useDebounce";
 import { setPage } from "@/redux/slices/rawMaterialSlice";
 
 import Button from "@/components/common/Button";
@@ -37,6 +38,7 @@ const RawMaterialPage = () => {
   const totalPages = Math.ceil(total / limit);
 
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 400);
   const [status, setStatus] = useState<"all" | MaterialStatus>("all");
   const [month, setMonth] = useState<number>(new Date().getMonth() + 1);
   const [year, setYear] = useState<number>(new Date().getFullYear());
@@ -52,17 +54,21 @@ const RawMaterialPage = () => {
   } | null>(null);
 
   useEffect(() => {
+    dispatch(setPage(1));
+  }, [debouncedSearch, dispatch]);
+
+  useEffect(() => {
     dispatch(
       fetchRawMaterials({
         page,
         limit,
-        search,
+        search: debouncedSearch,
         status: status === "all" ? undefined : status,
         month,
         year,
       }),
     );
-  }, [dispatch, page, limit, search, status, month, year]);
+  }, [dispatch, page, limit, debouncedSearch, status, month, year]);
 
   const handleSort = (key: keyof MaterialRow) => {
     if (sortConfig?.key === key) {
@@ -121,10 +127,7 @@ const RawMaterialPage = () => {
         <Input
           placeholder="Search material..."
           value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            dispatch(setPage(1));
-          }}
+          onChange={(e) => setSearch(e.target.value)}
         />
 
         <Select

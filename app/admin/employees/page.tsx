@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { RootState, AppDispatch } from "@/redux/store";
 import { fetchEmployees } from "@/redux/thunks/employeeThunk";
+import { useDebounce } from "@/hooks/useDebounce";
 import { setPage } from "@/redux/slices/employeeSlice";
 import { Employee } from "@/redux/types/employee";
 
@@ -25,18 +26,19 @@ const EmployeesPage = () => {
   );
 
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 400);
   const [addEmployeeOpen, setAddEmployeeOpen] = useState(false);
 
   const totalPages = Math.ceil(total / limit);
 
-  // Reset to page 1 when search changes
+  // Reset to page 1 when debouncedSearch changes
   useEffect(() => {
     dispatch(setPage(1));
-  }, [search, dispatch]);
+  }, [debouncedSearch, dispatch]);
 
   useEffect(() => {
-    dispatch(fetchEmployees({ search, page, limit }));
-  }, [search, page, limit, dispatch]);
+    dispatch(fetchEmployees({ search: debouncedSearch, page, limit }));
+  }, [debouncedSearch, page, limit, dispatch]);
 
   const columns: Column<Employee>[] = [
     { key: "_id", label: "#" },

@@ -14,7 +14,6 @@ const senderName  = process.env.BREVO_SENDER_NAME  ?? 'SuperMax Panel';
 const getBrevoClient = (): BrevoClient | null => {
   const apiKey = process.env.BREVO_API_KEY;
   if (!apiKey || apiKey === 'your_brevo_api_key_here') {
-    console.warn('[mailer] BREVO_API_KEY not configured — skipping email');
     return null;
   }
   return new BrevoClient({ apiKey });
@@ -23,11 +22,18 @@ const getBrevoClient = (): BrevoClient | null => {
 const generateInvoicePdf = async (html: string): Promise<Buffer> => {
   const browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
+      '--no-first-run',
+      '--no-zygote',
+    ],
   });
   try {
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: 'load' });
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
     const pdf = await page.pdf({
       format: 'A4',
       printBackground: true,
@@ -99,6 +105,12 @@ const sendInvoiceEmail = async (
 ): Promise<void> => {
   if (!order.customerEmail) {
     console.warn('[mailer] skipping invoice — no customer email on order', order._id);
+    return;
+  }
+
+  // Guard: If Brevo client is not configured, skip expensive PDF generation
+  const client = getBrevoClient();
+  if (!client) {
     return;
   }
 

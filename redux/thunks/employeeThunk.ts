@@ -21,6 +21,8 @@ const fetchEmployees = createAsyncThunk<
       if (params?.search) query.append("search", params.search);
       if (params?.page) query.append("page", params.page.toString());
       if (params?.limit) query.append("limit", params.limit.toString());
+      if (params?.month) query.append("month", params.month.toString());
+      if (params?.year) query.append("year", params.year.toString());
 
       const { data } = await axios.get<FetchEmployeesResponse>(
         `/api/employees?${query.toString()}`,

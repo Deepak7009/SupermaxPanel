@@ -26,8 +26,8 @@ export interface FetchRawMaterialsParams {
   page?: number;
   limit?: number;
   status?: string;
-  month?: number;
-  year?: number;
+  month?: number | string;
+  year?: number | string;
 }
 
 export interface CreateRawMaterialPayload {

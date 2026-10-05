@@ -4,7 +4,7 @@ import { useState, useEffect, FormEvent } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/redux/store";
 
-import { addAdvancePayment } from "@/redux/thunks/advancePaymentThunks";
+import { addAdvancePayment, fetchAllTimeTotals } from "@/redux/thunks/advancePaymentThunks";
 import { fetchEmployeeById } from "@/redux/thunks/employeeThunk";
 import { Employee } from "@/redux/types/employee";
 
@@ -23,15 +23,20 @@ interface Props {
 
 const AddAdvancePaymentModal = ({ isOpen, setIsOpen, employee, selectedMonth, selectedYear }: Props) => {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, totalAdvance, totalSalaryPaid } = useSelector(
+  const { loading, totalAdvance, totalSalaryPaid, allTimeAdvance, allTimeSalaryPaid } = useSelector(
     (state: RootState) => state.advancePayment,
   );
 
-  /* total earned from work entries for selected month (only WORK status) */
-  const { totalWorkAmount } = useSelector((state: RootState) => state.work);
+  /* total earned from work entries for selected month (only WORK status) or all-time */
+  const { totalWorkAmount, allTimeTotalWorkAmount } = useSelector((state: RootState) => state.work);
+
+  const isFiltered = Boolean(selectedMonth && selectedMonth !== "all");
+  const earned = isFiltered ? totalWorkAmount : allTimeTotalWorkAmount;
+  const advance = isFiltered ? totalAdvance : allTimeAdvance;
+  const salary = isFiltered ? totalSalaryPaid : allTimeSalaryPaid;
 
   /* net to pay = work earned − advance given − salary already paid */
-  const netToPay = Math.max(0, totalWorkAmount - totalAdvance - totalSalaryPaid);
+  const netToPay = Math.max(0, earned - advance - salary);
 
   const [type, setType] = useState<"ADVANCE" | "SALARY_PAYMENT">("ADVANCE");
   const [amount, setAmount] = useState("");
@@ -65,6 +70,9 @@ const AddAdvancePaymentModal = ({ isOpen, setIsOpen, employee, selectedMonth, se
       return;
     }
 
+    const activeMonth = selectedMonth && selectedMonth !== "all" ? selectedMonth : undefined;
+    const activeYear = activeMonth ? selectedYear : undefined;
+
     const result = await dispatch(
       addAdvancePayment({
         employee: employee._id,
@@ -72,12 +80,15 @@ const AddAdvancePaymentModal = ({ isOpen, setIsOpen, employee, selectedMonth, se
         amount: Number(amount),
         date,
         note: note || undefined,
+        month: activeMonth,
+        year: activeYear,
       }),
     );
 
     if (addAdvancePayment.fulfilled.match(result)) {
-      /* re-fetch employee so profile card counters (advancePayment/paidPayment) stay in sync */
+      /* re-fetch employee and all-time totals so profile card counters stay in sync */
       dispatch(fetchEmployeeById(employee._id));
+      dispatch(fetchAllTimeTotals(employee._id));
       setIsOpen(false);
     }
   };

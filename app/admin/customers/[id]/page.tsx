@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
 import { fetchCustomerDetailThunk } from "@/redux/thunks/customerThunks";
+import { useDebounce } from "@/hooks/useDebounce";
 import { Card } from "@/components/ui/card";
 import Table, { Column } from "@/components/common/Table";
 import { Mail, Phone, ShoppingBag, Eye } from "lucide-react";
@@ -41,15 +42,16 @@ const CustomerDetailPage = () => {
   );
 
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 400);
   const [page, setPage] = useState(1);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const PAGE_SIZE = 5;
 
-  // All pagination and filtering is server-side; reset to page 1 when search changes
+  // All pagination and filtering is server-side; reset to page 1 when debouncedSearch changes
   useEffect(() => {
     setPage(1);
-  }, [search]);
+  }, [debouncedSearch]);
 
   useEffect(() => {
     if (!id) return;
@@ -59,12 +61,12 @@ const CustomerDetailPage = () => {
         id,
         orderPage: page,
         orderLimit: PAGE_SIZE,
-        orderSearch: search,
+        orderSearch: debouncedSearch,
         sortKey: "createdAt",
         sortDirection: "desc",
       })
     );
-  }, [dispatch, id, page, search]);
+  }, [dispatch, id, page, debouncedSearch]);
 
   if (loading) return <div className="p-6">Loading...</div>;
   if (error) return <div className="p-6 text-[var(--text-error)]">{error}</div>;

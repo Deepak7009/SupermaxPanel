@@ -133,6 +133,8 @@ const getOrders = async (req: NextRequest) => {
     const status = url.searchParams.get("status") || "";
     const page = Number(url.searchParams.get("page") || "1");
     const limit = Number(url.searchParams.get("limit") || "10");
+    const month = url.searchParams.get("month");
+    const year = url.searchParams.get("year");
 
     if (id) {
       const order = await Order.findOne({ _id: id, userId }).populate("items.product");
@@ -142,20 +144,39 @@ const getOrders = async (req: NextRequest) => {
       return NextResponse.json({ success: true, order });
     }
 
-    const query: FilterQuery<IOrder> = { userId };
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const query: FilterQuery<IOrder> = { userId: userObjectId };
     if (status) query.status = status;
     if (search) {
       const regex = new RegExp(search, "i");
       query.$or = [{ customerName: regex }, { customerEmail: regex }];
     }
+    if (month && year) {
+      const start = new Date(Number(year), Number(month) - 1, 1);
+      const end = new Date(Number(year), Number(month), 0, 23, 59, 59, 999);
+      query.createdAt = { $gte: start, $lte: end };
+    } else if (year) {
+      const start = new Date(Number(year), 0, 1);
+      const end = new Date(Number(year), 11, 31, 23, 59, 59, 999);
+      query.createdAt = { $gte: start, $lte: end };
+    }
 
     const skip = (page - 1) * limit;
 
-    const userObjectId = new mongoose.Types.ObjectId(userId);
     const baseQuery: FilterQuery<IOrder> = { userId: userObjectId };
+    if (status) baseQuery.status = status;
     if (search) {
       const regex = new RegExp(search, "i");
       baseQuery.$or = [{ customerName: regex }, { customerEmail: regex }];
+    }
+    if (month && year) {
+      const start = new Date(Number(year), Number(month) - 1, 1);
+      const end = new Date(Number(year), Number(month), 0, 23, 59, 59, 999);
+      baseQuery.createdAt = { $gte: start, $lte: end };
+    } else if (year) {
+      const start = new Date(Number(year), 0, 1);
+      const end = new Date(Number(year), 11, 31, 23, 59, 59, 999);
+      baseQuery.createdAt = { $gte: start, $lte: end };
     }
 
     const [orders, total, amountAgg] = await Promise.all([

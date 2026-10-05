@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { RootState, AppDispatch } from "@/redux/store";
 import { fetchProducts } from "@/redux/thunks/productThunks";
+import { useDebounce } from "@/hooks/useDebounce";
 import { fetchCategories } from "@/redux/thunks/categoryThunks";
 import CategoryModal from "@/components/modals/CategoryModal";
 import { Product } from "@/redux/types/product";
@@ -32,6 +33,7 @@ const ProductsPage = () => {
 
   const [addCategoryOpen, setAddCategoryOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 400);
   const [categoryFilter, setCategoryFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
@@ -41,21 +43,21 @@ const ProductsPage = () => {
     dispatch(fetchCategories({ limit: 500 }));
   }, [dispatch]);
 
-  // Reset to page 1 when search or category filter changes
+  // Reset to page 1 when debouncedSearch or category filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, categoryFilter]);
+  }, [debouncedSearch, categoryFilter]);
 
   useEffect(() => {
     dispatch(
       fetchProducts({
-        search,
+        search: debouncedSearch,
         category: categoryFilter || undefined,
         page: currentPage,
         limit: limit,
       }),
     );
-  }, [dispatch, search, categoryFilter, currentPage, limit]);
+  }, [dispatch, debouncedSearch, categoryFilter, currentPage, limit]);
 
   const handleSort = (key: keyof Product) => {
     if (sortConfig?.key === key) {
